@@ -17,28 +17,34 @@ export default async function handler(req, res) {
   }
 
   const promptText = `
-તમે કૃષિ વૈજ્ઞાનિક છો. બનાસકાંઠા વિસ્તારના સંદર્ભમાં આ પાંદડાનું વિશ્લેષણ કરો.
-પ્રશ્ન: "${query || 'આમાં કયો રોગ છે અને ઉપાય શું?'}"
+તમે કૃષિ વૈજ્ઞાનિક છો. બનાસકાંઠા (વાવ, થરાદ, ધરણીધર) વિસ્તારના મુખ્ય પાકોના સંદર્ભમાં આ પાંદડાનું વિશ્લેષણ કરો.
+ખેડૂતનો પ્રશ્ન: "${query || 'આ પાંદડામાં કયો રોગ છે અને ઉપાય શું?'}"
 
 જવાબ માત્ર નીચે મુજબના JSON ફોર્મેટમાં જ આપવો:
 {
   "crop_name": "પાકનું નામ",
   "disease_name": "રોગનું સચોટ નામ",
-  "severity": "રોગની તીવ્રતા",
+  "severity": "રોગની તીવ્રતા (ઓછી / મધ્યમ / ગંભીર)",
   "symptoms": "મુખ્ય લક્ષણો",
-  "chemical_treatment": "રાસાયણિક દવા અને પ્રમાણ",
+  "chemical_treatment": "રાસાયણિક દવા અને છંટકાવનું પ્રમાણ",
   "organic_treatment": "દેશી અને જૈવિક ઉપાયો",
   "prevention": "સાવચેતીનાં પગલાં"
 }
-નોંધ: કોઈ પણ વધારાના લખાણ વગર માત્ર શુદ્ધ JSON જ આપવો.
+નોંધ: કોઈ પણ વધારાના લખાણ કે માર્કડાઉન વગર માત્ર શુદ્ધ JSON જ આપવો.
 `;
 
-  // સક્રિય મોડેલ
-  const model = "gemini-3.5-flash-lite";
+  // ટ્રાફિકથી બચવા માટે ક્રમિક મોડેલ્સનું લિસ્ટ
+  const candidateModels = [
+    "gemini-2.5-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-2.5-pro",
+    "gemini-3.8-flash"
+  ];
+
   let finalJson = null;
   let lastError = "";
 
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  for (let model of candidateModels) {
     try {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: "POST",
@@ -64,21 +70,21 @@ export default async function handler(req, res) {
         let rawText = data.candidates[0].content.parts[0].text.trim();
         rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
         finalJson = JSON.parse(rawText);
-        break;
+        break; // સફળતા મળતાં જ લૂપ પૂરી થશે
       } else if (data.error) {
         lastError = data.error.message;
-        await wait(2000);
+        // જો મોડેલ પર ટ્રાફિક હોય તો 1 સેકન્ડ થોભીને લિસ્ટના આગળના મોડેલ પર જવું
+        await wait(1000);
       }
     } catch (err) {
       lastError = err.message;
-      await wait(2000);
+      await wait(1000);
     }
   }
 
   if (finalJson) {
     return res.status(200).json({ success: true, data: finalJson });
   } else {
-    // અસલ ભૂલ સીધી જ રિટર્ન થશે
-    return res.status(500).json({ success: false, error: lastError || "API માંથી કોઈ ડેટા મળ્યો નથી." });
+    return res.status(500).json({ success: false, error: lastError || "મોડેલ વ્યસ્ત હોવાથી પરિણામ મળી શક્યું નથી." });
   }
 }
