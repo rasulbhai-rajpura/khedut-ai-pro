@@ -33,12 +33,11 @@ export default async function handler(req, res) {
 `;
 
   // સક્રિય અને સપોર્ટેડ મોડેલ્સની અદ્યતન યાદી
-  const models = [
-    "gemini-2.5-flash",
-    "gemini-2.5-flash-lite",
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-lite"
+    const models = [
+    "gemini-3.5-flash-lite",
+    "gemini-3.8-flash"
   ];
+
 
   let finalJson = null;
   let lastError = "";
