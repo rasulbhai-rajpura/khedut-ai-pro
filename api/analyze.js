@@ -32,12 +32,12 @@ export default async function handler(req, res) {
 નોંધ: કોઈ પણ વધારાના લખાણ કે બેકટિક્સ (\`\`\`json) વગર માત્ર શુદ્ધ JSON જ પરત કરવો.
 `;
 
-  // બેકઅપ સાથેના સ્ટેબલ મોડેલ્સની યાદી
+  // સક્રિય અને સપોર્ટેડ મોડેલ્સની અદ્યતન યાદી
   const models = [
     "gemini-2.5-flash",
-    "gemini-2.0-flash",
     "gemini-2.5-flash-lite",
-    "gemini-1.5-flash"
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite"
   ];
 
   let finalJson = null;
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
         let rawText = data.candidates[0].content.parts[0].text.trim();
         rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
         finalJson = JSON.parse(rawText);
-        break; // સફળતાપૂર્વક જવાબ મળતાં જ લૂપ પૂરી થશે
+        break; // યોગ્ય પરિણામ મળતાં લૂપ સફળતાપૂર્વક પૂર્ણ થશે
       } else if (data.error) {
         lastError = data.error.message;
       }
@@ -81,6 +81,6 @@ export default async function handler(req, res) {
   if (finalJson) {
     return res.status(200).json({ success: true, data: finalJson });
   } else {
-    return res.status(500).json({ success: false, error: lastError || "મોડેલ વ્યસ્ત હોવાથી પરિણામ મળી શક્યું નથી. કૃપા કરીને ફરી પ્રયાસ કરો." });
+    return res.status(500).json({ success: false, error: lastError || "વિશ્લેષણ કરવામાં મુશ્કેલી આવી." });
   }
 }
