@@ -34,8 +34,7 @@ export default async function handler(req, res) {
 
   // વારાફરતી પ્રયાસ કરવા માટે સક્રિય મોડેલ્સની લિસ્ટ
   const candidateModels = [
-    "gemini-3.5-flash-lite",
-    "gemini-3.8-flash"
+    "gemini-3.5-flash-lite"
   ];
 
   let finalJson = null;
