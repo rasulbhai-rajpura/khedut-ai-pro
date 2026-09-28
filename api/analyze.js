@@ -1,4 +1,3 @@
-// થોડી સેકન્ડ રાહ જોવા માટેનું ફંક્શન
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default async function handler(req, res) {
@@ -18,29 +17,28 @@ export default async function handler(req, res) {
   }
 
   const promptText = `
-તમે એક કૃષિ વૈજ્ઞાનિક અને પાક રોગ સંરક્ષણ નિષ્ણાત છો.
-બનાસકાંઠા (વાવ, થરાદ, ધરણીધર) વિસ્તારના મુખ્ય પાકોના સંદર્ભમાં આ પાંદડાનું વિશ્લેષણ કરો.
-ખેડૂતનો પ્રશ્ન: "${query || 'આ પાંદડામાં કયો રોગ છે અને તેનો ઉપાય શું?'}"
+તમે કૃષિ વૈજ્ઞાનિક છો. બનાસકાંઠા વિસ્તારના સંદર્ભમાં આ પાંદડાનું વિશ્લેષણ કરો.
+પ્રશ્ન: "${query || 'આમાં કયો રોગ છે અને ઉપાય શું?'}"
 
 જવાબ માત્ર નીચે મુજબના JSON ફોર્મેટમાં જ આપવો:
 {
   "crop_name": "પાકનું નામ",
   "disease_name": "રોગનું સચોટ નામ",
-  "severity": "રોગની તીવ્રતા (ઓછી / મધ્યમ / ગંભીર)",
-  "symptoms": "મુખ્ય લક્ષણો અને કારણો",
+  "severity": "રોગની તીવ્રતા",
+  "symptoms": "મુખ્ય લક્ષણો",
   "chemical_treatment": "રાસાયણિક દવા અને પ્રમાણ",
   "organic_treatment": "દેશી અને જૈવિક ઉપાયો",
   "prevention": "સાવચેતીનાં પગલાં"
 }
-નોંધ: કોઈ પણ વધારાના લખાણ કે માર્કડાઉન વગર માત્ર શુદ્ધ JSON જ આપવો.
+નોંધ: કોઈ પણ વધારાના લખાણ વગર માત્ર શુદ્ધ JSON જ આપવો.
 `;
 
+  // સક્રિય મોડેલ
   const model = "gemini-3.5-flash-lite";
   let finalJson = null;
   let lastError = "";
 
-  // જો ટ્રાફિક હોય તો સિસ્ટમ જાતે ૩ વાર પ્રયાસ કરશે
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: "POST",
@@ -66,21 +64,21 @@ export default async function handler(req, res) {
         let rawText = data.candidates[0].content.parts[0].text.trim();
         rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
         finalJson = JSON.parse(rawText);
-        break; // સફળતા મળતાં લૂપમાંથી બહાર નીકળી જવું
+        break;
       } else if (data.error) {
         lastError = data.error.message;
-        // જો ટ્રાફિકની એરર હોય તો ૨.૫ સેકન્ડ થોભીને ફરી જાતે ટ્રાય કરવો
-        await wait(2500);
+        await wait(2000);
       }
     } catch (err) {
       lastError = err.message;
-      await wait(2500);
+      await wait(2000);
     }
   }
 
   if (finalJson) {
     return res.status(200).json({ success: true, data: finalJson });
   } else {
-    return res.status(500).json({ success: false, error: "સર્વર પર ક્ષણિક ટ્રાફિક વધુ છે, કૃપા કરીને 5 સેકન્ડ પછી બટન દબાવો." });
+    // અસલ ભૂલ સીધી જ રિટર્ન થશે
+    return res.status(500).json({ success: false, error: lastError || "API માંથી કોઈ ડેટા મળ્યો નથી." });
   }
 }
