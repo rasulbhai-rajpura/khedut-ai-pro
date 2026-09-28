@@ -15,34 +15,33 @@ export default async function handler(req, res) {
   }
 
   const promptText = `
-તમે એક સર્વોચ્ચ કૃષિ વૈજ્ઞાનિક અને પાક રોગ સંરક્ષણ નિષ્ણાત છો.
-ખાસ કરીને બનાસકાંઠા (વાવ, થરાદ, ધરણીધર) વિસ્તારના મુખ્ય પાકો (જીરું, રાયડો, મગફળી, કપાસ, દાડમ, એરંડા) ના સંદર્ભમાં આ રોગિષ્ટ પાંદડાનું વિશ્લેષણ કરો.
+તમે એક કૃષિ વૈજ્ઞાનિક અને પાક રોગ સંરક્ષણ નિષ્ણાત છો.
+બનાસકાંઠા (વાવ, થરાદ, ધરણીધર) વિસ્તારના સંદર્ભમાં આ પાંદડાનું વિશ્લેષણ કરો.
 ખેડૂતનો પ્રશ્ન: "${query || 'આ પાંદડામાં કયો રોગ છે અને તેનો ઉપાય શું?'}"
 
-જવાબ સંપૂર્ણપણે સરળ અને શુદ્ધ ગુજરાતી ભાષામાં, નીચે મુજબના વેલિડ JSON ફોર્મેટમાં જ આપો:
+જવાબ માત્ર નીચે મુજબના JSON ફોર્મેટમાં જ આપવો:
 {
   "crop_name": "પાકનું નામ",
   "disease_name": "રોગનું સચોટ નામ",
   "severity": "રોગની તીવ્રતા (ઓછી / મધ્યમ / ગંભીર)",
-  "symptoms": "મુખ્ય લક્ષણો અને રોગ થવાના કારણો",
-  "chemical_treatment": "તાત્કાલિક રાસાયણિક દવાની ભલામણ અને છંટકાવનું પ્રમાણ",
-  "organic_treatment": "દેશી/જૈવિક ઉપાયો (દા.ત. લીમડાનું અર્ક, ગૌમૂત્ર, ખાટી છાશ વગેરે)",
-  "prevention": "ભવિષ્યમાં રોગ ન ફેલાય તે માટે સાવચેતીનાં પગલાં"
+  "symptoms": "મુખ્ય લક્ષણો અને કારણો",
+  "chemical_treatment": "રાસાયણિક દવા અને પ્રમાણ",
+  "organic_treatment": "દેશી અને જૈવિક ઉપાયો",
+  "prevention": "સાવચેતીનાં પગલાં"
 }
-નોંધ: કોઈ પણ વધારાના લખાણ કે બેકટિક્સ (\`\`\`json) વગર માત્ર શુદ્ધ JSON જ પરત કરવો.
+નોંધ: કોઈ પણ વધારાના લખાણ કે માર્કડાઉન વગર માત્ર શુદ્ધ JSON જ આપવો.
 `;
 
-  // સક્રિય અને સપોર્ટેડ મોડેલ્સની અદ્યતન યાદી
-    const models = [
+  // વારાફરતી પ્રયાસ કરવા માટે સક્રિય મોડેલ્સની લિસ્ટ
+  const candidateModels = [
     "gemini-3.5-flash-lite",
     "gemini-3.8-flash"
   ];
 
-
   let finalJson = null;
   let lastError = "";
 
-  for (let model of models) {
+  for (let model of candidateModels) {
     try {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: "POST",
@@ -64,22 +63,28 @@ export default async function handler(req, res) {
 
       const data = await response.json();
 
-      if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+      // જો સફળતાપૂર્વક જવાબ મળી જાય
+      if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
         let rawText = data.candidates[0].content.parts[0].text.trim();
         rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
         finalJson = JSON.parse(rawText);
-        break; // યોગ્ય પરિણામ મળતાં લૂપ સફળતાપૂર્વક પૂર્ણ થશે
-      } else if (data.error) {
+        break; // જવાબ મળી ગયો એટલે લૂપમાંથી બહાર નીકળી જવું
+      } 
+      
+      // જો ગૂગલ તરફથી હાઈ ડિમાન્ડ કે અન્ય એરર આવે તો ભૂલ નોંધી આગળના મોડેલ પર જવું
+      if (data.error) {
         lastError = data.error.message;
+        continue;
       }
     } catch (err) {
       lastError = err.message;
+      continue;
     }
   }
 
   if (finalJson) {
     return res.status(200).json({ success: true, data: finalJson });
   } else {
-    return res.status(500).json({ success: false, error: lastError || "વિશ્લેષણ કરવામાં મુશ્કેલી આવી." });
+    return res.status(500).json({ success: false, error: lastError || "સર્વર વ્યસ્ત છે. કૃપા કરીને 5 સેકન્ડ પછી ફરી પ્રયાસ કરો." });
   }
 }
