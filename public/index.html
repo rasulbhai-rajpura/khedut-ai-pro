@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI ખેડૂત મિત્ર - શ્રી પાનસડા અનુપમ પ્રાથમિક શાળા</title>
+  <style>
+    :root {
+      --primary: #1b5e20;
+      --accent: #2e7d32;
+      --bg: #f4f7f4;
+      --card: #ffffff;
+      --text: #212121;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 12px;
+    }
+    .container {
+      max-width: 750px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .header {
+      text-align: center;
+      border-bottom: 2px dashed #a5d6a7;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+    .school-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--primary);
+      margin: 0;
+    }
+    .sub-title {
+      font-size: 14px;
+      color: #555;
+      margin: 4px 0;
+    }
+    .badge {
+      display: inline-block;
+      background: #e8f5e9;
+      color: var(--primary);
+      font-weight: bold;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      margin-top: 8px;
+    }
+    .mentor {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      margin-top: 6px;
+    }
+    .upload-box {
+      border: 2px dashed var(--accent);
+      background: #fafdfa;
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .upload-box:hover {
+      background: #f1f8e9;
+    }
+    #preview-img {
+      max-width: 100%;
+      max-height: 250px;
+      border-radius: 10px;
+      margin-top: 15px;
+      display: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .voice-input-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .btn-mic {
+      background: #e0f2f1;
+      border: 1px solid #80cbc4;
+      border-radius: 8px;
+      padding: 0 16px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .btn-mic.recording {
+      background: #ffcdd2;
+      border-color: #e57373;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    .btn-submit {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 16px;
+      box-shadow: 0 4px 12px rgba(27,94,32,0.25);
+    }
+    .btn-submit:disabled {
+      background-color: #a5d6a7;
+      cursor: not-allowed;
+    }
+    /* પરિણામ ડેશબોર્ડ */
+    #report-section {
+      display: none;
+      margin-top: 25px;
+    }
+    .action-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .btn-action {
+      border: none;
+      padding: 9px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-speak {
+      background: #fff8e1;
+      color: #f57f17;
+      border: 1px solid #ffe082;
+    }
+    .btn-print {
+      background: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #90caf9;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      border-left: 6px solid var(--accent);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    }
+    .card-title {
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+    .card-desc {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #333;
+    }
+    .severity-tag {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      background: #ffebee;
+      color: #c62828;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 13px;
+      color: #777;
+    }
+    /* પ્રિન્ટ માટેનું સ્ટાઇલિંગ */
+    @media print {
+      body { background: white; padding: 0; }
+      .container { box-shadow: none; padding: 0; max-width: 100%; }
+      .upload-box, .voice-input-group, .btn-submit, .action-toolbar, .btn-mic, .footer { display: none !important; }
+      #report-section { display: block !important; }
+      .card { border: 1px solid #ccc; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="school-title">🌱 શ્રી પાનસડા અનુપમ પ્રાથમિક શાળા</div>
+    <div class="sub-title">તા. ધરણીધર | જિ. વાવ-થરાદ</div>
+    <div class="badge">AI ખેડૂત મિત્ર (પાક રોગ નિદાન સિસ્ટમ)</div>
+    <div class="mentor">માર્ગદર્શક: શ્રી રાજપુરા રસુલભાઈ</div>
+  </div>
+
+  <!-- અપલોડ સેક્શન -->
+  <div class="upload-box" onclick="document.getElementById('imageInput').click()">
+    <div style="font-size: 36px;">📸</div>
+    <div style="font-weight: bold; font-size: 16px; margin-top: 6px;">પાક અથવા રોગિષ્ટ પાંદડાનો ફોટો પાડો / અપલોડ કરો</div>
+    <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleImage(event)">
+    <center><img id="preview-img" alt="પાંદડાનો ફોટો"></center>
+  </div>
+
+  <!-- બોલીને પ્રશ્ન પૂછવાની સુવિધા -->
+  <div class="voice-input-group">
+    <input type="text" id="userQuery" placeholder="પ્રશ્ન લખો અથવા બાજુનું માઇક દબાવી બોલો...">
+    <button class="btn-mic" id="micBtn" type="button" onclick="toggleSpeech()" title="બોલીને લખો">🎤</button>
+  </div>
+
+  <button id="analyzeBtn" class="btn-submit" onclick="analyzeCrop()">🔍 AI દ્વારા રોગનું સચોટ નિદાન કરો</button>
+
+  <!-- કાર્ડ લેઆઉટ રિપોર્ટ -->
+  <div id="report-section">
+    <div class="action-toolbar">
+      <span style="font-weight: bold; font-size: 18px; color: var(--primary);">📋 ડિજિટલ નિદાન અહેવાલ</span>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn-action btn-speak" onclick="speakResult()">🔊 ગુજરાતીમાં સાંભળો</button>
+        <button class="btn-action btn-print" onclick="window.print()">🖨️ રિપોર્ટ પ્રિન્ટ / PDF</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-left-color: #2e7d32;">
+      <div class="card-title" style="color: #2e7d32;">🌾 પાક અને રોગનું નામ:</div>
+      <div class="card-desc" id="res-disease">--</div>
+    </div>
+
+    <div class="card" style="border-left-color: #f57c00;">
+      <div class="card-title" style="color: #f57c00;">🔍 મુખ્ય લક્ષણો અને રોગ થવાના કારણો:</div>
+      <div class="card-desc" id="res-symptoms">--</div>
+    </div>
+
+    <div class="card" style="border-left-color: #d32f2f;">
+      <div class="card-title" style="color: #d32f2f;">💊 રાસાયણિક દવાની ભલામણ (ત્વરિત ઈલાજ):</div>
+      <div class="card-desc" id="res-chemical">--</div>
+    </div>
+
+    <div class="card" style="border-left-color: #388e3c;">
+      <div class="card-title" style="color: #388e3c;">🌿 દેશી અને જૈવિક ઉપાયો (ઓર્ગેનિક):</div>
+      <div class="card-desc" id="res-organic">--</div>
+    </div>
+
+    <div class="card" style="border-left-color: #1976d2;">
+      <div class="card-title" style="color: #1976d2;">🛡️ આગોતરી સાવચેતી અને સલાહ:</div>
+      <div class="card-desc" id="res-prevention">--</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    ગણિત-વિજ્ઞાન અને પર્યાવરણ પ્રદર્શન | શ્રી પાનસડા અનુપમ પ્રાથમિક શાળા
+  </div>
+</div>
+
+<script>
+  let base64Image = null;
+  let fullVoiceText = "";
+  let recognition = null;
+  let isRecording = false;
+
+  function handleImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('preview-img');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        base64Image = e.target.result.split(',')[1];
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // ૧. માઇક દ્વારા બોલીને લખવું (Speech-to-Text)
+  function toggleSpeech() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert("તમારા બ્રાઉઝરમાં માઇક સુવિધા ઉપલબ્ધ નથી. કૃપા કરીને ટાઇપ કરો.");
+      return;
+    }
+
+    const micBtn = document.getElementById('micBtn');
+
+    if (!recognition) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'gu-IN';
+      recognition.continuous = false;
+
+      recognition.onresult = function(e) {
+        document.getElementById('userQuery').value = e.results[0][0].transcript;
+        stopRecording();
+      };
+      recognition.onerror = function() {
+        stopRecording();
+      };
+      recognition.onend = function() {
+        stopRecording();
+      };
+    }
+
+    if (!isRecording) {
+      recognition.start();
+      isRecording = true;
+      micBtn.classList.add('recording');
+      micBtn.innerText = "🛑";
+    } else {
+      recognition.stop();
+      stopRecording();
+    }
+  }
+
+  function stopRecording() {
+    isRecording = false;
+    const micBtn = document.getElementById('micBtn');
+    micBtn.classList.remove('recording');
+    micBtn.innerText = "🎤";
+  }
+
+  // ૨. ગુજરાતીમાં બોલીને સંભળાવવું (Text-to-Speech)
+  function speakResult() {
+    if ('speechSynthesis' in window && fullVoiceText) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(fullVoiceText);
+      utterance.lang = 'gu-IN';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert("અવાજ માટે માહિતી ઉપલબ્ધ નથી.");
+    }
+  }
+
+  // ૩. સર્વરલેસ બેકએન્ડ API કોલ
+  async function analyzeCrop() {
+    const query = document.getElementById('userQuery').value.trim();
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const reportSection = document.getElementById('report-section');
+
+    if (!base64Image) {
+      alert("કૃપા કરીને પહેલા રોગિષ્ટ પાંદડાનો ફોટો અપલોડ કરો.");
+      return;
+    }
+
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerText = "⏳ AI ઊંડાણપૂર્વક નિદાન કરી રહ્યું છે...";
+    reportSection.style.display = 'none';
+
+    try {
+      const response = await fetch('/api/analyze', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64: base64Image, query: query })
+      });
+
+      const res = await response.json();
+
+      if (response.ok && res.success) {
+        const d = res.data;
+
+        document.getElementById('res-disease').innerHTML = `<b>${d.crop_name}</b> પાકમાં <b>${d.disease_name}</b> <span class="severity-tag">તીવ્રતા: ${d.severity}</span>`;
+        document.getElementById('res-symptoms').innerText = d.symptoms;
+        document.getElementById('res-chemical').innerText = d.chemical_treatment;
+        document.getElementById('res-organic').innerText = d.organic_treatment;
+        document.getElementById('res-prevention').innerText = d.prevention;
+
+        fullVoiceText = `આ ${d.crop_name} નો પાક છે. તેમાં ${d.disease_name} જણાય છે. દવા માટે ${d.chemical_treatment}. દેશી ઉપાયમાં ${d.organic_treatment}.`;
+
+        reportSection.style.display = 'block';
+      } else {
+        alert("ભૂલ: " + (res.error || "માહિતી મળી શકી નથી."));
+      }
+    } catch (err) {
+      alert("નેટવર્ક કનેક્શનમાં ક્ષતિ આવી. કૃપા કરીને ઇન્ટરનેટ તપાસો.");
+    } finally {
+      analyzeBtn.disabled = false;
+      analyzeBtn.innerText = "🔍 AI દ્વારા રોગનું સચોટ નિદાન કરો";
+    }
+  }
+</script>
+
+</body>
+</html>
