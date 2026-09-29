@@ -26,19 +26,39 @@
       display: inline-block; background: rgba(255,255,255,0.2);
       padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-top: 6px;
     }
-    .nav-tabs {
-      display: flex; overflow-x: auto; gap: 8px; padding: 12px 10px;
-      background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      position: sticky; top: 0; z-index: 100;
+
+    /* ૩-૩ બટન ઉપર નીચે (2 હરોળમાં) ગોઠવવાની ગ્રીડ */
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px 10px;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
     .nav-btn {
-      white-space: nowrap; border: 1px solid #dcedc8; background: #f1f8e9;
-      color: var(--primary-dark); padding: 8px 14px; border-radius: 20px;
-      font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;
+      border: 1px solid #c8e6c9;
+      background: #f1f8e9;
+      color: var(--primary-dark);
+      padding: 9px 4px;
+      border-radius: 10px;
+      font-size: 11.5px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      line-height: 1.3;
     }
     .nav-btn.active {
-      background: var(--primary); color: white; border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 2px 5px rgba(46,125,50,0.3);
     }
+
     .container { max-width: 600px; margin: 12px auto; padding: 0 12px; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
@@ -52,9 +72,9 @@
       cursor: pointer; margin-top: 10px;
     }
     .btn-main:disabled { background: #a5d6a7; }
-    input[type="text"] {
+    input[type="text"], select {
       width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;
-      font-size: 14px;
+      font-size: 14px; margin-top: 6px;
     }
     .weather-grid {
       display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;
@@ -80,13 +100,14 @@
     <div class="school-tag">શ્રી પાનસડા અનુપમ પ્રાથમિક શાળા | માર્ગદર્શક: શ્રી રાજપુરા રસુલભાઈ</div>
   </div>
 
-  <!-- નેવિગેશન બટન્સ -->
-  <div class="nav-tabs">
-    <button class="nav-btn active" onclick="switchTab('advisor')">🌾 ૧. ખેતી સલાહકાર</button>
-    <button class="nav-btn" onclick="switchTab('weather')">🌦️ ૨. હવામાન સૂચના</button>
-    <button class="nav-btn" onclick="switchTab('disease')">🌿 ૩. પાક રોગ નિદાન</button>
-    <button class="nav-btn" onclick="switchTab('mandi')">💰 ૪. બજાર ભાવ</button>
-    <button class="nav-btn" onclick="switchTab('schemes')">📜 ૫. સહાય યોજનાઓ</button>
+  <!-- ૩ ઉપર અને ૩ નીચે સુંદર બટન ગ્રીડ -->
+  <div class="nav-grid">
+    <button class="nav-btn active" onclick="switchTab('advisor', this)">🌾 ૧. ખેતી સલાહ</button>
+    <button class="nav-btn" onclick="switchTab('planner', this)">🌱 ૨. જમીન & પાક</button>
+    <button class="nav-btn" onclick="switchTab('weather', this)">🌦️ ૩. હવામાન સૂચના</button>
+    <button class="nav-btn" onclick="switchTab('disease', this)">🌿 ૪. પાક રોગ</button>
+    <button class="nav-btn" onclick="switchTab('mandi', this)">💰 ૫. બજાર ભાવ</button>
+    <button class="nav-btn" onclick="switchTab('schemes', this)">📜 ૬. યોજનાઓ</button>
   </div>
 
   <div class="container">
@@ -105,7 +126,41 @@
       <div id="advisorResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૨. હવામાન અને ખેતી સૂચના -->
+    <!-- ૨. જમીન અને પાક આયોજન (નવું ફીચર) -->
+    <div id="tab-planner" class="tab-content">
+      <div class="card">
+        <h3 style="color: var(--primary);">🌱 જમીન, બિયારણ અને ખાતર આયોજન</h3>
+        <p style="font-size: 12px; color: #666; margin-top: 4px;">તમારા ખેતરની વિગત ભરો અને સચોટ ગણતરી મેળવો:</p>
+        
+        <label style="font-size: 13px; font-weight: bold; margin-top: 10px; display: block;">૧. જમીનનો પ્રકાર:</label>
+        <select id="soilType">
+          <option value="ગોરાડુ / રેતાળ ગોરાડુ (બનાસકાંઠા સામાન્ય)">ગોરાડુ / રેતાળ ગોરાડુ જમીન</option>
+          <option value="રેતાળ જમીન">રેતાળ જમીન</option>
+          <option value="મધ્યમ કાળી જમીન">મધ્યમ કાળી જમીન</option>
+          <option value="ભાઠાની / કાંપવાળી જમીન">ભાઠાની / કાંપવાળી જમીન</option>
+          <option value="ક્ષારવાળી / ખારાશવાળી જમીન">ક્ષારવાળી / ખારાશવાળી જમીન</option>
+        </select>
+
+        <label style="font-size: 13px; font-weight: bold; margin-top: 10px; display: block;">૨. પાક પસંદ કરો અથવા લખો:</label>
+        <input type="text" id="planCrop" placeholder="દા.ત. જીરું, રાયડો, એરંડા, દાડમ, બાજરી, ઘઉં...">
+
+        <label style="font-size: 13px; font-weight: bold; margin-top: 10px; display: block;">૩. જમીનનું માપ:</label>
+        <select id="landArea">
+          <option value="1 વીઘો (ગુજરાતી વીઘો - 16 ગુંઠા)">૧ વીઘો</option>
+          <option value="2 વીઘા">૨ વીઘા</option>
+          <option value="3 વીઘા">૩ વીઘા</option>
+          <option value="5 વીઘા">૫ વીઘા</option>
+          <option value="1 એકર (2.5 વીઘા)">૧ એકર</option>
+          <option value="2 એકર">૨ એકર</option>
+        </select>
+
+        <button id="planBtn" class="btn-main" onclick="calculatePlan()">ગણતરી અને માર્ગદર્શન મેળવો 📋</button>
+      </div>
+
+      <div id="planResult" class="result-box" style="display: none;"></div>
+    </div>
+
+    <!-- ૩. હવામાન અને ખેતી સૂચના -->
     <div id="tab-weather" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">🌦️ લાઈવ ખેતર હવામાન અને કૃષિ સલાહ</h3>
@@ -125,7 +180,7 @@
       </div>
     </div>
 
-    <!-- ૩. પાક રોગ નિદાન -->
+    <!-- ૪. પાક રોગ નિદાન -->
     <div id="tab-disease" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">🌿 પાક રોગ નિદાન કેન્દ્ર</h3>
@@ -148,7 +203,7 @@
       <div id="diseaseResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૪. બજાર ભાવ (APMC) -->
+    <!-- ૫. બજાર ભાવ (APMC) -->
     <div id="tab-mandi" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">💰 મુખ્ય માર્કેટ યાર્ડ અંદાજિત ભાવ (૨૦ કિલો / મણ)</h3>
@@ -169,7 +224,7 @@
       </div>
     </div>
 
-    <!-- ૫. સરકારી યોજનાઓ -->
+    <!-- ૬. સરકારી યોજનાઓ -->
     <div id="tab-schemes" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">📜 સરકારી સહાય અને યોજનાઓ (i-Khedut)</h3>
@@ -196,11 +251,11 @@
   <script>
     let base64Image = null;
 
-    function switchTab(tabId) {
+    function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-' + tabId).classList.add('active');
-      event.currentTarget.classList.add('active');
+      if (btn) btn.classList.add('active');
     }
 
     function handleImage(e) {
@@ -258,6 +313,45 @@
       } finally {
         btn.disabled = false;
         btn.innerText = "સલાહ મેળવો 🔍";
+      }
+    }
+
+    async function calculatePlan() {
+      const soil = document.getElementById('soilType').value;
+      const crop = document.getElementById('planCrop').value;
+      const area = document.getElementById('landArea').value;
+
+      if (!crop) return alert("કૃપા કરીને પાકનું નામ લખો (દા.ત. જીરું, રાયડો વગેરે).");
+
+      const btn = document.getElementById('planBtn');
+      const resBox = document.getElementById('planResult');
+      btn.disabled = true;
+      btn.innerText = "ગણતરી કરી રહ્યું છે...";
+      resBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            type: 'planner',
+            soilType: soil,
+            cropName: crop,
+            landArea: area
+          })
+        });
+        const d = await res.json();
+        if (d.success) {
+          resBox.innerHTML = `<h4 style="color:#2e7d32;">📋 જમીન અને પાક આયોજન રિપોર્ટ:</h4><p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${d.data.textAnswer}</p>`;
+          resBox.style.display = 'block';
+        } else {
+          alert(d.error || "ગણતરી થઈ શકી નથી.");
+        }
+      } catch(err) {
+        alert("નેટવર્ક એરર આવી.");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "ગણતરી અને માર્ગદર્શન મેળવો 📋";
       }
     }
 
@@ -343,10 +437,9 @@
           document.getElementById('agro-advisory').innerText = advice;
         }
       } catch (e) {
-        document.getElementById('geo-status').innerText = "હવામાન લોડ થઈ શક્યું નહીં.";
+        document.getElementById('geo-status').innerText = "હવામાન લોડ થઈ શક્યું નથી.";
       }
     }
   </script>
 </body>
 </html>
-
