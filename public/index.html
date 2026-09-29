@@ -1,4 +1,4 @@
-TYPE html>
+<!DOCTYPE html>
 <html lang="gu">
 <head>
   <meta charset="UTF-8">
@@ -27,7 +27,7 @@ TYPE html>
       padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-top: 6px;
     }
 
-    /* ૩-૩ બટન ઉપર નીચે (2 હરોળમાં) ગોઠવવાની ગ્રીડ */
+    /* ૩-૩ બટન ૨ હરોળમાં */
     .nav-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -90,6 +90,38 @@ TYPE html>
       background: white; border-radius: 10px; padding: 14px; margin-top: 15px;
       border-left: 5px solid var(--primary);
     }
+
+    /* એક્શન ટૂલબાર બટન સ્ટાઇલ */
+    .action-toolbar {
+      display: flex;
+      gap: 6px;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px dashed #ccc;
+    }
+    .btn-action {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 12px;
+      font-weight: bold;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .btn-audio { background: #e3f2fd; color: #1565c0; }
+    .btn-wa { background: #e8f5e9; color: #2e7d32; }
+    .btn-print { background: #fff3e0; color: #e65100; }
+
+    @media print {
+      body * { visibility: hidden; }
+      .result-box, .result-box * { visibility: visible; }
+      .result-box { position: absolute; left: 0; top: 0; width: 100%; border: 1px solid #ccc; }
+      .action-toolbar { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -126,7 +158,7 @@ TYPE html>
       <div id="advisorResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૨. જમીન અને પાક આયોજન (નવું ફીચર) -->
+    <!-- ૨. જમીન અને પાક આયોજન -->
     <div id="tab-planner" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">🌱 જમીન, બિયારણ અને ખાતર આયોજન</h3>
@@ -250,6 +282,7 @@ TYPE html>
 
   <script>
     let base64Image = null;
+    let currentSpeechText = "";
 
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -258,45 +291,43 @@ TYPE html>
       if (btn) btn.classList.add('active');
     }
 
+    // ઇમેજ કમ્પ્રેસર (413 Payload Too Large એરર અટકાવવા)
     function handleImage(e) {
-  const file = e.target.files[0];
-  if (!file) return;
+      const file = e.target.files[0];
+      if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    const img = new Image();
-    img.onload = function() {
-      // ફોટાની સાઈઝ ઘટાડવા (Resize & Compress) માટે કેનવાસ
-      const canvas = document.createElement('canvas');
-      const MAX_WIDTH = 800; // પહોળાઈ મહત્તમ 800px સુધી મર્યાદિત કરવી
-      let width = img.width;
-      let height = img.height;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          let width = img.width;
+          let height = img.height;
 
-      if (width > MAX_WIDTH) {
-        height = Math.round((height * MAX_WIDTH) / width);
-        width = MAX_WIDTH;
-      }
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
 
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
 
-      // ગુણવત્તા 0.6 રાખી ફાઈલ 200-300 KB ની કરવી
-      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          const preview = document.getElementById('preview-img');
+          preview.src = compressedDataUrl;
+          preview.style.display = 'block';
 
-      const preview = document.getElementById('preview-img');
-      preview.src = compressedDataUrl;
-      preview.style.display = 'block';
+          base64Image = compressedDataUrl.split(',')[1];
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
 
-      // કમ્પ્રેસ થયેલ ડેટા જ સર્વર પર જશે
-      base64Image = compressedDataUrl.split(',')[1];
-    };
-    img.src = evt.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
+    // માઇક વોઇસ ઇનપુટ
     function startVoice(targetId) {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         alert("તમારા ફોનમાં માઇક સપોર્ટ નથી. કૃપા કરીને ટાઇપ કરો.");
@@ -311,6 +342,43 @@ TYPE html>
       rec.start();
     }
 
+    // 🔊 ૧. ગુજરાતીમાં બોલીને સંભળાવવું
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'gu-IN';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+      } else {
+        alert("તમારા બ્રાઉઝરમાં ઓડિયો સપોર્ટ ઉપલબ્ધ નથી.");
+      }
+    }
+
+    // 📲 ૨. વોટ્સએપ પર રિપોર્ટ શેર કરવો
+    function shareToWhatsApp(text) {
+      const shareUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent("🌱 *AI ખેડૂત મિત્ર રિપોર્ટ*\n\n" + text + "\n\n🔗 વધુ વિગતો માટે: https://khedut-ai-pro.vercel.app");
+      window.open(shareUrl, '_blank');
+    }
+
+    // 📄 ૩. પ્રિન્ટ / PDF ડાઉનલોડ
+    function printReport() {
+      window.print();
+    }
+
+    // એક્શન બાર બનાવવા માટેનું હેલ્પર ફંક્શન
+    function createActionBar(plainText) {
+      const safeText = plainText.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+      return `
+        <div class="action-toolbar">
+          <button class="btn-action btn-audio" onclick="speakText('${safeText}')">🔊 સાંભળો</button>
+          <button class="btn-action btn-wa" onclick="shareToWhatsApp('${safeText}')">📲 WhatsApp</button>
+          <button class="btn-action btn-print" onclick="printReport()">📄 PDF/પ્રિન્ટ</button>
+        </div>
+      `;
+    }
+
+    // ૧. ખેતી સલાહકાર કોલ
     async function askAdvisor() {
       const q = document.getElementById('advisorQuery').value;
       if (!q) return alert("કૃપા કરીને પ્રશ્ન લખો અથવા માઇકથી બોલો.");
@@ -329,19 +397,25 @@ TYPE html>
         });
         const d = await res.json();
         if (d.success) {
-          resBox.innerHTML = `<h4 style="color:#2e7d32;">💡 કૃષિ સલાહ:</h4><p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${d.data.textAnswer}</p>`;
+          const ans = d.data.textAnswer;
+          resBox.innerHTML = `
+            <h4 style="color:#2e7d32;">💡 કૃષિ સલાહ:</h4>
+            <p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${ans}</p>
+            ${createActionBar(ans)}
+          `;
           resBox.style.display = 'block';
         } else {
-          alert(d.error || "માહિતી મળી નથી.");
+          alert("સર્વર ભૂલ: " + (d.error || "માહિતી મળી નથી."));
         }
       } catch (err) {
-        alert("નેટવર્ક એરર આવી.");
+        alert("નેટવર્ક એરર: " + err.message);
       } finally {
         btn.disabled = false;
         btn.innerText = "સલાહ મેળવો 🔍";
       }
     }
 
+    // ૨. જમીન & પાક આયોજન કોલ
     async function calculatePlan() {
       const soil = document.getElementById('soilType').value;
       const crop = document.getElementById('planCrop').value;
@@ -368,19 +442,25 @@ TYPE html>
         });
         const d = await res.json();
         if (d.success) {
-          resBox.innerHTML = `<h4 style="color:#2e7d32;">📋 જમીન અને પાક આયોજન રિપોર્ટ:</h4><p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${d.data.textAnswer}</p>`;
+          const ans = d.data.textAnswer;
+          resBox.innerHTML = `
+            <h4 style="color:#2e7d32;">📋 જમીન અને પાક આયોજન રિપોર્ટ:</h4>
+            <p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${ans}</p>
+            ${createActionBar(ans)}
+          `;
           resBox.style.display = 'block';
         } else {
-          alert(d.error || "ગણતરી થઈ શકી નથી.");
+          alert("સર્વર ભૂલ: " + (d.error || "ગણતરી થઈ શકી નથી."));
         }
       } catch(err) {
-        alert("નેટવર્ક એરર આવી.");
+        alert("નેટવર્ક એરર: " + err.message);
       } finally {
         btn.disabled = false;
         btn.innerText = "ગણતરી અને માર્ગદર્શન મેળવો 📋";
       }
     }
 
+    // ૩. પાક રોગ નિદાન કોલ
     async function analyzeCrop() {
       if (!base64Image) return alert("કૃપા કરીને પહેલા પાકનો ફોટો પાડો અથવા સિલેક્ટ કરો.");
       const btn = document.getElementById('analyzeBtn');
@@ -402,6 +482,8 @@ TYPE html>
         const d = await res.json();
         if (d.success) {
           const info = d.data;
+          const shareSummary = `પાક: ${info.crop_name}\nરોગ: ${info.disease_name} (${info.severity})\nમુખ્ય લક્ષણો: ${info.symptoms}\nરાસાયણિક દવા: ${info.chemical_treatment}\nજૈવિક ઉપાય: ${info.organic_treatment}`;
+          
           resBox.innerHTML = `
             <h3 style="color:#2e7d32;">🌾 પાક: ${info.crop_name}</h3>
             <p style="margin-top:6px;"><b>⚠️ સંભવિત રોગ:</b> ${info.disease_name} (તીવ્રતા: ${info.severity})</p>
@@ -409,19 +491,21 @@ TYPE html>
             <p style="margin-top:6px; color:#c62828;"><b>💊 રાસાયણિક દવા:</b> ${info.chemical_treatment}</p>
             <p style="margin-top:6px; color:#2e7d32;"><b>🌿 દેશી / જૈવિક ઉપાય:</b> ${info.organic_treatment}</p>
             <p style="margin-top:6px; color:#e65100;"><b>🛡️ સાવચેતી:</b> ${info.prevention}</p>
+            ${createActionBar(shareSummary)}
           `;
           resBox.style.display = 'block';
         } else {
-          alert(d.error || "નિદાન થઈ શક્યું નથી.");
+          alert("સર્વર ભૂલ: " + (d.error || "નિદાન થઈ શક્યું નથી."));
         }
       } catch(err) {
-        alert("કનેક્શન એરર આવી.");
+        alert("ક્ષતિ: " + err.message);
       } finally {
         btn.disabled = false;
         btn.innerText = "રોગનું નિદાન કરો 🔬";
       }
     }
 
+    // હવામાન અને સલાહ લોડ
     window.addEventListener('load', () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
