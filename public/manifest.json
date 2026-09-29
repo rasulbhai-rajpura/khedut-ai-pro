@@ -1,0 +1,21 @@
+{
+  "name": "AI ખેડૂત મિત્ર",
+  "short_name": "ખેડૂત મિત્ર",
+  "description": "સંપૂર્ણ ડિજિટલ કૃષિ સાથી - પાનસડા પ્રાથમિક શાળા",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7f4",
+  "theme_color": "#2e7d32",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/606/606990.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/606/606990.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
