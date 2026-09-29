@@ -5,84 +5,97 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { imageBase64, query } = req.body;
-
-  if (!imageBase64) {
-    return res.status(400).json({ error: 'કૃપા કરીને પાક કે પાંદડાનો ફોટો અપલોડ કરો.' });
-  }
-
+  const { type, imageBase64, query } = req.body;
   const apiKey = process.env.GEMINI_API_KEY;
+
   if (!apiKey) {
-    return res.status(500).json({ error: 'સર્વર પર Gemini API Key ઉપલબ્ધ નથી.' });
+    return res.status(500).json({ error: 'Gemini API Key સેટ કરેલ નથી.' });
   }
 
-  const promptText = `
-તમે કૃષિ વૈજ્ઞાનિક છો. બનાસકાંઠા (વાવ, થરાદ, ધરણીધર) વિસ્તારના મુખ્ય પાકોના સંદર્ભમાં આ પાંદડાનું વિશ્લેષણ કરો.
-ખેડૂતનો પ્રશ્ન: "${query || 'આ પાંદડામાં કયો રોગ છે અને ઉપાય શું?'}"
+  let promptText = "";
+  let parts = [];
+
+  if (type === "advisor") {
+    promptText = `
+તમે એક અનુભવી કૃષિ વૈજ્ઞાનિક અને ખેડૂતના સાચા મિત્ર છો.
+ગુજરાત (ખાસ કરીને બનાસકાંઠા, પાટણ, સૌરાષ્ટ્ર) વિસ્તારના સંદર્ભમાં ખેડૂતના નીચેના પ્રશ્નનો ખૂબ જ સરળ, વ્યવહારુ અને ગામઠી ગુજરાતી ભાષામાં સચોટ જવાબ આપો.
+જવાબ મુદ્દાસર આપવો જેમાં જરૂર હોય ત્યાં દેશી ઉપાય અને રાસાયણિક ઉપાય બંને સ્પષ્ટ જણાવવા.
+
+ખેડૂતનો પ્રશ્ન: "${query}"
+`;
+    parts = [{ text: promptText }];
+  } else {
+    // પાક રોગ નિદાન (Image Diagnosis)
+    if (!imageBase64) {
+      return res.status(400).json({ error: 'કૃપા કરીને પાક કે પાંદડાનો ફોટો આપો.' });
+    }
+    promptText = `
+તમે એક વરિષ્ઠ પાક રોગ નિષ્ણાત છો.
+આ પાંદડા કે પાકના ફોટાનું વિશ્લેષણ કરી રોગની ઓળખ કરો.
+ખેડૂતની નોંધ: "${query || 'આ પાંદડામાં કયો રોગ છે અને ઉપાય જણાવો'}"
 
 જવાબ માત્ર નીચે મુજબના JSON ફોર્મેટમાં જ આપવો:
 {
   "crop_name": "પાકનું નામ",
   "disease_name": "રોગનું સચોટ નામ",
-  "severity": "રોગની તીવ્રતા (ઓછી / મધ્યમ / ગંભીર)",
+  "severity": "તીવ્રતા (ઓછી / મધ્યમ / ગંભીર)",
   "symptoms": "મુખ્ય લક્ષણો",
-  "chemical_treatment": "રાસાયણિક દવા અને છંટકાવનું પ્રમાણ",
+  "chemical_treatment": "રાસાયણિક દવા અને પ્રમાણ",
   "organic_treatment": "દેશી અને જૈવિક ઉપાયો",
   "prevention": "સાવચેતીનાં પગલાં"
 }
-નોંધ: કોઈ પણ વધારાના લખાણ કે માર્કડાઉન વગર માત્ર શુદ્ધ JSON જ આપવો.
+નોંધ: કોઈ પણ વધારાના લખાણ કે માર્કડાઉન વગર શુદ્ધ JSON આપવો.
 `;
+    parts = [
+      { text: promptText },
+      {
+        inline_data: {
+          mime_type: "image/jpeg",
+          data: imageBase64
+        }
+      }
+    ];
+  }
 
-  // ટ્રાફિકથી બચવા માટે ક્રમિક મોડેલ્સનું લિસ્ટ
-  const candidateModels = [
-    "gemini-3.5-flash-lite"
-    
-  ];
-
-  let finalJson = null;
+  const candidateModels = ["gemini-3.5-flash-lite"];
+  let finalResult = null;
   let lastError = "";
 
   for (let model of candidateModels) {
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: promptText },
-              {
-                inline_data: {
-                  mime_type: "image/jpeg",
-                  data: imageBase64
-                }
-              }
-            ]
-          }]
-        })
-      });
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts }] })
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-        let rawText = data.candidates[0].content.parts[0].text.trim();
-        rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
-        finalJson = JSON.parse(rawText);
-        break; // સફળતા મળતાં જ લૂપ પૂરી થશે
-      } else if (data.error) {
-        lastError = data.error.message;
-        // જો મોડેલ પર ટ્રાફિક હોય તો 1 સેકન્ડ થોભીને લિસ્ટના આગળના મોડેલ પર જવું
-        await wait(1000);
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+          let text = data.candidates[0].content.parts[0].text.trim();
+          if (type === "advisor") {
+            finalResult = { textAnswer: text };
+          } else {
+            text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+            finalResult = JSON.parse(text);
+          }
+          break;
+        } else if (data.error) {
+          lastError = data.error.message;
+          await wait(2500);
+        }
+      } catch (err) {
+        lastError = err.message;
+        await wait(2000);
       }
-    } catch (err) {
-      lastError = err.message;
-      await wait(1000);
     }
+    if (finalResult) break;
   }
 
-  if (finalJson) {
-    return res.status(200).json({ success: true, data: finalJson });
+  if (finalResult) {
+    return res.status(200).json({ success: true, data: finalResult });
   } else {
-    return res.status(500).json({ success: false, error: lastError || "મોડેલ વ્યસ્ત હોવાથી પરિણામ મળી શક્યું નથી." });
+    return res.status(500).json({ success: false, error: lastError || "સર્વર વ્યસ્ત છે, કૃપા કરીને થોડીવાર પછી પ્રયાસ કરો." });
   }
 }
