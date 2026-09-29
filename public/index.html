@@ -27,12 +27,12 @@
       padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-top: 6px;
     }
 
-    /* ૩ ઉપર અને ૩ નીચે સુંદર બટન ગ્રીડ */
+    /* ૪ ઉપર અને ૪ નીચે (કુલ ૮ બટનની ગ્રીડ) */
     .nav-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      padding: 12px 10px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 10px 8px;
       background: white;
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
       position: sticky;
@@ -43,14 +43,14 @@
       border: 1px solid #c8e6c9;
       background: #f1f8e9;
       color: var(--primary-dark);
-      padding: 9px 4px;
-      border-radius: 10px;
-      font-size: 11.5px;
+      padding: 8px 2px;
+      border-radius: 8px;
+      font-size: 11px;
       font-weight: bold;
       cursor: pointer;
       text-align: center;
       transition: all 0.2s;
-      line-height: 1.3;
+      line-height: 1.25;
     }
     .nav-btn.active {
       background: var(--primary);
@@ -72,7 +72,7 @@
       cursor: pointer; margin-top: 10px;
     }
     .btn-main:disabled { background: #a5d6a7; }
-    input[type="text"], select {
+    input[type="text"], input[type="date"], select {
       width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;
       font-size: 14px; margin-top: 6px;
     }
@@ -91,26 +91,15 @@
       border-left: 5px solid var(--primary);
     }
 
-    /* એક્શન ટૂલબાર બટન સ્ટાઇલ */
+    /* એક્શન ટૂલબાર */
     .action-toolbar {
-      display: flex;
-      gap: 6px;
-      margin-top: 14px;
-      padding-top: 12px;
+      display: flex; gap: 6px; margin-top: 14px; padding-top: 12px;
       border-top: 1px dashed #ccc;
     }
     .btn-action {
-      flex: 1;
-      padding: 10px 4px;
-      font-size: 12.5px;
-      font-weight: bold;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
+      flex: 1; padding: 10px 4px; font-size: 12px; font-weight: bold;
+      border-radius: 8px; border: none; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; gap: 4px;
     }
     .btn-audio { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
     .btn-wa { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
@@ -132,23 +121,25 @@
     <div class="school-tag">શ્રી પાનસડા અનુપમ પ્રાથમિક શાળા | માર્ગદર્શક: શ્રી રાજપુરા રસુલભાઈ</div>
   </div>
 
-  <!-- ૩ ઉપર અને ૩ નીચે નેવિગેશન બટન ગ્રીડ -->
+  <!-- ૪ ઉપર અને ૪ નીચે બટનની ગ્રીડ -->
   <div class="nav-grid">
     <button class="nav-btn active" onclick="switchTab('advisor', this)">🌾 ૧. ખેતી સલાહ</button>
-    <button class="nav-btn" onclick="switchTab('planner', this)">🌱 ૨. જમીન & પાક</button>
-    <button class="nav-btn" onclick="switchTab('weather', this)">🌦️ ૩. હવામાન સૂચના</button>
-    <button class="nav-btn" onclick="switchTab('disease', this)">🌿 ૪. પાક રોગ</button>
-    <button class="nav-btn" onclick="switchTab('mandi', this)">💰 ૫. બજાર ભાવ</button>
-    <button class="nav-btn" onclick="switchTab('schemes', this)">📜 ૬. યોજનાઓ</button>
+    <button class="nav-btn" onclick="switchTab('planner', this)">🌱 ૨. જમીન પાક</button>
+    <button class="nav-btn" onclick="switchTab('calendar', this)">🗓️ ૩. કેલેન્ડર</button>
+    <button class="nav-btn" onclick="switchTab('bio', this)">🌿 ૪. પ્રાકૃતિક</button>
+    <button class="nav-btn" onclick="switchTab('weather', this)">🌦️ ૫. હવામાન</button>
+    <button class="nav-btn" onclick="switchTab('disease', this)">🔬 ૬. પાક રોગ</button>
+    <button class="nav-btn" onclick="switchTab('mandi', this)">💰 ૭. બજાર ભાવ</button>
+    <button class="nav-btn" onclick="switchTab('schemes', this)">📜 ૮. યોજનાઓ</button>
   </div>
 
   <div class="container">
 
-    <!-- ૧. ખેતી સલાહકાર -->
+    <!-- ૧. ખેતી સલાહ -->
     <div id="tab-advisor" class="tab-content active">
       <div class="card">
         <h3 style="color: var(--primary);">🎙️ કૃષિ સલાહકાર (કંઈ પણ પૂછો)</h3>
-        <p style="font-size: 12px; color: #666; margin-top: 4px;">પાક, વાવણી, ખાતર કે દવા વિશે કોઈ પણ પ્રશ્ન લખો અથવા માઇકથી બોલો:</p>
+        <p style="font-size: 12px; color: #666; margin-top: 4px;">પાક, વાવણી, ખાતર કે દવા વિશે પ્રશ્ન લખો અથવા માઇકથી બોલો:</p>
         <div style="display: flex; gap: 6px; margin-top: 10px;">
           <input type="text" id="advisorQuery" placeholder="દા.ત. જીરામાં સુકારો અટકાવવા શું કરવું?">
           <button type="button" onclick="startVoice('advisorQuery')" style="padding: 0 14px; background: #e0f2f1; border: 1px solid #80cbc4; border-radius: 8px; font-size: 18px; cursor: pointer;">🎤</button>
@@ -158,53 +149,91 @@
       <div id="advisorResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૨. જમીન અને પાક આયોજન -->
+    <!-- ૨. જમીન & પાક -->
     <div id="tab-planner" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">🌱 જમીન, બિયારણ અને ખાતર આયોજન</h3>
-        <p style="font-size: 12px; color: #666; margin-top: 4px;">તમારા ખેતરની વિગત ભરો અને સચોટ ગણતરી મેળવો:</p>
-        
-        <label style="font-size: 13px; font-weight: bold; margin-top: 10px; display: block;">૧. જમીનનો પ્રકાર:</label>
+        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૧. જમીનનો પ્રકાર:</label>
         <select id="soilType">
           <option value="ગોરાડુ / રેતાળ ગોરાડુ (બનાસકાંઠા સામાન્ય)">ગોરાડુ / રેતાળ ગોરાડુ જમીન</option>
           <option value="રેતાળ જમીન">રેતાળ જમીન</option>
           <option value="મધ્યમ કાળી જમીન">મધ્યમ કાળી જમીન</option>
           <option value="ભાઠાની / કાંપવાળી જમીન">ભાઠાની / કાંપવાળી જમીન</option>
-          <option value="ક્ષારવાળી / ખારાશવાળી જમીન">ક્ષારવાળી / ખારાશવાળી જમીન</option>
         </select>
 
-        <label style="font-size: 13px; font-weight: bold; margin-top: 10px; display: block;">૨. પાક પસંદ કરો અથવા લખો:</label>
-        <input type="text" id="planCrop" placeholder="દા.ત. જીરું, રાયડો, એરંડા, દાડમ, બાજરી, ઘઉં...">
+        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૨. પાક પસંદ કરો અથવા લખો:</label>
+        <input type="text" id="planCrop" placeholder="દા.ત. જીરું, રાયડો, એરંડા, દાડમ...">
 
-        <label style="font-size: 13px; font-weight: bold; margin-top: 10px; display: block;">૩. જમીનનું માપ:</label>
+        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૩. જમીનનું માપ:</label>
         <select id="landArea">
-          <option value="1 વીઘો (ગુજરાતી વીઘો - 16 ગુંઠા)">૧ વીઘો</option>
+          <option value="1 વીઘો (ગુજરાતી વીઘો)">૧ વીઘો</option>
           <option value="2 વીઘા">૨ વીઘા</option>
           <option value="3 વીઘા">૩ વીઘા</option>
           <option value="5 વીઘા">૫ વીઘા</option>
-          <option value="1 એકર (2.5 વીઘા)">૧ એકર</option>
-          <option value="2 એકર">૨ એકર</option>
+          <option value="1 એકર">૧ એકર</option>
         </select>
-
-        <button id="planBtn" class="btn-main" onclick="calculatePlan()">ગણતરી અને માર્ગદર્શન મેળવો 📋</button>
+        <button id="planBtn" class="btn-main" onclick="calculatePlan()">ગણતરી મેળવો 📋</button>
       </div>
-
       <div id="planResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૩. હવામાન અને ખેતી સૂચના -->
+    <!-- ૩. પાક કેલેન્ડર (નવું મોડ્યુલ) -->
+    <div id="tab-calendar" class="tab-content">
+      <div class="card">
+        <h3 style="color: var(--primary);">🗓️ પાક કેલેન્ડર અને છંટકાવ સમયપત્રક</h3>
+        <p style="font-size: 12px; color: #666; margin-top: 4px;">વાવણી તારીખ નાખો અને આખો પાક તૈયાર થવા સુધીનું શેડ્યૂલ મેળવો:</p>
+        
+        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૧. પાકનું નામ:</label>
+        <input type="text" id="calCrop" placeholder="દા.ત. જીરું, રાયડો, એરંડા, ઘઉં...">
+
+        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૨. વાવણી કરેલ / કરવાની તારીખ:</label>
+        <input type="date" id="calDate">
+
+        <button id="calBtn" class="btn-main" onclick="generateCalendar()">સમયપત્રક તૈયાર કરો 📅</button>
+      </div>
+      <div id="calResult" class="result-box" style="display: none;"></div>
+    </div>
+
+    <!-- ૪. પ્રાકૃતિક ખેતી (નવું મોડ્યુલ) -->
+    <div id="tab-bio" class="tab-content">
+      <div class="card">
+        <h3 style="color: var(--primary);">🌿 પ્રાકૃતિક ખેતી કેલ્ક્યુલેટર</h3>
+        <p style="font-size: 12px; color: #666; margin-top: 4px;">દેશી ગાય આધારિત ખાતર અને દવાની વીઘા દીઠ ચોક્કસ ગણતરી:</p>
+        
+        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૧. ઉપાય / ખાતર પસંદ કરો:</label>
+        <select id="bioOption">
+          <option value="જીવામૃત (પ્રવાહી ખાતર/પિયત સાથે)">જીવામૃત (પિયતમાં આપવા માટે)</option>
+          <option value="ઘનજીવામૃત (પાયાનું સુકું ખાતર)">ઘનજીવામૃત (પાયામાં આપવા)</option>
+          <option value="નિમાસ્ત્ર (ચૂસિયા જીવાત અને ઇયળ નિયંત્રણ)">નિમાસ્ત્ર (લીમડા અર્ક - જીવાત માટે)</option>
+          <option value="બ્રહ્માસ્ત્ર (મોટી ઇયળો અને ગંભીર રોગ માટે)">બ્રહ્માસ્ત્ર (તીવ્ર જૈવિક કીટનાશક)</option>
+          <option value="ખાટી છાશ અને તાંબાનો ઉપયોગ (ફૂગ નિયંત્રણ)">ખાટી છાશ સ્પ્રે (ફૂગ અને સુકારા માટે)</option>
+        </select>
+
+        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૨. તમારા ખેતરનું માપ:</label>
+        <select id="bioArea">
+          <option value="1 વીઘો">૧ વીઘો</option>
+          <option value="2 વીઘા">૨ વીઘા</option>
+          <option value="3 વીઘા">૩ વીઘા</option>
+          <option value="5 વીઘા">૫ વીઘા</option>
+          <option value="1 એકર">૧ એકર</option>
+        </select>
+
+        <button id="bioBtn" class="btn-main" onclick="calculateBio()">સામગ્રી અને બનાવવાની રીત જુઓ 🧪</button>
+      </div>
+      <div id="bioResult" class="result-box" style="display: none;"></div>
+    </div>
+
+    <!-- ૫. હવામાન સૂચના -->
     <div id="tab-weather" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">🌦️ લાઈવ ખેતર હવામાન અને કૃષિ સલાહ</h3>
         <p id="geo-status" style="font-size: 12px; color: #666; margin-top: 4px;">તમારા વિસ્તારનું હવામાન મેળવી રહ્યું છે...</p>
-        
         <div class="weather-grid">
           <div class="weather-box">🌡️ તાપમાન<br><b id="w-temp">--</b></div>
           <div class="weather-box">💨 પવનની ગતિ<br><b id="w-wind">--</b></div>
           <div class="weather-box">🌧️ વરસાદ<br><b id="w-rain">--</b></div>
           <div class="weather-box">💧 હવામાં ભેજ<br><b id="w-humidity">--</b></div>
         </div>
-
         <div class="advisory-box">
           <b>📢 આજની કૃષિ સૂચના:</b>
           <div id="agro-advisory" style="margin-top: 5px;">હવામાન વિગતો તપાસી સલાહ તૈયાર થઈ રહી છે...</div>
@@ -212,39 +241,32 @@
       </div>
     </div>
 
-    <!-- ૪. પાક રોગ નિદાન -->
+    <!-- ૬. પાક રોગ નિદાન -->
     <div id="tab-disease" class="tab-content">
       <div class="card">
-        <h3 style="color: var(--primary);">🌿 પાક રોગ નિદાન કેન્દ્ર</h3>
-        <p style="font-size: 12px; color: #666; margin-top: 4px;">પાક અથવા રોગિષ્ટ પાંદડાનો ફોટો પાડો અથવા અપલોડ કરો:</p>
-
+        <h3 style="color: var(--primary);">🔬 પાક રોગ નિદાન કેન્દ્ર</h3>
         <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleImage(event)">
         <input type="file" id="galleryInput" accept="image/*" style="display:none;" onchange="handleImage(event)">
-
-        <div style="display: flex; gap: 10px; margin-top: 12px;">
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
           <button type="button" onclick="document.getElementById('cameraInput').click()" style="flex: 1; padding: 12px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">📸 લાઈવ કેમેરો</button>
           <button type="button" onclick="document.getElementById('galleryInput').click()" style="flex: 1; padding: 12px; background: #1565c0; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">🖼️ ગેલેરીમાંથી</button>
         </div>
-
         <center><img id="preview-img" style="max-width: 100%; border-radius: 8px; margin-top: 12px; display: none;"></center>
-
-        <input type="text" id="diseaseQuery" placeholder="વધારાની કોઈ વિગત લખવી હોય તો (ઓપ્શનલ)" style="margin-top: 10px;">
+        <input type="text" id="diseaseQuery" placeholder="વધારાની કોઈ નોંધ (ઓપ્શનલ)" style="margin-top: 10px;">
         <button id="analyzeBtn" class="btn-main" onclick="analyzeCrop()">રોગનું નિદાન કરો 🔬</button>
       </div>
-
       <div id="diseaseResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૫. બજાર ભાવ (APMC) -->
+    <!-- ૭. બજાર ભાવ -->
     <div id="tab-mandi" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">💰 મુખ્ય માર્કેટ યાર્ડ અંદાજિત ભાવ (૨૦ કિલો / મણ)</h3>
-        <p style="font-size: 12px; color: #666; margin-top: 4px;">બનાસકાંઠા અને નજીકના યાર્ડના મુખ્ય પાકોના સરેરાશ બજાર ભાવ:</p>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;">
           <tr style="background: #e8f5e9; text-align: left;">
             <th style="padding: 8px; border: 1px solid #c8e6c9;">પાક</th>
-            <th style="padding: 8px; border: 1px solid #c8e6c9;">નીચો ભાવ (₹/મણ)</th>
-            <th style="padding: 8px; border: 1px solid #c8e6c9;">ઊંચો ભાવ (₹/મણ)</th>
+            <th style="padding: 8px; border: 1px solid #c8e6c9;">નીચો ભાવ</th>
+            <th style="padding: 8px; border: 1px solid #c8e6c9;">ઊંચો ભાવ</th>
           </tr>
           <tr><td style="padding: 8px; border: 1px solid #eee;">જીરું</td><td style="padding: 8px; border: 1px solid #eee;">₹4,200</td><td style="padding: 8px; border: 1px solid #eee;">₹5,400</td></tr>
           <tr><td style="padding: 8px; border: 1px solid #eee;">રાયડો</td><td style="padding: 8px; border: 1px solid #eee;">₹950</td><td style="padding: 8px; border: 1px solid #eee;">₹1,120</td></tr>
@@ -252,28 +274,25 @@
           <tr><td style="padding: 8px; border: 1px solid #eee;">ઇસબગુલ</td><td style="padding: 8px; border: 1px solid #eee;">₹2,400</td><td style="padding: 8px; border: 1px solid #eee;">₹3,100</td></tr>
           <tr><td style="padding: 8px; border: 1px solid #eee;">બાજરી / ઘઉં</td><td style="padding: 8px; border: 1px solid #eee;">₹440</td><td style="padding: 8px; border: 1px solid #eee;">₹560</td></tr>
         </table>
-        <p style="font-size: 11px; color: #888; margin-top: 8px;">* નોંધ: સ્થાનિક માર્કેટ યાર્ડની આવક મુજબ ભાવમાં દૈનિક ફેરફાર થઈ શકે છે.</p>
+        <p style="font-size: 11px; color: #888; margin-top: 8px;">* સ્થાનિક યાર્ડની આવક અનુસાર દૈનિક ફેરફાર થઈ શકે છે.</p>
       </div>
     </div>
 
-    <!-- ૬. સરકારી યોજનાઓ -->
+    <!-- ૮. યોજનાઓ -->
     <div id="tab-schemes" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">📜 સરકારી સહાય અને યોજનાઓ (i-Khedut)</h3>
-        
         <div style="margin-top: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
           <h4 style="color: #1b5e20;">૧. તાર ફેન્સિંગ સહાય યોજના</h4>
-          <p style="font-size: 12px; color: #555;">જંગલી પ્રાણીઓથી પાકના રક્ષણ માટે ખેતરની ફરતે કાંટાળી તારની વાડ બનાવવા માટે 50% કે નિયત સહાય મળવાપાત્ર છે.</p>
+          <p style="font-size: 12px; color: #555;">જંગલી પ્રાણીઓથી રક્ષણ માટે કાંટાળી તારની વાડ બનાવવા 50% કે નિયત સહાય.</p>
         </div>
-
         <div style="margin-top: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
-          <h4 style="color: #1b5e20;">૨. સ્માર્ટફોન અને કૃષિ સાધનો સબસિડી</h4>
-          <p style="font-size: 12px; color: #555;">ખેડૂતોને સ્માર્ટફોન ખરીદી તેમજ ટ્રેક્ટર સંચાલિત વિવિધ આધુનિક ઓજારો માટે સહાય.</p>
+          <h4 style="color: #1b5e20;">૨. સ્માર્ટફોન અને કૃષિ ઓજારો સબસિડી</h4>
+          <p style="font-size: 12px; color: #555;">સ્માર્ટફોન અને આધુનિક ટ્રેક્ટર સાધનો માટે નાણાકીય સહાય.</p>
         </div>
-
         <div style="margin-top: 10px;">
           <h4 style="color: #1b5e20;">૩. સોલાર વોટર પમ્પિંગ સિસ્ટમ</h4>
-          <p style="font-size: 12px; color: #555;">ખેતરમાં પિયત માટે સૂર્યઊર્જા આધારિત પંપ લગાવવા માટે મોટા પાયે સબસિડી ઉપલબ્ધ છે.</p>
+          <p style="font-size: 12px; color: #555;">ખેતરમાં પિયત માટે સૂર્યઊર્જા પંપ લગાવવા માટે સબસિડી.</p>
         </div>
       </div>
     </div>
@@ -282,7 +301,7 @@
 
   <script>
     let base64Image = null;
-    let latestReportText = ""; // ગ્લોબલ સુરક્ષિત ટેક્સ્ટ
+    let latestReportText = "";
 
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -291,11 +310,9 @@
       if (btn) btn.classList.add('active');
     }
 
-    // ઇમેજ કમ્પ્રેસર (413 Payload Too Large એરર અટકાવવા માટે)
     function handleImage(e) {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(evt) {
         const img = new Image();
@@ -304,22 +321,18 @@
           const MAX_WIDTH = 800;
           let width = img.width;
           let height = img.height;
-
           if (width > MAX_WIDTH) {
             height = Math.round((height * MAX_WIDTH) / width);
             width = MAX_WIDTH;
           }
-
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
-          const preview = document.getElementById('preview-img');
-          preview.src = compressedDataUrl;
-          preview.style.display = 'block';
-
+          document.getElementById('preview-img').src = compressedDataUrl;
+          document.getElementById('preview-img').style.display = 'block';
           base64Image = compressedDataUrl.split(',')[1];
         };
         img.src = evt.target.result;
@@ -327,10 +340,9 @@
       reader.readAsDataURL(file);
     }
 
-    // માઇક વોઇસ ઇનપુટ
     function startVoice(targetId) {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert("તમારા ફોનમાં માઇક સપોર્ટ નથી. કૃપા કરીને ટાઇપ કરો.");
+        alert("માઇક સપોર્ટ ઉપલબ્ધ નથી.");
         return;
       }
       const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -342,49 +354,30 @@
       rec.start();
     }
 
-    // 🔊 ૧. ગુજરાતીમાં બોલીને સંભળાવવું (વોઇસ આઉટપુટ)
     function speakText() {
-      if (!('speechSynthesis' in window)) {
-        alert("તમારા ફોનમાં અવાજ સપોર્ટ ઉપલબ્ધ નથી.");
-        return;
-      }
-      
+      if (!('speechSynthesis' in window)) return alert("વોઇસ સપોર્ટ નથી.");
       window.speechSynthesis.cancel();
-      if (!latestReportText) {
-        alert("સાંભળવા માટે કોઈ લખાણ ઉપલબ્ધ નથી.");
-        return;
-      }
-
-      // સાફ લખાણ બનાવી સ્પીચ આપવી
+      if (!latestReportText) return;
       const cleanText = latestReportText.replace(/[#*⚠️💡💊🌿🛡️🔍🌱-]/g, ' ');
       const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.lang = 'gu-IN';
       utterance.rate = 0.88;
-
       const voices = window.speechSynthesis.getVoices();
       const guVoice = voices.find(v => v.lang.includes('gu') || v.lang.includes('hi'));
       if (guVoice) utterance.voice = guVoice;
-
       window.speechSynthesis.speak(utterance);
     }
 
-    // 📲 ૨. વોટ્સએપ પર સચોટ શેરિંગ
     function shareToWhatsApp() {
-      if (!latestReportText) {
-        alert("શેર કરવા માટે કોઈ રિપોર્ટ નથી.");
-        return;
-      }
-      const msg = "🌱 *AI ખેડૂત મિત્ર રિપોર્ટ*\n\n" + latestReportText + "\n\n🔗 વધુ માહિતી માટે: https://khedut-ai-pro.vercel.app";
-      const shareUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(msg);
-      window.open(shareUrl, '_blank');
+      if (!latestReportText) return;
+      const msg = "🌱 *AI ખેડૂત મિત્ર રિપોર્ટ*\n\n" + latestReportText + "\n\n🔗 વધુ માહિતી: https://khedut-ai-pro.vercel.app";
+      window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg), '_blank');
     }
 
-    // 📄 ૩. પીડીએફ / પ્રિન્ટ
     function printReport() {
       window.print();
     }
 
-    // એક્શન બાર ફંક્શન
     function createActionBar() {
       return `
         <div class="action-toolbar">
@@ -395,16 +388,12 @@
       `;
     }
 
-    // ૧. ખેતી સલાહકાર
     async function askAdvisor() {
       const q = document.getElementById('advisorQuery').value;
-      if (!q) return alert("કૃપા કરીને પ્રશ્ન લખો અથવા માઇકથી બોલો.");
-      
+      if (!q) return alert("પ્રશ્ન લખો અથવા બોલો.");
       const btn = document.getElementById('adviseBtn');
       const resBox = document.getElementById('advisorResult');
-      btn.disabled = true;
-      btn.innerText = "જવાબ વિચારી રહ્યું છે...";
-      resBox.style.display = 'none';
+      btn.disabled = true; btn.innerText = "જવાબ વિચારી રહ્યું છે..."; resBox.style.display = 'none';
 
       try {
         const res = await fetch('/api/analyze', {
@@ -415,95 +404,106 @@
         const d = await res.json();
         if (d.success) {
           latestReportText = d.data.textAnswer;
-          resBox.innerHTML = `
-            <h4 style="color:#2e7d32;">💡 કૃષિ સલાહ:</h4>
-            <p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${latestReportText}</p>
-            ${createActionBar()}
-          `;
+          resBox.innerHTML = `<h4 style="color:#2e7d32;">💡 કૃષિ સલાહ:</h4><p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${latestReportText}</p>${createActionBar()}`;
           resBox.style.display = 'block';
-        } else {
-          alert("સર્વર ભૂલ: " + (d.error || "માહિતી મળી નથી."));
-        }
-      } catch (err) {
-        alert("ક્ષતિ: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "સલાહ મેળવો 🔍";
-      }
+        } else { alert("સર્વર ભૂલ: " + d.error); }
+      } catch (err) { alert("ક્ષતિ: " + err.message); }
+      finally { btn.disabled = false; btn.innerText = "સલાહ મેળવો 🔍"; }
     }
 
-    // ૨. જમીન & પાક આયોજન
     async function calculatePlan() {
       const soil = document.getElementById('soilType').value;
       const crop = document.getElementById('planCrop').value;
       const area = document.getElementById('landArea').value;
-
-      if (!crop) return alert("કૃપા કરીને પાકનું નામ લખો (દા.ત. જીરું, રાયડો વગેરે).");
-
+      if (!crop) return alert("પાકનું નામ લખો.");
       const btn = document.getElementById('planBtn');
       const resBox = document.getElementById('planResult');
-      btn.disabled = true;
-      btn.innerText = "ગણતરી કરી રહ્યું છે...";
-      resBox.style.display = 'none';
+      btn.disabled = true; btn.innerText = "ગણતરી કરી રહ્યું છે..."; resBox.style.display = 'none';
 
       try {
         const res = await fetch('/api/analyze', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            type: 'planner',
-            soilType: soil,
-            cropName: crop,
-            landArea: area
-          })
+          body: JSON.stringify({ type: 'planner', soilType: soil, cropName: crop, landArea: area })
         });
         const d = await res.json();
         if (d.success) {
           latestReportText = d.data.textAnswer;
-          resBox.innerHTML = `
-            <h4 style="color:#2e7d32;">📋 જમીન અને પાક આયોજન રિપોર્ટ:</h4>
-            <p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${latestReportText}</p>
-            ${createActionBar()}
-          `;
+          resBox.innerHTML = `<h4 style="color:#2e7d32;">📋 જમીન-પાક રિપોર્ટ:</h4><p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${latestReportText}</p>${createActionBar()}`;
           resBox.style.display = 'block';
-        } else {
-          alert("સર્વર ભૂલ: " + (d.error || "ગણતરી થઈ શકી નથી."));
-        }
-      } catch(err) {
-        alert("ક્ષતિ: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "ગણતરી અને માર્ગદર્શન મેળવો 📋";
-      }
+        } else { alert("સર્વર ભૂલ: " + d.error); }
+      } catch (err) { alert("ક્ષતિ: " + err.message); }
+      finally { btn.disabled = false; btn.innerText = "ગણતરી મેળવો 📋"; }
     }
 
-    // ૩. પાક રોગ નિદાન
-    async function analyzeCrop() {
-      if (!base64Image) return alert("કૃપા કરીને પહેલા પાકનો ફોટો પાડો અથવા સિલેક્ટ કરો.");
-      const btn = document.getElementById('analyzeBtn');
-      const resBox = document.getElementById('diseaseResult');
-      btn.disabled = true;
-      btn.innerText = "રોગનું નિદાન થઈ રહ્યું છે...";
-      resBox.style.display = 'none';
+    async function generateCalendar() {
+      const crop = document.getElementById('calCrop').value;
+      const date = document.getElementById('calDate').value;
+      if (!crop || !date) return alert("પાકનું નામ અને વાવણી તારીખ બંને પસંદ કરો.");
+
+      const btn = document.getElementById('calBtn');
+      const resBox = document.getElementById('calResult');
+      btn.disabled = true; btn.innerText = "કેલેન્ડર બની રહ્યું છે..."; resBox.style.display = 'none';
 
       try {
         const res = await fetch('/api/analyze', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            type: 'disease',
-            imageBase64: base64Image,
-            query: document.getElementById('diseaseQuery').value
-          })
+          body: JSON.stringify({ type: 'calendar', cropName: crop, sowingDate: date })
+        });
+        const d = await res.json();
+        if (d.success) {
+          latestReportText = d.data.textAnswer;
+          resBox.innerHTML = `<h4 style="color:#2e7d32;">🗓️ પાક સમયપત્રક અને છંટકાવ પ્લાન:</h4><p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${latestReportText}</p>${createActionBar()}`;
+          resBox.style.display = 'block';
+        } else { alert("સર્વર ભૂલ: " + d.error); }
+      } catch (err) { alert("ક્ષતિ: " + err.message); }
+      finally { btn.disabled = false; btn.innerText = "સમયપત્રક તૈયાર કરો 📅"; }
+    }
+
+    async function calculateBio() {
+      const option = document.getElementById('bioOption').value;
+      const area = document.getElementById('bioArea').value;
+      const btn = document.getElementById('bioBtn');
+      const resBox = document.getElementById('bioResult');
+      btn.disabled = true; btn.innerText = "ગણતરી થઈ રહી છે..."; resBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ type: 'bio', bioOption: option, bioArea: area })
+        });
+        const d = await res.json();
+        if (d.success) {
+          latestReportText = d.data.textAnswer;
+          resBox.innerHTML = `<h4 style="color:#2e7d32;">🌿 પ્રાકૃતિક ફોર્મ્યુલા રિપોર્ટ:</h4><p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${latestReportText}</p>${createActionBar()}`;
+          resBox.style.display = 'block';
+        } else { alert("સર્વર ભૂલ: " + d.error); }
+      } catch (err) { alert("ક્ષતિ: " + err.message); }
+      finally { btn.disabled = false; btn.innerText = "સામગ્રી અને બનાવવાની રીત જુઓ 🧪"; }
+    }
+
+    async function analyzeCrop() {
+      if (!base64Image) return alert("પાકનો ફોટો પાડો અથવા સિલેક્ટ કરો.");
+      const btn = document.getElementById('analyzeBtn');
+      const resBox = document.getElementById('diseaseResult');
+      btn.disabled = true; btn.innerText = "રોગનું નિદાન થઈ રહ્યું છે..."; resBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ type: 'disease', imageBase64: base64Image, query: document.getElementById('diseaseQuery').value })
         });
         const d = await res.json();
         if (d.success) {
           const info = d.data;
-          latestReportText = `પાક: ${info.crop_name}\nસંભવિત રોગ: ${info.disease_name} (તીવ્રતા: ${info.severity})\nમુખ્ય લક્ષણો: ${info.symptoms}\nરાસાયણિક દવા: ${info.chemical_treatment}\nદેશી/જૈવિક ઉપાય: ${info.organic_treatment}\nસાવચેતી: ${info.prevention}`;
+          latestReportText = `પાક: ${info.crop_name}\nસંભવિત રોગ: ${info.disease_name} (${info.severity})\nમુખ્ય લક્ષણો: ${info.symptoms}\nરાસાયણિક દવા: ${info.chemical_treatment}\nજૈવિક ઉપાય: ${info.organic_treatment}\nસાવચેતી: ${info.prevention}`;
 
           resBox.innerHTML = `
             <h3 style="color:#2e7d32;">🌾 પાક: ${info.crop_name}</h3>
-            <p style="margin-top:6px;"><b>⚠️ સંભવિત રોગ:</b> ${info.disease_name} (તીવ્રતા: ${info.severity})</p>
+            <p style="margin-top:6px;"><b>⚠️ સંભવિત રોગ:</b> ${info.disease_name} (${info.severity})</p>
             <p style="margin-top:6px;"><b>🔍 મુખ્ય લક્ષણો:</b> ${info.symptoms}</p>
             <p style="margin-top:6px; color:#c62828;"><b>💊 રાસાયણિક દવા:</b> ${info.chemical_treatment}</p>
             <p style="margin-top:6px; color:#2e7d32;"><b>🌿 દેશી / જૈવિક ઉપાય:</b> ${info.organic_treatment}</p>
@@ -511,18 +511,11 @@
             ${createActionBar()}
           `;
           resBox.style.display = 'block';
-        } else {
-          alert("સર્વર ભૂલ: " + (d.error || "નિદાન થઈ શક્યું નથી."));
-        }
-      } catch(err) {
-        alert("ક્ષતિ: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "રોગનું નિદાન કરો 🔬";
-      }
+        } else { alert("સર્વર ભૂલ: " + d.error); }
+      } catch (err) { alert("ક્ષતિ: " + err.message); }
+      finally { btn.disabled = false; btn.innerText = "રોગનું નિદાન કરો 🔬"; }
     }
 
-    // હવામાન વિગતો આપોઆપ મેળવવી
     window.addEventListener('load', () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -530,9 +523,7 @@
           () => getWeatherData(24.36, 71.52),
           { timeout: 6000 }
         );
-      } else {
-        getWeatherData(24.36, 71.52);
-      }
+      } else { getWeatherData(24.36, 71.52); }
     });
 
     async function getWeatherData(lat, lon) {
@@ -540,26 +531,18 @@
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,rain,wind_speed_10m`;
         const res = await fetch(url);
         const data = await res.json();
-
         if (data.current) {
-          const t = data.current.temperature_2m;
-          const w = data.current.wind_speed_10m;
-          const r = data.current.rain;
-          const h = data.current.relative_humidity_2m;
-
-          document.getElementById('w-temp').innerText = `${t} °C`;
-          document.getElementById('w-wind').innerText = `${w} km/h`;
-          document.getElementById('w-rain').innerText = `${r} mm`;
-          document.getElementById('w-humidity').innerText = `${h}%`;
-          document.getElementById('geo-status').innerText = "હવામાન વિગતો સફળતાપૂર્વક અપડેટ થઈ ગઈ છે.";
-
+          document.getElementById('w-temp').innerText = `${data.current.temperature_2m} °C`;
+          document.getElementById('w-wind').innerText = `${data.current.wind_speed_10m} km/h`;
+          document.getElementById('w-rain').innerText = `${data.current.rain} mm`;
+          document.getElementById('w-humidity').innerText = `${data.current.relative_humidity_2m}%`;
+          document.getElementById('geo-status').innerText = "હવામાન વિગતો અપડેટ થઈ ગઈ છે.";
+          
           let advice = "હવામાન સામાન્ય છે. નિયમિત ખેતી કાર્યો કરી શકાય છે.";
-          if (w > 16) {
-            advice = "⚠️ પવનની ગતિ વધુ છે (16 km/h થી વધુ), આજના દિવસે પાક પર કોઈ પણ પ્રકારનો દવાનો છંટકાવ ટાળવો, અન્યથા દવા હવામાં ઉડી જશે.";
-          } else if (r > 1) {
-            advice = "🌧️ વરસાદ ચાલુ અથવા ભેજનું પ્રમાણ વધુ છે. પાકને હાલ પિયત આપવાનું મોકૂફ રાખવું.";
-          } else if (t > 38) {
-            advice = "☀️ વધુ ગરમી હોવાથી પિયત સાંજ અથવા વહેલી સવારે જ આપવું.";
+          if (data.current.wind_speed_10m > 16) {
+            advice = "⚠️ પવન વધુ છે (16 km/h થી વધુ), દવાનો છંટકાવ ટાળવો.";
+          } else if (data.current.rain > 1) {
+            advice = "🌧️ વરસાદને લીધે હાલ પિયત મોકૂફ રાખવું.";
           }
           document.getElementById('agro-advisory').innerText = advice;
         }
