@@ -27,7 +27,7 @@
       padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-top: 6px;
     }
 
-    /* ૪ ઉપર અને ૪ નીચે (કુલ ૮ બટનની ગ્રીડ) */
+    /* ૪ ઉપર અને ૪ નીચે બટનની ગ્રીડ */
     .nav-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -117,11 +117,10 @@
 
   <div class="header">
     <h1>🌱 AI ખેડૂત મિત્ર</h1>
-    <p>સંપૂર્ણ ડિજિટલ કૃષિ સાથી | ધરણીધર, વાવ, થરાદ</p>
+    <p>સંપૂર્ણ ડિજિટલ કૃષિ સાથી | ધરણીધર, વાવ, થરાદ, પાલનપુર</p>
     <div class="school-tag">શ્રી પાનસડા અનુપમ પ્રાથમિક શાળા | માર્ગદર્શક: શ્રી રાજપુરા રસુલભાઈ</div>
   </div>
 
-  <!-- ૪ ઉપર અને ૪ નીચે બટનની ગ્રીડ -->
   <div class="nav-grid">
     <button class="nav-btn active" onclick="switchTab('advisor', this)">🌾 ૧. ખેતી સલાહ</button>
     <button class="nav-btn" onclick="switchTab('planner', this)">🌱 ૨. જમીન પાક</button>
@@ -177,12 +176,10 @@
       <div id="planResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૩. પાક કેલેન્ડર (નવું મોડ્યુલ) -->
+    <!-- ૩. પાક કેલેન્ડર -->
     <div id="tab-calendar" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">🗓️ પાક કેલેન્ડર અને છંટકાવ સમયપત્રક</h3>
-        <p style="font-size: 12px; color: #666; margin-top: 4px;">વાવણી તારીખ નાખો અને આખો પાક તૈયાર થવા સુધીનું શેડ્યૂલ મેળવો:</p>
-        
         <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૧. પાકનું નામ:</label>
         <input type="text" id="calCrop" placeholder="દા.ત. જીરું, રાયડો, એરંડા, ઘઉં...">
 
@@ -194,12 +191,10 @@
       <div id="calResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૪. પ્રાકૃતિક ખેતી (નવું મોડ્યુલ) -->
+    <!-- ૪. પ્રાકૃતિક ખેતી -->
     <div id="tab-bio" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">🌿 પ્રાકૃતિક ખેતી કેલ્ક્યુલેટર</h3>
-        <p style="font-size: 12px; color: #666; margin-top: 4px;">દેશી ગાય આધારિત ખાતર અને દવાની વીઘા દીઠ ચોક્કસ ગણતરી:</p>
-        
         <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૧. ઉપાય / ખાતર પસંદ કરો:</label>
         <select id="bioOption">
           <option value="જીવામૃત (પ્રવાહી ખાતર/પિયત સાથે)">જીવામૃત (પિયતમાં આપવા માટે)</option>
@@ -209,7 +204,7 @@
           <option value="ખાટી છાશ અને તાંબાનો ઉપયોગ (ફૂગ નિયંત્રણ)">ખાટી છાશ સ્પ્રે (ફૂગ અને સુકારા માટે)</option>
         </select>
 
-        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૨. તમારા ખેતરનું માપ:</label>
+        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૨. ખેતરનું માપ:</label>
         <select id="bioArea">
           <option value="1 વીઘો">૧ વીઘો</option>
           <option value="2 વીઘા">૨ વીઘા</option>
@@ -223,7 +218,7 @@
       <div id="bioResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૫. હવામાન સૂચના -->
+    <!-- ૫. હવામાન -->
     <div id="tab-weather" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">🌦️ લાઈવ ખેતર હવામાન અને કૃષિ સલાહ</h3>
@@ -241,7 +236,7 @@
       </div>
     </div>
 
-    <!-- ૬. પાક રોગ નિદાન -->
+    <!-- ૬. પાક રોગ -->
     <div id="tab-disease" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">🔬 પાક રોગ નિદાન કેન્દ્ર</h3>
@@ -258,23 +253,59 @@
       <div id="diseaseResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૭. બજાર ભાવ -->
+    <!-- ૭. બજાર ભાવ (APMC & પાક પસંદગી) -->
     <div id="tab-mandi" class="tab-content">
       <div class="card">
-        <h3 style="color: var(--primary);">💰 મુખ્ય માર્કેટ યાર્ડ અંદાજિત ભાવ (૨૦ કિલો / મણ)</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;">
-          <tr style="background: #e8f5e9; text-align: left;">
-            <th style="padding: 8px; border: 1px solid #c8e6c9;">પાક</th>
-            <th style="padding: 8px; border: 1px solid #c8e6c9;">નીચો ભાવ</th>
-            <th style="padding: 8px; border: 1px solid #c8e6c9;">ઊંચો ભાવ</th>
-          </tr>
-          <tr><td style="padding: 8px; border: 1px solid #eee;">જીરું</td><td style="padding: 8px; border: 1px solid #eee;">₹4,200</td><td style="padding: 8px; border: 1px solid #eee;">₹5,400</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #eee;">રાયડો</td><td style="padding: 8px; border: 1px solid #eee;">₹950</td><td style="padding: 8px; border: 1px solid #eee;">₹1,120</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #eee;">એરંડા</td><td style="padding: 8px; border: 1px solid #eee;">₹1,140</td><td style="padding: 8px; border: 1px solid #eee;">₹1,260</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #eee;">ઇસબગુલ</td><td style="padding: 8px; border: 1px solid #eee;">₹2,400</td><td style="padding: 8px; border: 1px solid #eee;">₹3,100</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #eee;">બાજરી / ઘઉં</td><td style="padding: 8px; border: 1px solid #eee;">₹440</td><td style="padding: 8px; border: 1px solid #eee;">₹560</td></tr>
-        </table>
-        <p style="font-size: 11px; color: #888; margin-top: 8px;">* સ્થાનિક યાર્ડની આવક અનુસાર દૈનિક ફેરફાર થઈ શકે છે.</p>
+        <h3 style="color: var(--primary);">💰 દૈનિક APMC બજાર ભાવ (૨૦ કિલો / મણ)</h3>
+        <p style="font-size: 12px; color: #666; margin-top: 4px;">માર્કેટ યાર્ડ અને ખેતી પાક પસંદ કરી તાજા ભાવ જુઓ:</p>
+        
+        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૧. માર્કેટ યાર્ડ પસંદ કરો:</label>
+        <select id="mandiYard">
+          <option value="થરાદ માર્કેટ યાર્ડ">થરાદ માર્કેટ યાર્ડ</option>
+          <option value="ડીસા માર્કેટ યાર્ડ">ડીસા માર્કેટ યાર્ડ</option>
+          <option value="પાલનપુર માર્કેટ યાર્ડ">પાલનપુર માર્કેટ યાર્ડ</option>
+          <option value="ઢીમા / વાવ માર્કેટ યાર્ડ">ઢીમા / વાવ માર્કેટ યાર્ડ</option>
+          <option value="નેનાવા માર્કેટ યાર્ડ">નેનાવા માર્કેટ યાર્ડ</option>
+          <option value="પાટણ માર્કેટ યાર્ડ">પાટણ માર્કેટ યાર્ડ</option>
+          <option value="ઊંઝા માર્કેટ યાર્ડ (મુખ્ય જીરું-વરિયાળી બજાર)">ઊંઝા માર્કેટ યાર્ડ</option>
+        </select>
+
+        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૨. ખેતી પાક પસંદ કરો:</label>
+        <select id="mandiCrop">
+          <option value="બધા જ મુખ્ય પાક">-- બધા જ મુખ્ય પાક જુઓ --</option>
+          <option value="જીરું">જીરું (Cumin)</option>
+          <option value="ઈસબગુલ">ઈસબગુલ (Psyllium)</option>
+          <option value="રાયડો">રાયડો (Mustard)</option>
+          <option value="એરંડા">એરંડા (Castor)</option>
+          <option value="ઘઉં">ઘઉં (Wheat)</option>
+          <option value="બાજરી">બાજરી (Pearl Millet)</option>
+          <option value="મકાઈ">મકાઈ (Maize)</option>
+          <option value="મગફળી">મગફળી (Groundnut)</option>
+          <option value="રાજગરો">રાજગરો (Rajgira)</option>
+          <option value="કઠોળ પાક (મગ, ચણા, અડદ, તુવેર)">કઠોળ પાક (મગ, ચણા, અડદ)</option>
+        </select>
+
+        <button id="mandiBtn" class="btn-main" onclick="fetchLiveMandi()">તાજા ભાવ મેળવો 🔄</button>
+      </div>
+
+      <div id="mandiResult" class="result-box">
+        <h4 id="mandiTitle" style="color: var(--primary);">📊 બજાર ભાવ કોષ્ટક:</h4>
+        <div id="mandiTableBox" style="margin-top: 10px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <tr style="background: #e8f5e9; text-align: left;">
+              <th style="padding: 8px; border: 1px solid #c8e6c9;">પાક</th>
+              <th style="padding: 8px; border: 1px solid #c8e6c9;">નીચો ભાવ</th>
+              <th style="padding: 8px; border: 1px solid #c8e6c9;">ઊંચો ભાવ</th>
+              <th style="padding: 8px; border: 1px solid #c8e6c9;">વલણ</th>
+            </tr>
+            <tr><td style="padding: 8px; border: 1px solid #eee;">જીરું</td><td style="padding: 8px; border: 1px solid #eee;">₹4,200</td><td style="padding: 8px; border: 1px solid #eee;">₹5,400</td><td style="padding: 8px; border: 1px solid #eee; color: green; font-weight:bold;">સ્થિર</td></tr>
+            <tr><td style="padding: 8px; border: 1px solid #eee;">રાયડો</td><td style="padding: 8px; border: 1px solid #eee;">₹980</td><td style="padding: 8px; border: 1px solid #eee;">₹1,150</td><td style="padding: 8px; border: 1px solid #eee; color: green; font-weight:bold;">મજબૂત</td></tr>
+            <tr><td style="padding: 8px; border: 1px solid #eee;">એરંડા</td><td style="padding: 8px; border: 1px solid #eee;">₹1,140</td><td style="padding: 8px; border: 1px solid #eee;">₹1,260</td><td style="padding: 8px; border: 1px solid #eee; color: green; font-weight:bold;">સ્થિર</td></tr>
+            <tr><td style="padding: 8px; border: 1px solid #eee;">ઈસબગુલ</td><td style="padding: 8px; border: 1px solid #eee;">₹2,450</td><td style="padding: 8px; border: 1px solid #eee;">₹3,200</td><td style="padding: 8px; border: 1px solid #eee; color: red; font-weight:bold;">નરમ</td></tr>
+            <tr><td style="padding: 8px; border: 1px solid #eee;">ઘઉં / બાજરી</td><td style="padding: 8px; border: 1px solid #eee;">₹450</td><td style="padding: 8px; border: 1px solid #eee;">₹570</td><td style="padding: 8px; border: 1px solid #eee; color: green; font-weight:bold;">સ્થિર</td></tr>
+          </table>
+        </div>
+        <div id="mandiActionContainer"></div>
       </div>
     </div>
 
@@ -516,6 +547,67 @@
       finally { btn.disabled = false; btn.innerText = "રોગનું નિદાન કરો 🔬"; }
     }
 
+    // ૭. લાઈવ APMC બજાર ભાવ ફેચ
+    async function fetchLiveMandi() {
+      const yard = document.getElementById('mandiYard').value;
+      const crop = document.getElementById('mandiCrop').value;
+      const btn = document.getElementById('mandiBtn');
+      const box = document.getElementById('mandiTableBox');
+      const act = document.getElementById('mandiActionContainer');
+
+      btn.disabled = true;
+      btn.innerText = "તાજા ભાવ મેળવી રહ્યું છે...";
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ type: 'mandi', mandiYard: yard, mandiCrop: crop })
+        });
+        const d = await res.json();
+        if (d.success && Array.isArray(d.data)) {
+          let rows = "";
+          let summary = `📊 *${yard} ના દૈનિક બજાર ભાવ (${crop}) - ૨૦ કિલો / મણ:*\n\n`;
+
+          d.data.forEach(item => {
+            const trendColor = (item.trend === 'મજબૂત' || item.trend === 'તેજી') ? 'green' : ((item.trend === 'નરમ' || item.trend === 'મંદી') ? 'red' : '#2e7d32');
+            rows += `
+              <tr>
+                <td style="padding: 8px; border: 1px solid #eee; font-weight:bold;">${item.crop}</td>
+                <td style="padding: 8px; border: 1px solid #eee;">₹${item.min}</td>
+                <td style="padding: 8px; border: 1px solid #eee;">₹${item.max}</td>
+                <td style="padding: 8px; border: 1px solid #eee; color:${trendColor}; font-weight:bold;">${item.trend}</td>
+              </tr>
+            `;
+            summary += `• ${item.crop}: ₹${item.min} થી ₹${item.max} (${item.trend})\n`;
+          });
+
+          box.innerHTML = `
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <tr style="background: #e8f5e9; text-align: left;">
+                <th style="padding: 8px; border: 1px solid #c8e6c9;">પાક</th>
+                <th style="padding: 8px; border: 1px solid #c8e6c9;">નીચો ભાવ</th>
+                <th style="padding: 8px; border: 1px solid #c8e6c9;">ઊંચો ભાવ</th>
+                <th style="padding: 8px; border: 1px solid #c8e6c9;">વલણ</th>
+              </tr>
+              ${rows}
+            </table>
+          `;
+          document.getElementById('mandiTitle').innerText = `📊 ${yard} ના લાઈવ બજાર ભાવ:`;
+          latestReportText = summary;
+          act.innerHTML = createActionBar();
+        } else {
+          alert("ભાવ ફેચ થઈ શક્યા નથી.");
+        }
+      } catch (err) {
+        alert("ક્ષતિ: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "તાજા ભાવ મેળવો 🔄";
+      }
+    }
+
+    // હવામાન
     window.addEventListener('load', () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -553,3 +645,4 @@
   </script>
 </body>
 </html>
+
