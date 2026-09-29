@@ -642,6 +642,13 @@
         document.getElementById('geo-status').innerText = "હવામાન લોડ થઈ શક્યું નથી.";
       }
     }
+      // PWA સર્વિસ વર્કર રજિસ્ટર કરવું
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Fail:', err));
+    });
+  }
+    
   </script>
 </body>
 </html>
