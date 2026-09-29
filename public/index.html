@@ -27,7 +27,7 @@
       padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-top: 6px;
     }
 
-    /* ૩-૩ બટન ૨ હરોળમાં */
+    /* ૩ ઉપર અને ૩ નીચે સુંદર બટન ગ્રીડ */
     .nav-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -96,15 +96,15 @@
       display: flex;
       gap: 6px;
       margin-top: 14px;
-      padding-top: 10px;
+      padding-top: 12px;
       border-top: 1px dashed #ccc;
     }
     .btn-action {
       flex: 1;
-      padding: 8px 4px;
-      font-size: 12px;
+      padding: 10px 4px;
+      font-size: 12.5px;
       font-weight: bold;
-      border-radius: 6px;
+      border-radius: 8px;
       border: none;
       cursor: pointer;
       display: flex;
@@ -112,9 +112,9 @@
       justify-content: center;
       gap: 4px;
     }
-    .btn-audio { background: #e3f2fd; color: #1565c0; }
-    .btn-wa { background: #e8f5e9; color: #2e7d32; }
-    .btn-print { background: #fff3e0; color: #e65100; }
+    .btn-audio { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+    .btn-wa { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+    .btn-print { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
 
     @media print {
       body * { visibility: hidden; }
@@ -132,7 +132,7 @@
     <div class="school-tag">શ્રી પાનસડા અનુપમ પ્રાથમિક શાળા | માર્ગદર્શક: શ્રી રાજપુરા રસુલભાઈ</div>
   </div>
 
-  <!-- ૩ ઉપર અને ૩ નીચે સુંદર બટન ગ્રીડ -->
+  <!-- ૩ ઉપર અને ૩ નીચે નેવિગેશન બટન ગ્રીડ -->
   <div class="nav-grid">
     <button class="nav-btn active" onclick="switchTab('advisor', this)">🌾 ૧. ખેતી સલાહ</button>
     <button class="nav-btn" onclick="switchTab('planner', this)">🌱 ૨. જમીન & પાક</button>
@@ -282,7 +282,7 @@
 
   <script>
     let base64Image = null;
-    let currentSpeechText = "";
+    let latestReportText = ""; // ગ્લોબલ સુરક્ષિત ટેક્સ્ટ
 
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -291,7 +291,7 @@
       if (btn) btn.classList.add('active');
     }
 
-    // ઇમેજ કમ્પ્રેસર (413 Payload Too Large એરર અટકાવવા)
+    // ઇમેજ કમ્પ્રેસર (413 Payload Too Large એરર અટકાવવા માટે)
     function handleImage(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -342,43 +342,60 @@
       rec.start();
     }
 
-    // 🔊 ૧. ગુજરાતીમાં બોલીને સંભળાવવું
-    function speakText(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'gu-IN';
-        utterance.rate = 0.9;
-        window.speechSynthesis.speak(utterance);
-      } else {
-        alert("તમારા બ્રાઉઝરમાં ઓડિયો સપોર્ટ ઉપલબ્ધ નથી.");
+    // 🔊 ૧. ગુજરાતીમાં બોલીને સંભળાવવું (વોઇસ આઉટપુટ)
+    function speakText() {
+      if (!('speechSynthesis' in window)) {
+        alert("તમારા ફોનમાં અવાજ સપોર્ટ ઉપલબ્ધ નથી.");
+        return;
       }
+      
+      window.speechSynthesis.cancel();
+      if (!latestReportText) {
+        alert("સાંભળવા માટે કોઈ લખાણ ઉપલબ્ધ નથી.");
+        return;
+      }
+
+      // સાફ લખાણ બનાવી સ્પીચ આપવી
+      const cleanText = latestReportText.replace(/[#*⚠️💡💊🌿🛡️🔍🌱-]/g, ' ');
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = 'gu-IN';
+      utterance.rate = 0.88;
+
+      const voices = window.speechSynthesis.getVoices();
+      const guVoice = voices.find(v => v.lang.includes('gu') || v.lang.includes('hi'));
+      if (guVoice) utterance.voice = guVoice;
+
+      window.speechSynthesis.speak(utterance);
     }
 
-    // 📲 ૨. વોટ્સએપ પર રિપોર્ટ શેર કરવો
-    function shareToWhatsApp(text) {
-      const shareUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent("🌱 *AI ખેડૂત મિત્ર રિપોર્ટ*\n\n" + text + "\n\n🔗 વધુ વિગતો માટે: https://khedut-ai-pro.vercel.app");
+    // 📲 ૨. વોટ્સએપ પર સચોટ શેરિંગ
+    function shareToWhatsApp() {
+      if (!latestReportText) {
+        alert("શેર કરવા માટે કોઈ રિપોર્ટ નથી.");
+        return;
+      }
+      const msg = "🌱 *AI ખેડૂત મિત્ર રિપોર્ટ*\n\n" + latestReportText + "\n\n🔗 વધુ માહિતી માટે: https://khedut-ai-pro.vercel.app";
+      const shareUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(msg);
       window.open(shareUrl, '_blank');
     }
 
-    // 📄 ૩. પ્રિન્ટ / PDF ડાઉનલોડ
+    // 📄 ૩. પીડીએફ / પ્રિન્ટ
     function printReport() {
       window.print();
     }
 
-    // એક્શન બાર બનાવવા માટેનું હેલ્પર ફંક્શન
-    function createActionBar(plainText) {
-      const safeText = plainText.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+    // એક્શન બાર ફંક્શન
+    function createActionBar() {
       return `
         <div class="action-toolbar">
-          <button class="btn-action btn-audio" onclick="speakText('${safeText}')">🔊 સાંભળો</button>
-          <button class="btn-action btn-wa" onclick="shareToWhatsApp('${safeText}')">📲 WhatsApp</button>
-          <button class="btn-action btn-print" onclick="printReport()">📄 PDF/પ્રિન્ટ</button>
+          <button type="button" class="btn-action btn-audio" onclick="speakText()">🔊 સાંભળો</button>
+          <button type="button" class="btn-action btn-wa" onclick="shareToWhatsApp()">📲 WhatsApp</button>
+          <button type="button" class="btn-action btn-print" onclick="printReport()">📄 PDF/પ્રિન્ટ</button>
         </div>
       `;
     }
 
-    // ૧. ખેતી સલાહકાર કોલ
+    // ૧. ખેતી સલાહકાર
     async function askAdvisor() {
       const q = document.getElementById('advisorQuery').value;
       if (!q) return alert("કૃપા કરીને પ્રશ્ન લખો અથવા માઇકથી બોલો.");
@@ -397,25 +414,25 @@
         });
         const d = await res.json();
         if (d.success) {
-          const ans = d.data.textAnswer;
+          latestReportText = d.data.textAnswer;
           resBox.innerHTML = `
             <h4 style="color:#2e7d32;">💡 કૃષિ સલાહ:</h4>
-            <p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${ans}</p>
-            ${createActionBar(ans)}
+            <p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${latestReportText}</p>
+            ${createActionBar()}
           `;
           resBox.style.display = 'block';
         } else {
           alert("સર્વર ભૂલ: " + (d.error || "માહિતી મળી નથી."));
         }
       } catch (err) {
-        alert("નેટવર્ક એરર: " + err.message);
+        alert("ક્ષતિ: " + err.message);
       } finally {
         btn.disabled = false;
         btn.innerText = "સલાહ મેળવો 🔍";
       }
     }
 
-    // ૨. જમીન & પાક આયોજન કોલ
+    // ૨. જમીન & પાક આયોજન
     async function calculatePlan() {
       const soil = document.getElementById('soilType').value;
       const crop = document.getElementById('planCrop').value;
@@ -442,25 +459,25 @@
         });
         const d = await res.json();
         if (d.success) {
-          const ans = d.data.textAnswer;
+          latestReportText = d.data.textAnswer;
           resBox.innerHTML = `
             <h4 style="color:#2e7d32;">📋 જમીન અને પાક આયોજન રિપોર્ટ:</h4>
-            <p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${ans}</p>
-            ${createActionBar(ans)}
+            <p style="white-space: pre-line; margin-top:8px; line-height: 1.6;">${latestReportText}</p>
+            ${createActionBar()}
           `;
           resBox.style.display = 'block';
         } else {
           alert("સર્વર ભૂલ: " + (d.error || "ગણતરી થઈ શકી નથી."));
         }
       } catch(err) {
-        alert("નેટવર્ક એરર: " + err.message);
+        alert("ક્ષતિ: " + err.message);
       } finally {
         btn.disabled = false;
         btn.innerText = "ગણતરી અને માર્ગદર્શન મેળવો 📋";
       }
     }
 
-    // ૩. પાક રોગ નિદાન કોલ
+    // ૩. પાક રોગ નિદાન
     async function analyzeCrop() {
       if (!base64Image) return alert("કૃપા કરીને પહેલા પાકનો ફોટો પાડો અથવા સિલેક્ટ કરો.");
       const btn = document.getElementById('analyzeBtn');
@@ -482,8 +499,8 @@
         const d = await res.json();
         if (d.success) {
           const info = d.data;
-          const shareSummary = `પાક: ${info.crop_name}\nરોગ: ${info.disease_name} (${info.severity})\nમુખ્ય લક્ષણો: ${info.symptoms}\nરાસાયણિક દવા: ${info.chemical_treatment}\nજૈવિક ઉપાય: ${info.organic_treatment}`;
-          
+          latestReportText = `પાક: ${info.crop_name}\nસંભવિત રોગ: ${info.disease_name} (તીવ્રતા: ${info.severity})\nમુખ્ય લક્ષણો: ${info.symptoms}\nરાસાયણિક દવા: ${info.chemical_treatment}\nદેશી/જૈવિક ઉપાય: ${info.organic_treatment}\nસાવચેતી: ${info.prevention}`;
+
           resBox.innerHTML = `
             <h3 style="color:#2e7d32;">🌾 પાક: ${info.crop_name}</h3>
             <p style="margin-top:6px;"><b>⚠️ સંભવિત રોગ:</b> ${info.disease_name} (તીવ્રતા: ${info.severity})</p>
@@ -491,7 +508,7 @@
             <p style="margin-top:6px; color:#c62828;"><b>💊 રાસાયણિક દવા:</b> ${info.chemical_treatment}</p>
             <p style="margin-top:6px; color:#2e7d32;"><b>🌿 દેશી / જૈવિક ઉપાય:</b> ${info.organic_treatment}</p>
             <p style="margin-top:6px; color:#e65100;"><b>🛡️ સાવચેતી:</b> ${info.prevention}</p>
-            ${createActionBar(shareSummary)}
+            ${createActionBar()}
           `;
           resBox.style.display = 'block';
         } else {
@@ -505,7 +522,7 @@
       }
     }
 
-    // હવામાન અને સલાહ લોડ
+    // હવામાન વિગતો આપોઆપ મેળવવી
     window.addEventListener('load', () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
