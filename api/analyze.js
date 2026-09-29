@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { type, imageBase64, query } = req.body;
+  const { type, imageBase64, query, soilType, cropName, landArea } = req.body;
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -18,10 +18,28 @@ export default async function handler(req, res) {
   if (type === "advisor") {
     promptText = `
 તમે એક અનુભવી કૃષિ વૈજ્ઞાનિક અને ખેડૂતના સાચા મિત્ર છો.
-ગુજરાત (ખાસ કરીને બનાસકાંઠા, પાટણ, સૌરાષ્ટ્ર) વિસ્તારના સંદર્ભમાં ખેડૂતના નીચેના પ્રશ્નનો ખૂબ જ સરળ, વ્યવહારુ અને ગામઠી ગુજરાતી ભાષામાં સચોટ જવાબ આપો.
+ગુજરાત (ખાસ કરીને બનાસકાંઠા, વાવ, થરાદ, ધરણીધર) વિસ્તારના સંદર્ભમાં ખેડૂતના નીચેના પ્રશ્નનો ખૂબ જ સરળ, વ્યવહારુ અને ગામઠી ગુજરાતી ભાષામાં સચોટ જવાબ આપો.
 જવાબ મુદ્દાસર આપવો જેમાં જરૂર હોય ત્યાં દેશી ઉપાય અને રાસાયણિક ઉપાય બંને સ્પષ્ટ જણાવવા.
 
 ખેડૂતનો પ્રશ્ન: "${query}"
+`;
+    parts = [{ text: promptText }];
+  } else if (type === "planner") {
+    promptText = `
+તમે એક કૃષિ અર્થશાસ્ત્રી અને પાક ઉત્પાદન નિષ્ણાત છો.
+ખેડૂતની વિગતો નીચે મુજબ છે:
+- જમીનનો પ્રકાર: ${soilType}
+- પસંદ કરેલ પાક: ${cropName}
+- જમીનનું માપ: ${landArea}
+
+બનાસકાંઠા અને ગુજરાતની આબોહવા મુજબ આ ખેડૂત માટે વિગતવાર ગણતરી કરીને સરળ ગુજરાતીમાં નીચે મુજબ મુદ્દાસર જવાબ આપો:
+1. જમીન અનુકૂળતા અને શક્યતા (આ જમીનમાં આ પાક કેવો થશે?)
+2. જરૂરી બિયારણનું ચોક્કસ પ્રમાણ (${landArea} માટે કેટલા કિલો બિયારણ જોઈએ અને બીજ માવજત/પટ)
+3. પાયાનું ખાતર (વાવણી સમયે કયું ખાતર અને કેટલું આપવું?)
+4. પૂર્તિ ખાતર અને પિયત વ્યવસ્થાપન (પાક વધે ત્યારે શું આપવું?)
+5. શરૂઆતથી ધ્યાનમાં રાખવાની મુખ્ય સાવચેતી અને રોગ-જીવાત નિયંત્રણ
+
+ખેડૂત સીધો અમલ કરી શકે તેવી સરળ ભાષામાં સ્પષ્ટ આંકડા સાથે જવાબ આપવો.
 `;
     parts = [{ text: promptText }];
   } else {
@@ -44,7 +62,7 @@ export default async function handler(req, res) {
   "organic_treatment": "દેશી અને જૈવિક ઉપાયો",
   "prevention": "સાવચેતીનાં પગલાં"
 }
-નોંધ: કોઈ પણ વધારાના લખાણ કે માર્કડાઉન વગર શુદ્ધ JSON આપવો.
+નોંધ: કોઈ પણ વધારાના લખાણ વગર માત્ર શુદ્ધ JSON આપવો.
 `;
     parts = [
       { text: promptText },
@@ -74,7 +92,7 @@ export default async function handler(req, res) {
 
         if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
           let text = data.candidates[0].content.parts[0].text.trim();
-          if (type === "advisor") {
+          if (type === "advisor" || type === "planner") {
             finalResult = { textAnswer: text };
           } else {
             text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
