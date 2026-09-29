@@ -219,6 +219,26 @@
   <div style="font-weight: bold; font-size: 14px; margin-bottom: 12px; color: #2e7d32;">
     પાક અથવા રોગિષ્ટ પાંદડાનો ફોટો પસંદ કરો:
   </div>
+<!-- લાઈવ હવામાન કાર્ડ -->
+<div id="weather-card" style="background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 10px; padding: 12px; margin-bottom: 15px; text-align: center; font-size: 13px;">
+  <div style="font-weight: bold; color: #2e7d32; margin-bottom: 6px; display: flex; justify-content: center; align-items: center; gap: 5px;">
+    🌦️ ખેતરનું લાઈવ હવામાન <span id="weather-loading" style="font-size: 11px; color: #666;">(લોકેશન મેળવી રહ્યું છે...)</span>
+  </div>
+  <div id="weather-details" style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; display: none;">
+    <div style="background: white; padding: 6px 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      🌡️ તાપમાન: <b id="w-temp">--</b>
+    </div>
+    <div style="background: white; padding: 6px 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      💨 પવન: <b id="w-wind">--</b>
+    </div>
+    <div style="background: white; padding: 6px 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      🌧️ વરસાદ: <b id="w-rain">--</b>
+    </div>
+    <div style="background: white; padding: 6px 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      💧 ભેજ: <b id="w-humidity">--</b>
+    </div>
+  </div>
+</div>
 
   <!-- બે છુપાયેલા ઇનપુટ્સ -->
   <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleImage(event)">
@@ -410,7 +430,47 @@
       analyzeBtn.disabled = false;
       analyzeBtn.innerText = "🔍 AI દ્વારા રોગનું સચોટ નિદાન કરો";
     }
+    // લાઈવ જીપીએસ લોકેશન મેળવીને ઓટોમેટિક હવામાન લોડ કરવું
+window.addEventListener('load', () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(fetchWeatherData, handleLocationError);
+  } else {
+    const loadingEl = document.getElementById('weather-loading');
+    if (loadingEl) loadingEl.innerText = '(બ્રાઉઝર લોકેશન સપોર્ટ કરતું નથી)';
   }
+});
+
+async function fetchWeatherData(position) {
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,rain,wind_speed_10m`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.current) {
+      document.getElementById('w-temp').innerText = `${data.current.temperature_2m} °C`;
+      document.getElementById('w-wind').innerText = `${data.current.wind_speed_10m} km/h`;
+      document.getElementById('w-rain').innerText = `${data.current.rain} mm`;
+      document.getElementById('w-humidity').innerText = `${data.current.relative_humidity_2m}%`;
+
+      const loadingEl = document.getElementById('weather-loading');
+      const detailsEl = document.getElementById('weather-details');
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (detailsEl) detailsEl.style.display = 'flex';
+    }
+  } catch (err) {
+    const loadingEl = document.getElementById('weather-loading');
+    if (loadingEl) loadingEl.innerText = '(હવામાન મેળવવામાં ક્ષતિ આવી)';
+  }
+}
+
+function handleLocationError(error) {
+  const loadingEl = document.getElementById('weather-loading');
+  if (loadingEl) loadingEl.innerText = '(કૃપા કરીને લોકેશન પરમિશન Allow કરો)';
+}
+}
 </script>
 
 </body>
