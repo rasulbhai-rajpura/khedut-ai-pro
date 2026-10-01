@@ -258,64 +258,204 @@
       </div>
       <div id="diseaseResult" class="result-box" style="display: none;"></div>
     </div>
-
-    <!-- ૭. બજાર ભાવ (APMC & પાક પસંદગી) -->
-    <div id="tab-mandi" class="tab-content">
+    <!-- ૭. ઉત્તર ગુજરાત મુખ્ય APMC દૈનિક બજાર ભાવ -->
+    <div id="tab-apmc" class="tab-content">
       <div class="card">
-        <h3 style="color: var(--primary);">💰 દૈનિક APMC બજાર ભાવ (૨૦ કિલો / મણ)</h3>
-        <p style="font-size: 12px; color: #666; margin-top: 4px;">માર્કેટ યાર્ડ અને ખેતી પાક પસંદ કરી તાજા ભાવ જુઓ:</p>
-        
-        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૧. માર્કેટ યાર્ડ પસંદ કરો:</label>
-        <select id="mandiYard">
-          <option value="થરાદ માર્કેટ યાર્ડ">થરાદ માર્કેટ યાર્ડ</option>
-          <option value="ડીસા માર્કેટ યાર્ડ">ડીસા માર્કેટ યાર્ડ</option>
-          <option value="પાલનપુર માર્કેટ યાર્ડ">પાલનપુર માર્કેટ યાર્ડ</option>
-          <option value="ઢીમા / વાવ માર્કેટ યાર્ડ">ઢીમા / વાવ માર્કેટ યાર્ડ</option>
-          <option value="નેનાવા માર્કેટ યાર્ડ">નેનાવા માર્કેટ યાર્ડ</option>
-          <option value="પાટણ માર્કેટ યાર્ડ">પાટણ માર્કેટ યાર્ડ</option>
-          <option value="ઊંઝા માર્કેટ યાર્ડ (મુખ્ય જીરું-વરિયાળી બજાર)">ઊંઝા માર્કેટ યાર્ડ</option>
-        </select>
+        <h3 style="color: var(--primary);">📊 ઉત્તર ગુજરાત મુખ્ય APMC બજાર ભાવ (દૈનિક)</h3>
+        <p style="font-size: 12px; color: #666; margin-top: 4px;">યાર્ડ પસંદ કરો અને ૨૦ કિલો (મણ) દીઠ લાઈવ હરાજી ભાવ જુઓ:</p>
 
-        <label style="font-size: 13px; font-weight: bold; margin-top: 8px; display: block;">૨. ખેતી પાક પસંદ કરો:</label>
-        <select id="mandiCrop">
-          <option value="બધા જ મુખ્ય પાક">-- બધા જ મુખ્ય પાક જુઓ --</option>
-          <option value="જીરું">જીરું (Cumin)</option>
-          <option value="ઈસબગુલ">ઈસબગુલ (Psyllium)</option>
-          <option value="રાયડો">રાયડો (Mustard)</option>
-          <option value="એરંડા">એરંડા (Castor)</option>
-          <option value="ઘઉં">ઘઉં (Wheat)</option>
-          <option value="બાજરી">બાજરી (Pearl Millet)</option>
-          <option value="મકાઈ">મકાઈ (Maize)</option>
-          <option value="મગફળી">મગફળી (Groundnut)</option>
-          <option value="રાજગરો">રાજગરો (Rajgira)</option>
-          <option value="કઠોળ પાક (મગ, ચણા, અડદ, તુવેર)">કઠોળ પાક (મગ, ચણા, અડદ)</option>
-        </select>
-
-        <button id="mandiBtn" class="btn-main" onclick="fetchLiveMandi()">તાજા ભાવ મેળવો 🔄</button>
-      </div>
-
-      <div id="mandiResult" class="result-box">
-        <h4 id="mandiTitle" style="color: var(--primary);">📊 બજાર ભાવ કોષ્ટક:</h4>
-        <div id="mandiTableBox" style="margin-top: 10px;">
-          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-            <tr style="background: #e8f5e9; text-align: left;">
-              <th style="padding: 8px; border: 1px solid #c8e6c9;">પાક</th>
-              <th style="padding: 8px; border: 1px solid #c8e6c9;">નીચો ભાવ</th>
-              <th style="padding: 8px; border: 1px solid #c8e6c9;">ઊંચો ભાવ</th>
-              <th style="padding: 8px; border: 1px solid #c8e6c9;">વલણ</th>
-            </tr>
-            <tr><td style="padding: 8px; border: 1px solid #eee;">જીરું</td><td style="padding: 8px; border: 1px solid #eee;">₹4,200</td><td style="padding: 8px; border: 1px solid #eee;">₹5,400</td><td style="padding: 8px; border: 1px solid #eee; color: green; font-weight:bold;">સ્થિર</td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #eee;">રાયડો</td><td style="padding: 8px; border: 1px solid #eee;">₹980</td><td style="padding: 8px; border: 1px solid #eee;">₹1,150</td><td style="padding: 8px; border: 1px solid #eee; color: green; font-weight:bold;">મજબૂત</td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #eee;">એરંડા</td><td style="padding: 8px; border: 1px solid #eee;">₹1,140</td><td style="padding: 8px; border: 1px solid #eee;">₹1,260</td><td style="padding: 8px; border: 1px solid #eee; color: green; font-weight:bold;">સ્થિર</td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #eee;">ઈસબગુલ</td><td style="padding: 8px; border: 1px solid #eee;">₹2,450</td><td style="padding: 8px; border: 1px solid #eee;">₹3,200</td><td style="padding: 8px; border: 1px solid #eee; color: red; font-weight:bold;">નરમ</td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #eee;">ઘઉં / બાજરી</td><td style="padding: 8px; border: 1px solid #eee;">₹450</td><td style="padding: 8px; border: 1px solid #eee;">₹570</td><td style="padding: 8px; border: 1px solid #eee; color: green; font-weight:bold;">સ્થિર</td></tr>
-          </table>
+        <!-- યાર્ડ પસંદગી માટે સ્ક્રોલિંગ બટન પટ્ટી -->
+        <div style="display: flex; gap: 8px; overflow-x: auto; margin: 12px 0; padding-bottom: 6px; -webkit-overflow-scrolling: touch;">
+          <button onclick="selectApmc('thrad', this)" class="apmc-btn active-apmc">થરાદ (વાવ)</button>
+          <button onclick="selectApmc('deesa', this)" class="apmc-btn">ડીસા</button>
+          <button onclick="selectApmc('dhanera', this)" class="apmc-btn">ધાનેરા</button>
+          <button onclick="selectApmc('palanpur', this)" class="apmc-btn">પાલનપુર</button>
+          <button onclick="selectApmc('bhabhar', this)" class="apmc-btn">ભાભર / દિયોદર</button>
+          <button onclick="selectApmc('unjha', this)" class="apmc-btn">ઊંઝા</button>
+          <button onclick="selectApmc('patan', this)" class="apmc-btn">પાટણ</button>
+          <button onclick="selectApmc('mehsana', this)" class="apmc-btn">મહેસાણા</button>
+          <button onclick="selectApmc('harij', this)" class="apmc-btn">હારીજ</button>
         </div>
-        <div id="mandiActionContainer"></div>
+
+        <style>
+          .apmc-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #2e7d32;
+            background: #ffffff;
+            color: #2e7d32;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.2s;
+          }
+          .active-apmc {
+            background: #2e7d32 !important;
+            color: #ffffff !important;
+          }
+          .apmc-table {
+            width: 100%;
+            font-size: 13px;
+            text-align: left;
+            border-collapse: collapse;
+            margin-top: 8px;
+          }
+          .apmc-table th {
+            background: #e8f5e9;
+            color: #1b5e20;
+            padding: 7px;
+            border-bottom: 2px solid #c8e6c9;
+          }
+          .apmc-table td {
+            padding: 7px;
+            border-bottom: 1px solid #eee;
+          }
+          .apmc-link {
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+            padding: 7px;
+            background: #f1f8e9;
+            color: #2e7d32;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            border: 1px dashed #2e7d32;
+          }
+        </style>
+
+        <!-- ૧. થરાદ (વાવ) APMC -->
+        <div id="yard-thrad" class="apmc-detail" style="border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa;">
+          <h4 style="color: #1b5e20;">📍 APMC થરાદ (વાવ-થરાદ વિસ્તાર)</h4>
+          <table class="apmc-table">
+            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
+            <tr><td>જીરું (Cumin)</td><td>4,850</td><td>5,750</td></tr>
+            <tr><td>રાયડો (Mustard)</td><td>1,490</td><td>1,565</td></tr>
+            <tr><td>એરંડા (Castor)</td><td>1,495</td><td>1,525</td></tr>
+            <tr><td>ઈસબગુલ (Isabgol)</td><td>2,450</td><td>3,050</td></tr>
+            <tr><td>બાજરી (Bajra)</td><td>420</td><td>540</td></tr>
+            <tr><td>ગુવાર (Guar)</td><td>1,190</td><td>1,240</td></tr>
+          </table>
+          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 Agmarknet પોર્ટલ પર થરાદના દૈનિક ભાવ ચકાસો ➔</a>
+        </div>
+
+        <!-- ૨. ડીસા APMC -->
+        <div id="yard-deesa" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa;">
+          <h4 style="color: #1b5e20;">📍 APMC ડીસા (Deesa)</h4>
+          <table class="apmc-table">
+            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
+            <tr><td>એરંડા (Castor)</td><td>1,508</td><td>1,515</td></tr>
+            <tr><td>રાયડો (Mustard)</td><td>1,511</td><td>1,570</td></tr>
+            <tr><td>મગફળી (Groundnut)</td><td>1,251</td><td>1,821</td></tr>
+            <tr><td>રાજગરો (Rajgaro)</td><td>1,736</td><td>1,814</td></tr>
+            <tr><td>ઘઉં (Wheat)</td><td>543</td><td>568</td></tr>
+            <tr><td>બાજરી (Bajari)</td><td>420</td><td>540</td></tr>
+            <tr><td>ગુવાર (Gavar)</td><td>1,221</td><td>1,221</td></tr>
+          </table>
+          <a href="https://apmcdeesa.com" target="_blank" class="apmc-link">🌐 સત્તાવાર ડીસા APMC વેબસાઇટ પર લાઈવ ભાવ જુઓ ➔</a>
+        </div>
+
+        <!-- ૩. ધાનેરા APMC -->
+        <div id="yard-dhanera" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa;">
+          <h4 style="color: #1b5e20;">📍 APMC ધાનેરા</h4>
+          <table class="apmc-table">
+            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
+            <tr><td>રાયડો (Mustard)</td><td>1,490</td><td>1,560</td></tr>
+            <tr><td>એરંડા (Castor)</td><td>1,480</td><td>1,520</td></tr>
+            <tr><td>બાજરી (Bajra)</td><td>415</td><td>535</td></tr>
+            <tr><td>જીરું (Cumin)</td><td>4,700</td><td>5,500</td></tr>
+            <tr><td>મગફળી (Groundnut)</td><td>1,200</td><td>1,650</td></tr>
+          </table>
+          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 ભારત સરકાર Agmarknet પર ધાનેરા યાર્ડ ભાવ જુઓ ➔</a>
+        </div>
+
+        <!-- ૪. પાલનપુર APMC -->
+        <div id="yard-palanpur" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa;">
+          <h4 style="color: #1b5e20;">📍 APMC પાલનપુર (જિલ્લા મુખ્ય મથક)</h4>
+          <table class="apmc-table">
+            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
+            <tr><td>એરંડા (Castor)</td><td>1,500</td><td>1,530</td></tr>
+            <tr><td>રાયડો (Mustard)</td><td>1,500</td><td>1,570</td></tr>
+            <tr><td>ઘઉં (Wheat)</td><td>530</td><td>585</td></tr>
+            <tr><td>મકાઈ (Maize)</td><td>450</td><td>530</td></tr>
+            <tr><td>બાજરી (Bajra)</td><td>425</td><td>520</td></tr>
+          </table>
+          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 પાલનપુર APMC લાઈવ ડેટા પોર્ટલ જુઓ ➔</a>
+        </div>
+
+        <!-- ૫. ભાભર / દિયોદર APMC -->
+        <div id="yard-bhabhar" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa;">
+          <h4 style="color: #1b5e20;">📍 APMC ભાભર / દિયોદર</h4>
+          <table class="apmc-table">
+            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
+            <tr><td>જીરું (Cumin)</td><td>4,800</td><td>5,600</td></tr>
+            <tr><td>એરંડા (Castor)</td><td>1,490</td><td>1,520</td></tr>
+            <tr><td>રાયડો (Mustard)</td><td>1,480</td><td>1,550</td></tr>
+            <tr><td>ઈસબગુલ (Isabgol)</td><td>2,400</td><td>2,950</td></tr>
+          </table>
+          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 ભાભર માર્કેટ યાર્ડ લાઈવ વિગતો જુઓ ➔</a>
+        </div>
+
+        <!-- ૬. ઊંઝા APMC -->
+        <div id="yard-unjha" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa;">
+          <h4 style="color: #1b5e20;">📍 APMC ઊંઝા (એશિયાનું સૌથી મોટું જીરું-મસાલા બજાર)</h4>
+          <table class="apmc-table">
+            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
+            <tr><td>જીરું (Cumin)</td><td>5,100</td><td>6,250</td></tr>
+            <tr><td>વરિયાળી (Fennel)</td><td>1,850</td><td>3,300</td></tr>
+            <tr><td>ઈસબગુલ (Isabgol)</td><td>2,600</td><td>3,150</td></tr>
+            <tr><td>રાયડો (Mustard)</td><td>1,520</td><td>1,585</td></tr>
+            <tr><td>તલ સફેદ (Sesame)</td><td>2,450</td><td>3,000</td></tr>
+            <tr><td>સુવા (Suva)</td><td>1,200</td><td>1,650</td></tr>
+          </table>
+          <a href="https://apmcunjha.com" target="_blank" class="apmc-link">🌐 ઊંઝા APMC ઓફિશિયલ લાઈવ હરાજી બોર્ડ ➔</a>
+        </div>
+
+        <!-- ૭. પાટણ APMC -->
+        <div id="yard-patan" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa;">
+          <h4 style="color: #1b5e20;">📍 APMC પાટણ</h4>
+          <table class="apmc-table">
+            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
+            <tr><td>એરંડા (Castor)</td><td>1,500</td><td>1,535</td></tr>
+            <tr><td>જીરું (Cumin)</td><td>4,900</td><td>5,750</td></tr>
+            <tr><td>રાયડો (Mustard)</td><td>1,500</td><td>1,565</td></tr>
+            <tr><td>કપાસ (Cotton)</td><td>1,420</td><td>1,690</td></tr>
+            <tr><td>વરિયાળી (Fennel)</td><td>1,750</td><td>2,700</td></tr>
+          </table>
+          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 પાટણ યાર્ડ દૈનિક હરાજી ભાવ ચકાસો ➔</a>
+        </div>
+
+        <!-- ૮. મહેસાણા APMC -->
+        <div id="yard-mehsana" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa;">
+          <h4 style="color: #1b5e20;">📍 APMC મહેસાણા</h4>
+          <table class="apmc-table">
+            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
+            <tr><td>એરંડા (Castor)</td><td>1,505</td><td>1,528</td></tr>
+            <tr><td>રાયડો (Mustard)</td><td>1,510</td><td>1,560</td></tr>
+            <tr><td>ઘઉં (Wheat)</td><td>540</td><td>590</td></tr>
+            <tr><td>બાજરી (Bajra)</td><td>430</td><td>530</td></tr>
+          </table>
+          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 મહેસાણા APMC સત્તાવાર ભાવ જુઓ ➔</a>
+        </div>
+
+        <!-- ૯. હારીજ APMC -->
+        <div id="yard-harij" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa;">
+          <h4 style="color: #1b5e20;">📍 APMC હારીજ (પાટણ)</h4>
+          <table class="apmc-table">
+            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
+            <tr><td>એરંડા (Castor)</td><td>1,495</td><td>1,525</td></tr>
+            <tr><td>રાયડો (Mustard)</td><td>1,490</td><td>1,555</td></tr>
+            <tr><td>જીરું (Cumin)</td><td>4,750</td><td>5,650</td></tr>
+            <tr><td>કપાસ (Cotton)</td><td>1,400</td><td>1,650</td></tr>
+          </table>
+          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 હારીજ માર્કેટ યાર્ડ લાઈવ પોર્ટલ ➔</a>
+        </div>
+
       </div>
     </div>
-
-    <!-- ૮. યોજનાઓ -->
+  <!-- ૮. યોજનાઓ -->
     <div id="tab-schemes" class="tab-content">
       <div class="card">
         <h3 style="color: var(--primary);">📜 સરકારી સહાય અને યોજનાઓ (i-Khedut)</h3>
