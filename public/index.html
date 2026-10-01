@@ -794,7 +794,15 @@
       navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Fail:', err));
     });
   }
-    
+    function selectApmc(yardId, btn) {
+  document.querySelectorAll('.apmc-detail').forEach(el => el.style.display = 'none');
+  const activeDiv = document.getElementById('yard-' + yardId);
+  if (activeDiv) activeDiv.style.display = 'block';
+
+  document.querySelectorAll('.apmc-btn').forEach(b => b.classList.remove('active-apmc'));
+  if (btn) btn.classList.add('active-apmc');
+}
+
   </script>
 </body>
 </html>
