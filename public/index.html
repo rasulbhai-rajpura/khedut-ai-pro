@@ -150,31 +150,26 @@
           <button type="button" onclick="startVoice('advisorQuery')" style="padding: 0 14px; background: #e0f2f1; border: 1px solid #80cbc4; border-radius: 8px; font-size: 18px; cursor: pointer;">🎤</button>
         </div>
 
-        <!-- બનાસકાંઠાના મુખ્ય પાકોના ઝડપી ડેમો પ્રશ્નો (Quick Chips) -->
+        <!-- સુધારો ૧: બનાસકાંઠાના મુખ્ય પાકોના ઝડપી ડેમો પ્રશ્નો (Quick Chips) -->
         <div style="display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;">
           <span style="font-size: 11px; color: #555; align-self: center; font-weight: bold;">ઝડપી પ્રશ્નો:</span>
           
-          <!-- જીરું -->
           <button type="button" onclick="setQuickQuery('જીરાના પાકમાં સુકારો અને કાળી ચરમી અટકાવવા કઈ દવાનો છંટકાવ કરવો?')" style="background: #e8f5e9; border: 1px solid #81c784; border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: #1b5e20; font-weight: 500;">
             🌱 જીરું (સુકારો/ચરમી)
           </button>
           
-          <!-- રાયડો -->
           <button type="button" onclick="setQuickQuery('રાયડામાં મોલો-મશી (ચીંડા) ના નિયંત્રણ માટે દેશી અને રાસાયણિક ઉપાય જણાવો')" style="background: #e8f5e9; border: 1px solid #81c784; border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: #1b5e20; font-weight: 500;">
             🌾 રાયડો (મોલો-મશી)
           </button>
           
-          <!-- એરંડા -->
           <button type="button" onclick="setQuickQuery('એરંડામાં ઘોડિયારી ઇયળ અને ડોડવા કોરી ખાનાર ઇયળ માટે કઈ દવા છાંટવી?')" style="background: #e8f5e9; border: 1px solid #81c784; border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: #1b5e20; font-weight: 500;">
             🐛 એરંડા (ઇયળ નિયંત્રણ)
           </button>
           
-          <!-- મગફળી -->
           <button type="button" onclick="setQuickQuery('ઉનાળુ મગફળીમાં ડોડવા બેસવાના સમયે કયું ખાતર અને પિયત આપવું?')" style="background: #e8f5e9; border: 1px solid #81c784; border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: #1b5e20; font-weight: 500;">
             🥜 મગફળી (ખાતર/પિયત)
           </button>
           
-          <!-- ઘઉં -->
           <button type="button" onclick="setQuickQuery('ઘઉંમાં દાણા ભરાવવાની અવસ્થાએ કયો સ્પ્રે કરવો જેથી વજન અને ચમક વધે?')" style="background: #e8f5e9; border: 1px solid #81c784; border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: #1b5e20; font-weight: 500;">
             🌾 ઘઉં (દાણા ચમક/વજન)
           </button>
@@ -283,6 +278,16 @@
           <button type="button" onclick="document.getElementById('cameraInput').click()" style="flex: 1; padding: 12px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">📸 લાઈવ કેમેરો</button>
           <button type="button" onclick="document.getElementById('galleryInput').click()" style="flex: 1; padding: 12px; background: #1565c0; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">🖼️ ગેલેરીમાંથી</button>
         </div>
+
+        <!-- સુધારો ૨: વિજ્ઞાન મેળો લાઈવ ડેમો સેમ્પલ પાન -->
+        <div style="margin-top: 10px; background: #f9fbe7; padding: 8px; border-radius: 8px; border: 1px dashed #c0ca33;">
+          <span style="font-size: 11px; font-weight: bold; color: #827717;">🧪 લાઈવ ડેમો માટે સેમ્પલ પાન પસંદ કરો:</span>
+          <div style="display: flex; gap: 8px; margin-top: 6px;">
+            <button type="button" onclick="loadSampleLeaf('jeeru')" style="flex: 1; padding: 7px; background: #fff; border: 1px solid #cddc39; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; color: #33691e;">🌿 જીરું (ચરમી રોગ)</button>
+            <button type="button" onclick="loadSampleLeaf('cotton')" style="flex: 1; padding: 7px; background: #fff; border: 1px solid #cddc39; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; color: #33691e;">🍃 કપાસ (પાનના ટપકાં)</button>
+          </div>
+        </div>
+
         <center><img id="preview-img" style="max-width: 100%; border-radius: 8px; margin-top: 12px; display: none;"></center>
         <input type="text" id="diseaseQuery" placeholder="વધારાની કોઈ નોંધ (ઓપ્શનલ)" style="margin-top: 10px;">
         <button id="analyzeBtn" class="btn-main" onclick="analyzeCrop()">રોગનું નિદાન કરો 🔬</button>
@@ -347,7 +352,7 @@
         </div>
 
       </div>
-    </div></div>
+    </div>
 
     <!-- ૮. સરકારી કૃષિ યોજનાઓ -->
     <div id="tab-schemes" class="tab-content">
@@ -453,6 +458,24 @@
       reader.readAsDataURL(file);
     }
 
+    // સેમ્પલ પાન લોડ કરવા માટેનું ફંક્શન
+    function loadSampleLeaf(type) {
+      const preview = document.getElementById('preview-img');
+      const queryInput = document.getElementById('diseaseQuery');
+      // AI એનાલિસિસ માટે ૧ પિક્સલ વજન વગરની ડમી છબી (જેથી backend એરર ન આપે)
+      base64Image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+      
+      if (type === 'jeeru') {
+        preview.src = "https://images.unsplash.com/photo-1592417817098-8f3d6910985b?w=400";
+        queryInput.value = "જીરાના પાનમાં કાળી ચરમી અને સુકારો દેખાય છે";
+      } else {
+        preview.src = "https://images.unsplash.com/photo-1598512752271-33f913a5af13?w=400";
+        queryInput.value = "કપાસના પાનમાં લાલ-કથ્થઈ ટપકાં અને ખૂણીયો ટપકાં રોગ છે";
+      }
+      preview.style.display = 'block';
+      analyzeCrop();
+    }
+
     function startVoice(targetId) {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         alert("માઇક સપોર્ટ ઉપલબ્ધ નથી.");
@@ -465,6 +488,15 @@
         document.getElementById(targetId).value = e.results[0][0].transcript;
       };
       rec.start();
+    }
+
+    // સેમ્પલ પ્રશ્ન પર ક્લિક કરતાં આપોઆપ લખાશે અને જવાબ શરૂ થશે
+    function setQuickQuery(text) {
+      const input = document.getElementById('advisorQuery');
+      if (input) {
+        input.value = text;
+        askAdvisor();
+      }
     }
 
     function speakText() {
@@ -680,7 +712,6 @@
         ]
       };
 
-      // ટેબલમાં ડેટા ભરવાનું હેલ્પર ફંક્શન
       function renderTable(items) {
         let rowsHtml = "";
         items.forEach(item => {
@@ -705,7 +736,6 @@
       }
 
       try {
-        // ૧. સર્વર / Gemini API પાસેથી તાજા ભાવ મંગાવવા
         const res = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -716,21 +746,19 @@
         if (d.success && Array.isArray(d.data) && d.data.length > 0) {
           renderTable(d.data);
         } else {
-          // જો સર્વર મોડું થાય તો લોકલ ડેટામાંથી તુરંત દર્શાવવું
           const fallback = localYardData[selectedYard] || localYardData["થરાદ"];
           renderTable(fallback);
         }
       } catch (err) {
-        // નેટવર્ક એરર આવે તો પણ ખાલી ન રહેતાં ભાવ દેખાય
         const fallback = localYardData[selectedYard] || localYardData["થરાદ"];
         renderTable(fallback);
       }
     }
 
-    // પેજ લોડ થતાં જ આપોઆપ પ્રથમ યાર્ડ (થરાદ) ના ભાવ આવી જાય તે માટે:
     document.addEventListener('DOMContentLoaded', () => {
       fetchApmcPrices();
     });
+
     // હવામાન
     window.addEventListener('load', () => {
       if (navigator.geolocation) {
@@ -758,7 +786,7 @@
           if (data.current.wind_speed_10m > 16) {
             advice = "⚠️ પવન વધુ છે (16 km/h થી વધુ), દવાનો છંટકાવ ટાળવો.";
           } else if (data.current.rain > 1) {
-            advice = "🌧️️ વરસાદને લીધે હાલ પિયત મોકૂફ રાખવું.";
+            advice = "🌧 વરસાદને લીધે હાલ પિયત મોકૂફ રાખવું.";
           }
           document.getElementById('agro-advisory').innerText = advice;
         }
@@ -772,13 +800,7 @@
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Fail:', err));
       });
-      function setQuickQuery(text) {
-  const input = document.getElementById('advisorQuery');
-  if (input) {
-    input.value = text;
-    askAdvisor();
-  }
-}
+    }
   </script>
 </body>
 </html>
