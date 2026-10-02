@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   }
 
   // Google નું નવું માન્ય મોડેલ
-  const MODEL_NAME = ["gemini-3.8-flash", "gemini-3.5-flash-lite"];
+  const MODEL_NAME =  "gemini-3.5-flash-lite";
   // ૭. લાઈવ APMC બજાર ભાવ
   if (type === "mandi") {
     const yard = mandiYard || "થરાદ";
