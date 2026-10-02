@@ -146,6 +146,35 @@
         <p style="font-size: 12px; color: #666; margin-top: 4px;">પાક, વાવણી, ખાતર કે દવા વિશે પ્રશ્ન લખો અથવા માઇકથી બોલો:</p>
         <div style="display: flex; gap: 6px; margin-top: 10px;">
           <input type="text" id="advisorQuery" placeholder="દા.ત. જીરામાં સુકારો અટકાવવા શું કરવું?">
+          <!-- બનાસકાંઠા મુખ્ય પાકોના ઝડપી ડેમો પ્રશ્નો -->
+        <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+          <span style="font-size: 11px; color: #555; align-self: center; font-weight: bold;">મુખ્ય પાકો:</span>
+          
+          <!-- જીરું -->
+          <button type="button" onclick="setQuickQuery('જીરાના પાકમાં સુકારો અને કાળી ચરમી અટકાવવા કઈ દવાનો છંટકાવ કરવો?')" style="background: #e8f5e9; border: 1px solid #81c784; border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: #1b5e20; font-weight: 500;">
+            🌱 જીરું (સુકારો/ચરમી)
+          </button>
+          
+          <!-- રાયડો -->
+          <button type="button" onclick="setQuickQuery('રાયડામાં મોલો-મશી (ચીંડા) ના નિયંત્રણ માટે દેશી અને રાસાયણિક ઉપાય જણાવો')" style="background: #e8f5e9; border: 1px solid #81c784; border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: #1b5e20; font-weight: 500;">
+            🌾 રાયડો (મોલો-મશી)
+          </button>
+          
+          <!-- એરંડા -->
+          <button type="button" onclick="setQuickQuery('એરંડામાં ઘોડિયારી ઇયળ અને ડોડવા કોરી ખાનાર ઇયળ માટે કઈ દવા છાંટવી?')" style="background: #e8f5e9; border: 1px solid #81c784; border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: #1b5e20; font-weight: 500;">
+            🐛 એરંડા (ઇયળ નિયંત્રણ)
+          </button>
+          
+          <!-- મગફળી -->
+          <button type="button" onclick="setQuickQuery('ઉનાળુ મગફળીમાં ડોડવા બેસવાના સમયે કયું ખાતર અને પિયત આપવું?')" style="background: #e8f5e9; border: 1px solid #81c784; border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: #1b5e20; font-weight: 500;">
+            🥜 મગફળી (ખાતર/પિયત)
+          </button>
+          
+          <!-- ઘઉં -->
+          <button type="button" onclick="setQuickQuery('ઘઉંમાં દાણા ભરાવવાની અવસ્થાએ કયો સ્પ્રે કરવો જેથી વજન અને ચમક વધે?')" style="background: #e8f5e9; border: 1px solid #81c784; border-radius: 12px; font-size: 11px; padding: 4px 8px; cursor: pointer; color: #1b5e20; font-weight: 500;">
+            🌾 ઘઉં (દાણા ચમક/વજન)
+          </button>
+        </div>
           <button type="button" onclick="startVoice('advisorQuery')" style="padding: 0 14px; background: #e0f2f1; border: 1px solid #80cbc4; border-radius: 8px; font-size: 18px; cursor: pointer;">🎤</button>
         </div>
         <button id="adviseBtn" class="btn-main" onclick="askAdvisor()">સલાહ મેળવો 🔍</button>
@@ -740,6 +769,13 @@
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Fail:', err));
       });
+      // સેમ્પલ પ્રશ્ન પર ક્લિક કરતાં જ પ્રશ્ન આપોઆપ લખાશે અને જવાબ શરૂ થશે
+    function setQuickQuery(text) {
+      const input = document.getElementById('advisorQuery');
+      if (input) {
+        input.value = text;
+        askAdvisor(); // આપોઆપ સલાહ મેળવો બટન દબાઈ જશે
+      }
     }
   </script>
 </body>
