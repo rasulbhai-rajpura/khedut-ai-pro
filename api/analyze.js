@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Gemini API Key missing' });
   }
 
-  const MODEL_NAME = "gemini-3.8-flash";
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + apiKey;
 
   if (type === "crop_mandi") {
     const crop = queryCrop || "જીરું";
@@ -22,8 +22,8 @@ export default async function handler(req, res) {
     ];
 
     try {
-      const prompt = `Return 20kg market prices for crop ${crop} in Gujarat yards as JSON array: [{"yard":"ઊંઝા","min":"5100","max":"6200","trend":"તેજી"}]`;
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
+      const prompt = "Return 20kg market prices for crop " + crop + " in Gujarat yards as JSON array: [{\"yard\":\"ઊંઝા\",\"min\":\"5100\",\"max\":\"6200\",\"trend\":\"તેજી\"}]";
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -52,8 +52,8 @@ export default async function handler(req, res) {
     ];
 
     try {
-      const prompt = `Return market prices for yard ${yard} as JSON array: [{"crop":"જીરું (Cumin)","min":"4850","max":"5750","trend":"તેજી"}]`;
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
+      const prompt = "Return market prices for yard " + yard + " as JSON array: [{\"crop\":\"જીરું (Cumin)\",\"min\":\"4850\",\"max\":\"5750\",\"trend\":\"તેજી\"}]";
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -71,25 +71,25 @@ export default async function handler(req, res) {
   let parts = [];
 
   if (type === "advisor") {
-    promptText = `You are an expert agriculture scientist in North Gujarat (Banaskantha). Answer in Gujarati clearly: "${query}"`;
+    promptText = "You are an expert agriculture scientist in North Gujarat (Banaskantha). Answer in Gujarati clearly: " + query;
     parts = [{ text: promptText }];
   } else if (type === "planner") {
-    promptText = `Soil: ${soilType}, Crop: ${cropName}, Area: ${landArea}. Give Gujarati fertilizer and seed schedule.`;
+    promptText = "Soil: " + soilType + ", Crop: " + cropName + ", Area: " + landArea + ". Give Gujarati fertilizer and seed schedule.";
     parts = [{ text: promptText }];
   } else if (type === "calendar") {
-    promptText = `Crop: ${cropName}, Sowing Date: ${sowingDate}. Give Gujarati stage-wise spray calendar.`;
+    promptText = "Crop: " + cropName + ", Sowing Date: " + sowingDate + ". Give Gujarati stage-wise spray calendar.";
     parts = [{ text: promptText }];
   } else if (type === "bio") {
-    promptText = `Bio fertilizer: ${bioOption}, Area: ${bioArea}. Give Gujarati preparation steps and dosage.`;
+    promptText = "Bio fertilizer: " + bioOption + ", Area: " + bioArea + ". Give Gujarati preparation steps and dosage.";
     parts = [{ text: promptText }];
   } else {
     if (!imageBase64) return res.status(400).json({ error: 'Image required' });
-    promptText = `Analyze crop leaf disease and respond ONLY in JSON: {"crop_name":"","disease_name":"","severity":"","symptoms":"","chemical_treatment":"","organic_treatment":"","prevention":""}. Note: ${query || 'None'}`;
+    promptText = "Analyze crop leaf disease and respond ONLY in JSON: {\"crop_name\":\"\",\"disease_name\":\"\",\"severity\":\"\",\"symptoms\":\"\",\"chemical_treatment\":\"\",\"organic_treatment\":\"\",\"prevention\":\"\"}. Note: " + (query || 'None');
     parts = [{ text: promptText }, { inline_data: { mime_type: "image/jpeg", data: imageBase64 } }];
   }
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: [{ parts }] })
