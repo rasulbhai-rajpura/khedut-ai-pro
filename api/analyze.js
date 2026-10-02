@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'સર્વર પર Gemini API Key ઉપલબ્ધ નથી.' });
+    return res.status(500).json({ error: 'Gemini API Key missing' });
   }
 
   const MODEL_NAME = "gemini-3.8-flash";
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     ];
 
     try {
-      const prompt = `ઉત્તર ગુજરાતના મુખ્ય યાર્ડમાં પાક "${crop}" ના ૨૦ કિલોના બજાર ભાવ JSON Array માં આપો: [{"yard":"ઊંઝા","min":"5100","max":"6200","trend":"તેજી"}]`;
+      const prompt = `Return 20kg market prices for crop ${crop} in Gujarat yards as JSON array: [{"yard":"ઊંઝા","min":"5100","max":"6200","trend":"તેજી"}]`;
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     ];
 
     try {
-      const prompt = `યાર્ડ "${yard}" ના આજના તાજા હરાજી બજાર ભાવ JSON Array માં આપો: [{"crop":"જીરું (Cumin)","min":"4850","max":"5750","trend":"તેજી"}]`;
+      const prompt = `Return market prices for yard ${yard} as JSON array: [{"crop":"જીરું (Cumin)","min":"4850","max":"5750","trend":"તેજી"}]`;
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,20 +71,20 @@ export default async function handler(req, res) {
   let parts = [];
 
   if (type === "advisor") {
-    promptText = `તમે એક કૃષિ વૈજ્ઞાનિક છો. ઉત્તર ગુજરાત (વાવ, થરાદ, પાલનપુર) ના સંદર્ભમાં સચોટ ગુજરાતીમાં મુદ્દાસર માર્ગદર્શન આપો: "${query}"`;
+    promptText = `You are an expert agriculture scientist in North Gujarat (Banaskantha). Answer in Gujarati clearly: "${query}"`;
     parts = [{ text: promptText }];
   } else if (type === "planner") {
-    promptText = `જમીન: ${soilType}, પાક: ${cropName}, વિસ્તાર: ${landArea}. બનાસકાંઠા માટે બિયારણ, ખાતર અને વાવણી આયોજન સરળ ગુજરાતીમાં આપો.`;
+    promptText = `Soil: ${soilType}, Crop: ${cropName}, Area: ${landArea}. Give Gujarati fertilizer and seed schedule.`;
     parts = [{ text: promptText }];
   } else if (type === "calendar") {
-    promptText = `પાક: ${cropName}, વાવણી: ${sowingDate}. વાવણીથી કાપણી સુધીનું સમયપત્રક અને છંટકાવ પ્લાન આપો.`;
+    promptText = `Crop: ${cropName}, Sowing Date: ${sowingDate}. Give Gujarati stage-wise spray calendar.`;
     parts = [{ text: promptText }];
   } else if (type === "bio") {
-    promptText = `પ્રાકૃતિક ખાતર: ${bioOption}, જમીન: ${bioArea}. સામગ્રી, બનાવવાની રીત અને ઉપયોગ ગુજરાતીમાં આપો.`;
+    promptText = `Bio fertilizer: ${bioOption}, Area: ${bioArea}. Give Gujarati preparation steps and dosage.`;
     parts = [{ text: promptText }];
   } else {
-    if (!imageBase64) return res.status(400).json({ error: 'ફોટો જરૂરી છે.' });
-    promptText = `આ પાંદડાનો રોગ ઓળખી માત્ર JSON માં આપો: {"crop_name":"","disease_name":"","severity":"","symptoms":"","chemical_treatment":"","organic_treatment":"","prevention":""}. વિગત: ${query || 'કોઈ નથી'}`;
+    if (!imageBase64) return res.status(400).json({ error: 'Image required' });
+    promptText = `Analyze crop leaf disease and respond ONLY in JSON: {"crop_name":"","disease_name":"","severity":"","symptoms":"","chemical_treatment":"","organic_treatment":"","prevention":""}. Note: ${query || 'None'}`;
     parts = [{ text: promptText }, { inline_data: { mime_type: "image/jpeg", data: imageBase64 } }];
   }
 
