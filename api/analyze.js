@@ -10,7 +10,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Gemini API Key missing' });
   }
 
-  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + apiKey;
+  // સાચું મોડેલ gemini-1.5-flash
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
 
   if (type === "crop_mandi") {
     const crop = queryCrop || "જીરું";
@@ -85,7 +86,13 @@ export default async function handler(req, res) {
   } else {
     if (!imageBase64) return res.status(400).json({ error: 'Image required' });
     promptText = "Analyze crop leaf disease and respond ONLY in JSON: {\"crop_name\":\"\",\"disease_name\":\"\",\"severity\":\"\",\"symptoms\":\"\",\"chemical_treatment\":\"\",\"organic_treatment\":\"\",\"prevention\":\"\"}. Note: " + (query || 'None');
-    parts = [{ text: promptText }, { inline_data: { mime_type: "image/jpeg", data: imageBase64 } }];
+    
+    // બેઝ૬૪ ઇમેજ ડેટા સાફ કરીને inlineData તરીકે મોકલવું
+    const cleanBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+    parts = [
+      { text: promptText },
+      { inlineData: { mimeType: "image/jpeg", data: cleanBase64 } }
+    ];
   }
 
   try {
