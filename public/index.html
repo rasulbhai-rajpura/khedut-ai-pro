@@ -296,7 +296,24 @@
     </div>
 
     <!-- ૭. ઉત્તર ગુજરાત મુખ્ય APMC AI લાઈવ બજાર ભાવ -->
-    <div id="tab-mandi" class="tab-content">
+            <!-- જણસ (પાક) પ્રમાણે સર્ચ કરવાનું બોક્સ -->
+        <div style="margin-bottom: 12px; background: #f1f8e9; padding: 10px; border-radius: 8px; border: 1px dashed #81c784;">
+          <label style="font-size: 13px; font-weight: bold; color: #1b5e20;">🔍 અથવા સીધી જણસ (પાક) શોધો:</label>
+          <div style="display: flex; gap: 6px; margin-top: 5px;">
+            <input type="text" id="cropSearchInput" placeholder="દા.ત. જીરું, રાયડો, એરંડા..." style="margin-top: 0;">
+            <button type="button" onclick="searchCropPrices()" style="background: #1b5e20; color: #fff; border: none; padding: 0 14px; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+              શોધો 🔍
+            </button>
+          </div>
+          <!-- ઝડપી પાક બટનો -->
+          <div style="display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap;">
+            <button type="button" onclick="quickCropSearch('જીરું')" style="font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid #a5d6a7; background: #fff; cursor: pointer;">જીરું</button>
+            <button type="button" onclick="quickCropSearch('રાયડો')" style="font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid #a5d6a7; background: #fff; cursor: pointer;">રાયડો</button>
+            <button type="button" onclick="quickCropSearch('એરંડા')" style="font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid #a5d6a7; background: #fff; cursor: pointer;">એરંડા</button>
+            <button type="button" onclick="quickCropSearch('ઘઉં')" style="font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid #a5d6a7; background: #fff; cursor: pointer;">ઘઉં</button>
+          </div>
+        </div>
+ <div id="tab-mandi" class="tab-content">
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div>
@@ -799,7 +816,66 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Fail:', err));
-      });
+        });
+          // ઝડપી પાક પસંદગી માટે
+    function quickCropSearch(cropName) {
+      document.getElementById('cropSearchInput').value = cropName;
+      searchCropPrices();
+    }
+
+    // પાક (જણસ) મુજબ ભાવ શોધવાનું ફંક્શન
+    async function searchCropPrices() {
+      const cropQuery = document.getElementById('cropSearchInput').value.trim();
+      if (!cropQuery) {
+        alert("કૃપા કરીને જણસ (પાક) નું નામ લખો.");
+        return;
+      }
+
+      const status = document.getElementById('refresh-status');
+      const heading = document.getElementById('yardHeading');
+      const tbody = document.getElementById('mandiTableBody');
+      const timeBadge = document.getElementById('mandi-time-badge');
+
+      if (heading) heading.innerText = `🌾 "${cropQuery}" ના વિવિધ APMC યાર્ડમાં લાઈવ ભાવ:`;
+      if (status) {
+        status.style.display = 'block';
+        status.innerHTML = `🔄 વિવિધ માર્કેટ યાર્ડમાંથી "${cropQuery}" ના તાજા ભાવ આવી રહ્યા છે...`;
+      }
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'crop_mandi', queryCrop: cropQuery })
+        });
+        const d = await res.json();
+
+        if (d.success && Array.isArray(d.data)) {
+          let rowsHtml = "";
+          d.data.forEach(item => {
+            let badgeColor = (item.trend === 'તેજી' || item.trend === 'સુધારો' || item.trend === 'મજબૂત') ? '#2e7d32' : '#e65100';
+            rowsHtml += `
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 9px 8px; font-weight: bold;">${item.yard}</td>
+                <td style="padding: 9px 8px; color: #333;">₹${item.min}</td>
+                <td style="padding: 9px 8px; font-weight: bold; color: #1b5e20;">₹${item.max}</td>
+                <td style="padding: 9px 8px;"><span style="color: ${badgeColor}; font-weight: bold; font-size: 11px;">● ${item.trend}</span></td>
+              </tr>
+             });
+       if (tbody) tbody.innerHTML = rowsHtml;
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString('gu-IN', { hour: '2-digit', minute: '2-digit' });
+          if (timeBadge) timeBadge.innerText = `🟢 લાઈવ: ${timeStr} કલાકે`;
+          if (status) {
+            status.innerHTML = `✅ "${cropQuery}" ના સરખામણી ભાવ લોડ થયા!`;
+            setTimeout(() => { status.style.display = 'none'; }, 2000);
+          }
+        }
+      } catch (err) {
+        if (status) status.innerHTML = "⚠️ ભાવ શોધવામાં ક્ષતિ આવી.";
+      }
+    }
+
     }
   </script>
 </body>
