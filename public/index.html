@@ -786,49 +786,55 @@
       }
     }
 
-        // તાજા ભાવ રીફ્રેશ - સ્ક્રીન પર જ લાઈવ આંકડા અને સમય બદલાશે
-function refreshMandiPrices() {
+       // જેમિની AI દ્વારા પસંદ કરેલ APMC ની તમામ જણસના લાઈવ ભાવ લાવવાનું ફંક્શન
+async function fetchApmcPrices() {
+  const yardSelect = document.getElementById('mandiYardSelect');
+  const selectedYard = yardSelect.value;
   const status = document.getElementById('refresh-status');
-  const btn = event.target;
-  btn.innerText = "⏳ ભાવ આવી રહ્યા છે...";
-  btn.disabled = true;
+  const heading = document.getElementById('yardHeading');
+  const tbody = document.getElementById('mandiTableBody');
+  const timeBadge = document.getElementById('mandi-time-badge');
 
-  setTimeout(() => {
-    // સ્ક્રીન પરના તમામ ટેબલના ભાવોમાં લાઈવ વધઘટ (તેજી-મંદી) અપડેટ કરવી
-    document.querySelectorAll('.apmc-detail table tr').forEach((row, index) => {
-      if (index > 0) { // હેડર સિવાય
-        const minCell = row.cells[1];
-        const maxCell = row.cells[2];
-        if (minCell && maxCell) {
-          // લાઈવ માર્કેટ વધઘટ (₹૫ થી ₹૨૫ નો જીવંત ફેરફાર)
-          let currentMin = parseInt(minCell.innerText.replace(/[^0-9]/g, ''));
-          let currentMax = parseInt(maxCell.innerText.replace(/[^0-9]/g, ''));
-          let change = Math.floor(Math.random() * 20) - 5; // -૫ થી +૧૫
-          
-          minCell.innerText = '₹' + (currentMin + change);
-          maxCell.innerText = '₹' + (currentMax + change);
-          
-          // લાઈવ ફેરફાર દર્શાવવા લીલો રંગ ઝબકશે
-          row.style.backgroundColor = '#e8f5e9';
-          setTimeout(() => { row.style.backgroundColor = 'transparent'; }, 1000);
-        }
-      }
+  status.style.display = 'block';
+  status.innerHTML = `🔄 જેમિની AI દ્વારા ${selectedYard} યાર્ડના તમામ જણસના ભાવ શોધાઈ રહ્યા છે...`;
+  heading.innerText = `📍 APMC ${selectedYard} ના લાઈવ ભાવ (૨૦ કિલો / મણ):`;
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'mandi', mandiYard: selectedYard })
     });
+    const d = await res.json();
 
-    // સમય અને તારીખ લાઈવ ડિસ્પ્લે પર સેટ કરવી
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('gu-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    
-    if (status) {
-      status.style.display = 'block';
-      status.innerHTML = `✅ લાઈવ હરાજી ભાવ અપડેટ થયા! (સમય: ${timeStr})`;
+    if (d.success && Array.isArray(d.data)) {
+      let rowsHtml = "";
+      d.data.forEach(item => {
+        let badgeColor = (item.trend === 'તેજી' || item.trend === 'સુધારો' || item.trend === 'મજબૂત') ? '#2e7d32' : '#f57f17';
+        rowsHtml += `
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 8px; font-weight: bold;">${item.crop}</td>
+            <td style="padding: 8px; color: #333;">₹${item.min}</td>
+            <td style="padding: 8px; font-weight: bold; color: #1b5e20;">₹${item.max}</td>
+            <td style="padding: 8px;"><span style="color: ${badgeColor}; font-weight: bold; font-size: 11px;">● ${item.trend}</span></td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = rowsHtml;
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('gu-IN', { hour: '2-digit', minute: '2-digit' });
+      timeBadge.innerText = `🟢 લાઈવ: ${timeStr} કલાકે`;
+      status.innerHTML = `✅ ${selectedYard} ના તમામ તાજા ભાવ સફળતાપૂર્વક લોડ થયા!`;
+      setTimeout(() => { status.style.display = 'none'; }, 2500);
+    } else {
+      status.innerHTML = "⚠️ ભાવ લોડ કરવામાં ક્ષતિ આવી.";
     }
-
-    btn.innerText = "🔄 તાજા ભાવ રીફ્રેશ કરો";
-    btn.disabled = false;
-  }, 700);
+  } catch (err) {
+    status.innerHTML = "⚠️ નેટવર્ક એરર: " + err.message;
+  }
 }
-
   </script>
 </body>
 </html>
