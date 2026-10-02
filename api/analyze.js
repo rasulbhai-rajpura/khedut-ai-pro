@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ success: false, error: 'GEMINI_API_KEY સર્વર પર મળતી નથી. Vercel Settings તપાસો.' });
   }
 
-  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" + apiKey;
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
 
   if (type === "crop_mandi") {
     const crop = queryCrop || "જીરું";
