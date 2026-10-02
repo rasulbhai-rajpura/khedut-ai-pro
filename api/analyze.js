@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'સર્વર પર Gemini API Key ઉપલબ્ધ નથી.' });
   }
 
-  // નવીનતમ માન્ય મોડેલ: gemini-3.8-flash
+  // Google નું નવું માન્ય મોડેલ
   const MODEL_NAME = "gemini-3.8-flash";
 
   // ૭. લાઈવ APMC બજાર ભાવ
@@ -30,20 +30,7 @@ export default async function handler(req, res) {
     ];
 
     try {
-      const prompt = `તમે બનાસકાંઠા APMC માર્કેટ યાર્ડના વિશ્લેષક છો. 
-યાર્ડ: "${yard}". 
-આ યાર્ડના આજના તાજા હરાજી બજાર ભાવ (૨૦ કિલો દીઠ) માત્ર નીચે મુજબના JSON Array માં આપો:
-[
-  {"crop": "જીરું (Cumin)", "min": "4850", "max": "5750", "trend": "તેજી"},
-  {"crop": "રાયડો (Mustard)", "min": "1490", "max": "1565", "trend": "સુધારો"},
-  {"crop": "એરંડા (Castor)", "min": "1495", "max": "1525", "trend": "સ્થિર"},
-  {"crop": "ઈસબગુલ (Isabgol)", "min": "2450", "max": "3050", "trend": "તેજી"},
-  {"crop": "ઘઉં (Wheat)", "min": "540", "max": "585", "trend": "સ્થિર"},
-  {"crop": "બાજરી (Bajra)", "min": "420", "max": "540", "trend": "સામાન્ય"},
-  {"crop": "મગફળી (Groundnut)", "min": "1250", "max": "1820", "trend": "તેજી"},
-  {"crop": "રાજગરો (Rajgaro)", "min": "1720", "max": "1815", "trend": "સ્થિર"},
-  {"crop": "મકાઈ (Maize)", "min": "450", "max": "530", "trend": "સામાન્ય"}
-]`;
+      const prompt = `તમે બનાસકાંઠા APMC માર્કેટ યાર્ડના વિશ્લેષક છો. યાર્ડ: "${yard}". આ યાર્ડના આજના તાજા હરાજી બજાર ભાવ (૨૦ કિલો દીઠ) માત્ર JSON Array માં આપો: [{"crop":"જીરું (Cumin)","min":"4850","max":"5750","trend":"તેજી"}]`;
 
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
         method: "POST",
@@ -65,12 +52,12 @@ export default async function handler(req, res) {
     }
   }
 
-  // અન્ય ફીચર્સ (૧. સલાહ, ૨. પ્લાનર, ૩. કેલેન્ડર, ૪. બાયો, ૬. રોગ)
+  // અન્ય તમામ સુવિધાઓ (૧. સલાહ, ૨. પ્લાનર, ૩. કેલેન્ડર, ૪. બાયો, ૬. રોગ)
   let promptText = "";
   let parts = [];
 
   if (type === "advisor") {
-    promptText = `તમે એક કૃષિ વૈજ્ઞાનિક છો. ઉત્તર ગુજરાત (વાવ, થરાદ, પાલનપુર) ના સંદર્ભમાં સચોટ ગુજરાતીમાં મુદ્દાસર જવાબ આપો: "${query}"`;
+    promptText = `તમે એક કૃષિ વૈજ્ઞાનિક છો. ઉત્તર ગુજરાત (વાવ, થરાદ, પાલનપુર) ના સંદર્ભમાં સચોટ ગુજરાતીમાં મુદ્દાસર માર્ગદર્શન આપો: "${query}"`;
     parts = [{ text: promptText }];
   } else if (type === "planner") {
     promptText = `જમીન: ${soilType}, પાક: ${cropName}, વિસ્તાર: ${landArea}. બનાસકાંઠા માટે બિયારણ, ખાતર અને વાવણી આયોજન સરળ ગુજરાતીમાં આપો.`;
