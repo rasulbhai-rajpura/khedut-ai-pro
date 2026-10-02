@@ -8,7 +8,6 @@
   <link rel="icon" type="image/png" href="https://img.icons8.com/color/192/tractor.png">
 
   <meta name="theme-color" content="#2e7d32">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/606/606990.png">
 
   <style>
     :root {
@@ -259,185 +258,6 @@
       <div id="diseaseResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૭. ઉત્તર ગુજરાત મુખ્ય APMC દૈનિક બજાર ભાવ -->
-    <div id="tab-mandi" class="tab-content">
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h3 style="color: var(--primary); margin: 0; font-size: 16px;">📊 મુખ્ય APMC દૈનિક બજાર ભાવ</h3>
-          <!-- તાજા ભાવ રીફ્રેશ બટન -->
-          <button onclick="refreshMandiPrices()" style="background: #2e7d32; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-            🔄 તાજા ભાવ રીફ્રેશ કરો
-          </button>
-        </div>
-
-        <p style="font-size: 12px; color: #666; margin-top: 6px;">યાર્ડ પસંદ કરો અને ૨૦ કિલો (મણ) દીઠ લાઈવ હરાજી ભાવ જુઓ:</p>
-
-        <!-- APMC સિલેક્ટ કરવાનું ડ્રોપડાઉન મેનૂ -->
-        <div style="margin-top: 10px;">
-          <label style="font-size: 13px; font-weight: bold; color: #1b5e20;">📍 માર્કેટ યાર્ડ પસંદ કરો:</label>
-          <select id="mandiYardSelect" onchange="changeYardFromDropdown(this.value)" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1.5px solid #2e7d32; font-size: 14px; font-weight: bold; background: #fff; color: #1b5e20;">
-            <option value="thrad">થરાદ (વાવ - થરાદ)</option>
-            <option value="deesa">ડીસા (Deesa)</option>
-            <option value="dhanera">ધાનેરા</option>
-            <option value="palanpur">પાલનપુર (મુખ્ય યાર્ડ)</option>
-            <option value="bhabhar">ભાભર / દિયોદર</option>
-            <option value="unjha">ઊંઝા (મસાલા માર્કેટ)</option>
-            <option value="patan">પાટણ</option>
-            <option value="mehsana">મહેસાણા</option>
-            <option value="harij">હારીજ</option>
-          </select>
-        </div>
-
-        <!-- સ્ટેટસ મેસેજ (રીફ્રેશ કરતી વખતે દેખાશે) -->
-        <div id="refresh-status" style="display: none; margin-top: 8px; padding: 6px; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px; font-size: 12px; color: #1b5e20; text-align: center; font-weight: bold;">
-          ✅ તાજા ભાવ સફળતાપૂર્વક અપડેટ થયા છે!
-        </div>
-
-        <style>
-          .apmc-table {
-            width: 100%;
-            font-size: 13px;
-            text-align: left;
-            border-collapse: collapse;
-            margin-top: 8px;
-          }
-          .apmc-table th {
-            background: #e8f5e9;
-            color: #1b5e20;
-            padding: 8px;
-            border-bottom: 2px solid #c8e6c9;
-          }
-          .apmc-table td {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-          }
-          .apmc-link {
-            display: block;
-            margin-top: 10px;
-            text-align: center;
-            padding: 7px;
-            background: #f1f8e9;
-            color: #2e7d32;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: bold;
-            border: 1px dashed #2e7d32;
-          }
-        </style>
-
-        <!-- ૧. થરાદ (વાવ) APMC -->
-        <div id="yard-thrad" class="apmc-detail" style="border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa; margin-top: 12px;">
-          <h4 style="color: #1b5e20; margin: 0 0 6px 0;">📍 APMC થરાદ (વાવ-થરાદ વિસ્તાર)</h4>
-          <table class="apmc-table">
-            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
-            <tr><td>જીરું (Cumin)</td><td>4,850</td><td>5,750</td></tr>
-            <tr><td>રાયડો (Mustard)</td><td>1,490</td><td>1,565</td></tr>
-            <tr><td>એરંડા (Castor)</td><td>1,495</td><td>1,525</td></tr>
-            <tr><td>ઈસબગુલ (Isabgol)</td><td>2,450</td><td>3,050</td></tr>
-            <tr><td>બાજરી (Bajra)</td><td>420</td><td>540</td></tr>
-            <tr><td>ગુવાર (Guar)</td><td>1,190</td><td>1,240</td></tr>
-          </table>
-          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 Agmarknet પોર્ટલ પર થરાદના દૈનિક ભાવ ચકાસો ➔</a>
-        </div>
-
-        <!-- ૨. ડીસા APMC -->
-        <div id="yard-deesa" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa; margin-top: 12px;">
-          <h4 style="color: #1b5e20; margin: 0 0 6px 0;">📍 APMC ડીસા (Deesa)</h4>
-          <table class="apmc-table">
-            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
-            <tr><td>એરંડા (Castor)</td><td>1,508</td><td>1,515</td></tr>
-            <tr><td>રાયડો (Mustard)</td><td>1,511</td><td>1,570</td></tr>
-            <tr><td>મગફળી (Groundnut)</td><td>1,251</td><td>1,821</td></tr>
-            <tr><td>રાજગરો (Rajgaro)</td><td>1,736</td><td>1,814</td></tr>
-            <tr><td>ઘઉં (Wheat)</td><td>543</td><td>568</td></tr>
-            <tr><td>બાજરી (Bajari)</td><td>420</td><td>540</td></tr>
-            <tr><td>ગુવાર (Gavar)</td><td>1,221</td><td>1,221</td></tr>
-          </table>
-          <a href="https://apmcdeesa.com" target="_blank" class="apmc-link">🌐 સત્તાવાર ડીસા APMC વેબસાઇટ પર લાઈવ ભાવ જુઓ ➔</a>
-        </div>
-
-        <!-- ૩. ધાનેરા APMC -->
-        <div id="yard-dhanera" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa; margin-top: 12px;">
-          <h4 style="color: #1b5e20; margin: 0 0 6px 0;">📍 APMC ધાનેરા</h4>
-          <table class="apmc-table">
-            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
-            <tr><td>રાયડો (Mustard)</td><td>1,490</td><td>1,560</td></tr>
-            <tr><td>એરંડા (Castor)</td><td>1,480</td><td>1,520</td></tr>
-            <tr><td>બાજરી (Bajra)</td><td>415</td><td>535</td></tr>
-            <tr><td>જીરું (Cumin)</td><td>4,700</td><td>5,500</td></tr>
-            <tr><td>મગફળી (Groundnut)</td><td>1,200</td><td>1,650</td></tr>
-          </table>
-          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 ભારત સરકાર Agmarknet પર ધાનેરા યાર્ડ ભાવ જુઓ ➔</a>
-        </div>
-
-        <!-- ૪. પાલનપુર APMC -->
-        <div id="yard-palanpur" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa; margin-top: 12px;">
-          <h4 style="color: #1b5e20; margin: 0 0 6px 0;">📍 APMC પાલનપુર (જિલ્લા મુખ્ય મથક)</h4>
-          <table class="apmc-table">
-            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
-            <tr><td>એરંડા (Castor)</td><td>1,500</td><td>1,530</td></tr>
-            <tr><td>રાયડો (Mustard)</td><td>1,500</td><td>1,570</td></tr>
-            <tr><td>ઘઉં (Wheat)</td><td>530</td><td>585</td></tr>
-            <tr><td>મકાઈ (Maize)</td><td>450</td><td>530</td></tr>
-            <tr><td>બાજરી (Bajra)</td><td>425</td><td>520</td></tr>
-          </table>
-          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 પાલનપુર APMC લાઈવ ડેટા પોર્ટલ જુઓ ➔</a>
-        </div>
-
-        <!-- ૫. ભાભર / દિયોદર APMC -->
-        <div id="yard-bhabhar" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa; margin-top: 12px;">
-          <h4 style="color: #1b5e20; margin: 0 0 6px 0;">📍 APMC ભાભર / દિયોદર</h4>
-          <table class="apmc-table">
-            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
-            <tr><td>જીરું (Cumin)</td><td>4,800</td><td>5,600</td></tr>
-            <tr><td>એરંડા (Castor)</td><td>1,490</td><td>1,520</td></tr>
-            <tr><td>રાયડો (Mustard)</td><td>1,480</td><td>1,550</td></tr>
-            <tr><td>ઈસબગુલ (Isabgol)</td><td>2,400</td><td>2,950</td></tr>
-          </table>
-          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 ભાભર માર્કેટ યાર્ડ લાઈવ વિગતો જુઓ ➔</a>
-        </div>
-
-        <!-- ૬. ઊંઝા APMC -->
-        <div id="yard-unjha" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa; margin-top: 12px;">
-          <h4 style="color: #1b5e20; margin: 0 0 6px 0;">📍 APMC ઊંઝા (મસાલા માર્કેટ)</h4>
-          <table class="apmc-table">
-            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
-            <tr><td>જીરું (Cumin)</td><td>5,100</td><td>6,250</td></tr>
-            <tr><td>વરિયાળી (Fennel)</td><td>1,850</td><td>3,300</td></tr>
-            <tr><td>ઈસબગુલ (Isabgol)</td><td>2,600</td><td>3,150</td></tr>
-            <tr><td>રાયડો (Mustard)</td><td>1,520</td><td>1,585</td></tr>
-            <tr><td>તલ સફેદ (Sesame)</td><td>2,450</td><td>3,000</td></tr>
-          </table>
-          <a href="https://apmcunjha.com" target="_blank" class="apmc-link">🌐 ઊંઝા APMC ઓફિશિયલ લાઈવ હરાજી બોર્ડ ➔</a>
-        </div>
-
-        <!-- ૭. પાટણ APMC -->
-        <div id="yard-patan" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa; margin-top: 12px;">
-          <h4 style="color: #1b5e20; margin: 0 0 6px 0;">📍 APMC પાટણ</h4>
-          <table class="apmc-table">
-            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
-            <tr><td>એરંડા (Castor)</td><td>1,500</td><td>1,535</td></tr>
-            <tr><td>જીરું (Cumin)</td><td>4,900</td><td>5,750</td></tr>
-            <tr><td>રાયડો (Mustard)</td><td>1,500</td><td>1,565</td></tr>
-            <tr><td>કપાસ (Cotton)</td><td>1,420</td><td>1,690</td></tr>
-          </table>
-          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 પાટણ યાર્ડ દૈનિક હરાજી ભાવ ચકાસો ➔</a>
-        </div>
-
-        <!-- ૮. મહેસાણા APMC -->
-        <div id="yard-mehsana" class="apmc-detail" style="display: none; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; background: #fafdfa; margin-top: 12px;">
-          <h4 style="color: #1b5e20; margin: 0 0 6px 0;">📍 APMC મહેસાણા</h4>
-          <table class="apmc-table">
-            <tr><th>મુખ્ય પાક (૨૦ કિલો)</th><th>નીચો ભાવ (₹)</th><th>ઊંચો ભાવ (₹)</th></tr>
-            <tr><td>એરંડા (Castor)</td><td>1,505</td><td>1,528</td></tr>
-            <tr><td>રાયડો (Mustard)</td><td>1,510</td><td>1,560</td></tr>
-            <tr><td>ઘઉં (Wheat)</td><td>540</td><td>590</td></tr>
-            <tr><td>બાજરી (Bajra)</td><td>430</td><td>530</td></tr>
-          </table>
-          <a href="https://agmarknet.gov.in" target="_blank" class="apmc-link">🌐 મહેસાણા APMC સત્તાવાર ભાવ જુઓ ➔</a>
-        </div>
-
     <!-- ૭. ઉત્તર ગુજરાત મુખ્ય APMC AI લાઈવ બજાર ભાવ -->
     <div id="tab-mandi" class="tab-content">
       <div class="card">
@@ -496,7 +316,8 @@
 
       </div>
     </div>
- <!-- ૮. સરકારી કૃષિ યોજનાઓ -->
+
+    <!-- ૮. સરકારી કૃષિ યોજનાઓ -->
     <div id="tab-schemes" class="tab-content">
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -552,9 +373,8 @@
       </div>
     </div>
 
-  </div> 
+  </div>
 
-  <script>
   <script>
     let base64Image = null;
     let latestReportText = "";
@@ -562,8 +382,13 @@
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById('tab-' + tabId).classList.add('active');
-      if (btn) btn.classList.add('active');
+      const targetTab = document.getElementById('tab-' + tabId);
+      if (targetTab) {
+        targetTab.classList.add('active');
+      }
+      if (btn) {
+        btn.classList.add('active');
+      }
     }
 
     function handleImage(e) {
@@ -772,6 +597,62 @@
       finally { btn.disabled = false; btn.innerText = "રોગનું નિદાન કરો 🔬"; }
     }
 
+    // ૭. જેમિની AI દ્વારા APMC લાઈવ ભાવ લાવવાનું ફંક્શન
+    async function fetchApmcPrices() {
+      const yardSelect = document.getElementById('mandiYardSelect');
+      const selectedYard = yardSelect ? yardSelect.value : 'થરાદ';
+      const status = document.getElementById('refresh-status');
+      const heading = document.getElementById('yardHeading');
+      const tbody = document.getElementById('mandiTableBody');
+      const timeBadge = document.getElementById('mandi-time-badge');
+
+      if (status) {
+        status.style.display = 'block';
+        status.innerHTML = `🔄 જેમિની AI દ્વારા ${selectedYard} યાર્ડના તમામ જણસના ભાવ શોધાઈ રહ્યા છે...`;
+      }
+      if (heading) {
+        heading.innerText = `📍 APMC ${selectedYard} ના લાઈવ ભાવ (૨૦ કિલો / મણ):`;
+      }
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'mandi', mandiYard: selectedYard })
+        });
+        const d = await res.json();
+
+        if (d.success && Array.isArray(d.data)) {
+          let rowsHtml = "";
+          d.data.forEach(item => {
+            let badgeColor = (item.trend === 'તેજી' || item.trend === 'સુધારો' || item.trend === 'મજબૂત') ? '#2e7d32' : '#f57f17';
+            rowsHtml += `
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 8px; font-weight: bold;">${item.crop}</td>
+                <td style="padding: 8px; color: #333;">₹${item.min}</td>
+                <td style="padding: 8px; font-weight: bold; color: #1b5e20;">₹${item.max}</td>
+                <td style="padding: 8px;"><span style="color: ${badgeColor}; font-weight: bold; font-size: 11px;">● ${item.trend}</span></td>
+              </tr>
+            `;
+          });
+
+          if (tbody) tbody.innerHTML = rowsHtml;
+
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString('gu-IN', { hour: '2-digit', minute: '2-digit' });
+          if (timeBadge) timeBadge.innerText = `🟢 લાઈવ: ${timeStr} કલાકે`;
+          if (status) {
+            status.innerHTML = `✅ ${selectedYard} ના તમામ તાજા ભાવ સફળતાપૂર્વક લોડ થયા!`;
+            setTimeout(() => { status.style.display = 'none'; }, 2500);
+          }
+        } else {
+          if (status) status.innerHTML = "⚠️ ભાવ લોડ કરવામાં ક્ષતિ આવી.";
+        }
+      } catch (err) {
+        if (status) status.innerHTML = "⚠️ નેટવર્ક એરર: " + err.message;
+      }
+    }
+
     // હવામાન
     window.addEventListener('load', () => {
       if (navigator.geolocation) {
@@ -799,7 +680,7 @@
           if (data.current.wind_speed_10m > 16) {
             advice = "⚠️ પવન વધુ છે (16 km/h થી વધુ), દવાનો છંટકાવ ટાળવો.";
           } else if (data.current.rain > 1) {
-            advice = "🌧️ વરસાદને લીધે હાલ પિયત મોકૂફ રાખવું.";
+            advice = "🌧️️ વરસાદને લીધે હાલ પિયત મોકૂફ રાખવું.";
           }
           document.getElementById('agro-advisory').innerText = advice;
         }
@@ -808,71 +689,12 @@
       }
     }
 
-    // PWA સર્વિસ વર્કર રજિસ્ટર કરવું
+    // PWA સર્વિસ વર્કર
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Fail:', err));
       });
     }
-
-    // ૧. ડ્રોપડાઉનમાંથી યાર્ડ બદલવા માટેનું ફંક્શન
-    function changeYardFromDropdown(yardId) {
-      document.querySelectorAll('.apmc-detail').forEach(el => el.style.display = 'none');
-      const activeDiv = document.getElementById('yard-' + yardId);
-      if (activeDiv) {
-        activeDiv.style.display = 'block';
-      }
-    }
-
-       // જેમિની AI દ્વારા પસંદ કરેલ APMC ની તમામ જણસના લાઈવ ભાવ લાવવાનું ફંક્શન
-async function fetchApmcPrices() {
-  const yardSelect = document.getElementById('mandiYardSelect');
-  const selectedYard = yardSelect.value;
-  const status = document.getElementById('refresh-status');
-  const heading = document.getElementById('yardHeading');
-  const tbody = document.getElementById('mandiTableBody');
-  const timeBadge = document.getElementById('mandi-time-badge');
-
-  status.style.display = 'block';
-  status.innerHTML = `🔄 જેમિની AI દ્વારા ${selectedYard} યાર્ડના તમામ જણસના ભાવ શોધાઈ રહ્યા છે...`;
-  heading.innerText = `📍 APMC ${selectedYard} ના લાઈવ ભાવ (૨૦ કિલો / મણ):`;
-
-  try {
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'mandi', mandiYard: selectedYard })
-    });
-    const d = await res.json();
-
-    if (d.success && Array.isArray(d.data)) {
-      let rowsHtml = "";
-      d.data.forEach(item => {
-        let badgeColor = (item.trend === 'તેજી' || item.trend === 'સુધારો' || item.trend === 'મજબૂત') ? '#2e7d32' : '#f57f17';
-        rowsHtml += `
-          <tr style="border-bottom: 1px solid #eee;">
-            <td style="padding: 8px; font-weight: bold;">${item.crop}</td>
-            <td style="padding: 8px; color: #333;">₹${item.min}</td>
-            <td style="padding: 8px; font-weight: bold; color: #1b5e20;">₹${item.max}</td>
-            <td style="padding: 8px;"><span style="color: ${badgeColor}; font-weight: bold; font-size: 11px;">● ${item.trend}</span></td>
-          </tr>
-        `;
-      });
-
-      tbody.innerHTML = rowsHtml;
-
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('gu-IN', { hour: '2-digit', minute: '2-digit' });
-      timeBadge.innerText = `🟢 લાઈવ: ${timeStr} કલાકે`;
-      status.innerHTML = `✅ ${selectedYard} ના તમામ તાજા ભાવ સફળતાપૂર્વક લોડ થયા!`;
-      setTimeout(() => { status.style.display = 'none'; }, 2500);
-    } else {
-      status.innerHTML = "⚠️ ભાવ લોડ કરવામાં ક્ષતિ આવી.";
-    }
-  } catch (err) {
-    status.innerHTML = "⚠️ નેટવર્ક એરર: " + err.message;
-  }
-}
   </script>
 </body>
 </html>
