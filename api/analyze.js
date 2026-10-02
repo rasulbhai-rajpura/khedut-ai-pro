@@ -3,30 +3,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { type, imageBase64, query, soilType, cropName, landArea, sowingDate, bioOption, bioArea, mandiYard } = req.body;
+  const { type, imageBase64, query, soilType, cropName, landArea, sowingDate, bioOption, bioArea, mandiYard, queryCrop } = req.body;
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
     return res.status(500).json({ error: 'સર્વર પર Gemini API Key ઉપલબ્ધ નથી.' });
   }
 
-  // Google નું નવું માન્ય મોડેલ
-  const MODEL_NAME =  "gemini-3.5-flash-lite";
-  // ૭. લાઈવ APMC બજાર ભાવ
-  if (type === "mandi") {
-      // ૭.૧ જણસ (Crop) મુજબ વિવિધ યાર્ડના ભાવ સરખામણી
+  const MODEL_NAME = "gemini-3.8-flash";
+
   if (type === "crop_mandi") {
-    const crop = req.body.queryCrop || "જીરું";
-    const prompt = `ઉત્તર ગુજરાતના મુખ્ય યાર્ડ (થરાદ, ડીસા, પાલનપુર, ઊંઝા) માં પાક "${crop}" ના આજના ૨૦ કિલોના બજાર ભાવ નીચે મુજબના JSON Array માં આપો:
-[
-  {"yard": "ઊંઝા", "min": "5100", "max": "6200", "trend": "તેજી"},
-  {"yard": "થરાદ", "min": "4850", "max": "5750", "trend": "સુધારો"},
-  {"yard": "ડીસા", "min": "4800", "max": "5600", "trend": "સ્થિર"},
-  {"yard": "પાટણ", "min": "4900", "max": "5700", "trend": "સુધારો"}
-]`;
+    const crop = queryCrop || "જીરું";
+    const defaultCropData = [
+      { yard: "ઊંઝા", min: "5100", max: "6200", trend: "તેજી" },
+      { yard: "થરાદ", min: "4850", max: "5750", trend: "સુધારો" },
+      { yard: "ડીસા", min: "4800", max: "5600", trend: "સ્થિર" },
+      { yard: "પાટણ", min: "4900", max: "5700", trend: "સુધારો" }
+    ];
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
+      const prompt = `ઉત્તર ગુજરાતના મુખ્ય યાર્ડમાં પાક "${crop}" ના ૨૦ કિલોના બજાર ભાવ JSON Array માં આપો: [{"yard":"ઊંઝા","min":"5100","max":"6200","trend":"તેજી"}]`;
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -36,22 +33,12 @@ export default async function handler(req, res) {
         let cleanText = data.candidates[0].content.parts[0].text.trim().replace(/```json/gi, '').replace(/```/g, '').trim();
         return res.status(200).json({ success: true, data: JSON.parse(cleanText) });
       }
-    } catch(e) {}
-    
-    // ફોલબેક ડેટા જેથી સર્વર અટકે નહીં
-    return res.status(200).json({
-      success: true,
-      data: [
-        { yard: "ઊંઝા", min: "5100", max: "6200", trend: "તેજી" },
-        { yard: "થરાદ", min: "4850", max: "5750", trend: "સુધારો" },
-        { yard: "ડીસા", min: "4800", max: "5600", trend: "સ્થિર" },
-        { yard: "પાલનપુર", min: "4900", max: "5650", trend: "સ્થિર" }
-      ]
-    });
+    } catch (e) {}
+    return res.status(200).json({ success: true, data: defaultCropData });
   }
 
+  if (type === "mandi") {
     const yard = mandiYard || "થરાદ";
-    
     const defaultMandiData = [
       { crop: "જીરું (Cumin)", min: "4850", max: "5750", trend: "તેજી" },
       { crop: "રાયડો (Mustard)", min: "1490", max: "1565", trend: "સુધારો" },
@@ -65,29 +52,21 @@ export default async function handler(req, res) {
     ];
 
     try {
-      const prompt = `તમે બનાસકાંઠા APMC માર્કેટ યાર્ડના વિશ્લેષક છો. યાર્ડ: "${yard}". આ યાર્ડના આજના તાજા હરાજી બજાર ભાવ (૨૦ કિલો દીઠ) માત્ર JSON Array માં આપો: [{"crop":"જીરું (Cumin)","min":"4850","max":"5750","trend":"તેજી"}]`;
-
+      const prompt = `યાર્ડ "${yard}" ના આજના તાજા હરાજી બજાર ભાવ JSON Array માં આપો: [{"crop":"જીરું (Cumin)","min":"4850","max":"5750","trend":"તેજી"}]`;
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       });
-
       const data = await response.json();
       if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-        let cleanText = data.candidates[0].content.parts[0].text.trim();
-        cleanText = cleanText.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleanText);
-        return res.status(200).json({ success: true, data: parsed });
-      } else {
-        return res.status(200).json({ success: true, data: defaultMandiData });
+        let cleanText = data.candidates[0].content.parts[0].text.trim().replace(/```json/gi, '').replace(/```/g, '').trim();
+        return res.status(200).json({ success: true, data: JSON.parse(cleanText) });
       }
-    } catch (e) {
-      return res.status(200).json({ success: true, data: defaultMandiData });
-    }
+    } catch (e) {}
+    return res.status(200).json({ success: true, data: defaultMandiData });
   }
 
-  // અન્ય તમામ સુવિધાઓ (૧. સલાહ, ૨. પ્લાનર, ૩. કેલેન્ડર, ૪. બાયો, ૬. રોગ)
   let promptText = "";
   let parts = [];
 
@@ -104,8 +83,8 @@ export default async function handler(req, res) {
     promptText = `પ્રાકૃતિક ખાતર: ${bioOption}, જમીન: ${bioArea}. સામગ્રી, બનાવવાની રીત અને ઉપયોગ ગુજરાતીમાં આપો.`;
     parts = [{ text: promptText }];
   } else {
-    if (!imageBase64) return res.status(400).json({ error: 'ફોટો આપવો જરૂરી છે.' });
-    promptText = `આ પાંદડા/પાકનો રોગ ઓળખી માત્ર JSON ફોર્મેટમાં આપો: {"crop_name":"","disease_name":"","severity":"","symptoms":"","chemical_treatment":"","organic_treatment":"","prevention":""}. વધારાની નોંધ: ${query || 'કોઈ નથી'}`;
+    if (!imageBase64) return res.status(400).json({ error: 'ફોટો જરૂરી છે.' });
+    promptText = `આ પાંદડાનો રોગ ઓળખી માત્ર JSON માં આપો: {"crop_name":"","disease_name":"","severity":"","symptoms":"","chemical_treatment":"","organic_treatment":"","prevention":""}. વિગત: ${query || 'કોઈ નથી'}`;
     parts = [{ text: promptText }, { inline_data: { mime_type: "image/jpeg", data: imageBase64 } }];
   }
 
@@ -121,7 +100,7 @@ export default async function handler(req, res) {
       let finalResult = (type === "disease") ? JSON.parse(text.replace(/```json/gi, '').replace(/```/g, '').trim()) : { textAnswer: text };
       return res.status(200).json({ success: true, data: finalResult });
     }
-    return res.status(500).json({ success: false, error: data.error?.message || "AI તરફથી પ્રતિસાદ મળ્યો નથી." });
+    return res.status(500).json({ success: false, error: "AI તરફથી પ્રતિસાદ મળ્યો નથી." });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
