@@ -248,76 +248,51 @@
       <div id="diseaseResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૭. બજાર ભાવ (સરળ ગુજરાતી ખેડૂત APMC કાર્ડ) -->
-    <div id="tab-mandi" class="tab-content">
-      <div class="card" style="background: #ffffff; border-radius: 14px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid #c8e6c9;">
-        
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-          <h3 style="margin: 0; color: #1b5e20; font-size: 19px; display: flex; align-items: center; gap: 8px;">
-            💰 ગુજરાત માર્કેટ યાર્ડ ભાવ (૨૦ કિલો / મણ દીઠ)
-          </h3>
-          <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">
-            ● દૈનિક બજાર
-          </span>
-        </div>
+    <!-- ૭. સત્તાવાર માર્કેટ યાર્ડ લાઈવ ભાવ સેક્શન -->
+<div id="mandiSection" class="feature-card" style="margin-top: 20px; padding: 20px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+  <h3 style="color: #1b5e20; text-align: center; margin-bottom: 8px;">
+    🏛️ સત્તાવાર માર્કેટ યાર્ડ દૈનિક બજાર ભાવ
+  </h3>
+  <p style="text-align: center; color: #555; font-size: 14px; margin-bottom: 20px;">
+    ખેડૂતો માટે સંપૂર્ણ સચોટ અને અધિકૃત માહિતી: સીધા સરકારી યાર્ડના દૈનિક પત્રક પરથી લાઈવ જુઓ.
+  </p>
 
-        <!-- યાર્ડ પસંદગી ડ્રોપડાઉન -->
-        <label style="font-size: 13px; font-weight: bold; color: #333; display: block; margin-top: 10px;">
-          📍 તમારું માર્કેટ યાર્ડ પસંદ કરો:
-        </label>
-        <select id="khedutMandiSelect" onchange="showSelectedMandiPrices()" style="width: 100%; padding: 11px; border: 2px solid #81c784; border-radius: 8px; font-size: 15px; font-weight: bold; color: #1b5e20; margin-top: 6px; background: #f9fbf9;">
-          <option value="deesa">ડીસા (બનાસકાંઠા)</option>
-          <option value="tharad">થરાદ (વાવ - થરાદ વિસ્તાર)</option>
-          <option value="palanpur">પાલનપુર (બનાસકાંઠા)</option>
-          <option value="unjha">ઊંઝા (મહેસાણા)</option>
-          <option value="patan">પાટણ</option>
-          <option value="rajkot">રાજકોટ (સૌરાષ્ટ્ર)</option>
-        </select>
+  <div style="display: flex; flex-direction: column; gap: 12px; max-width: 480px; margin: 0 auto;">
+    
+    <!-- ડીસા APMC -->
+    <a href="https://apmcdeesa.com" target="_blank" 
+       style="display: flex; align-items: center; justify-content: space-between; background: #e8f5e9; border: 1px solid #c8e6c9; padding: 14px 18px; border-radius: 10px; text-decoration: none; color: #2e7d32; font-weight: bold; font-size: 15px;">
+      <span>🌾 ડીસા માર્કેટ યાર્ડ (દૈનિક સત્તાવાર ભાવ)</span>
+      <span style="font-size: 18px;">➔</span>
+    </a>
 
-        <!-- જણસ ઝડપી શોધ -->
-        <div style="margin-top: 14px;">
-          <label style="font-size: 13px; font-weight: bold; color: #333;">🌾 અથવા જણસ (પાક) પ્રમાણે શોધો:</label>
-          <div style="display: flex; gap: 6px; margin-top: 6px;">
-            <input type="text" id="khedutCropInput" placeholder="દા.ત. જીરું, રાયડો, મગફળી, કપાસ..." style="margin-top: 0; flex: 1;">
-            <button type="button" onclick="searchCropDirect()" style="padding: 0 16px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">શોધો 🔍</button>
-          </div>
-          
-          <!-- ક્વિક બટન્સ -->
-          <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
-            <span style="font-size: 11px; color: #666; align-self: center;">ઝડપી:</span>
-            <button type="button" onclick="quickFilterCrop('જીરું')" style="background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 12px; font-size: 11px; padding: 3px 8px; cursor: pointer; color: #1b5e20;">જીરું</button>
-            <button type="button" onclick="quickFilterCrop('રાયડો')" style="background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 12px; font-size: 11px; padding: 3px 8px; cursor: pointer; color: #1b5e20;">રાયડો</button>
-            <button type="button" onclick="quickFilterCrop('એરંડા')" style="background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 12px; font-size: 11px; padding: 3px 8px; cursor: pointer; color: #1b5e20;">એરંડા</button>
-            <button type="button" onclick="quickFilterCrop('મગફળી')" style="background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 12px; font-size: 11px; padding: 3px 8px; cursor: pointer; color: #1b5e20;">મગફળી</button>
-            <button type="button" onclick="quickFilterCrop('કપાસ')" style="background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 12px; font-size: 11px; padding: 3px 8px; cursor: pointer; color: #1b5e20;">કપાસ</button>
-          </div>
-        </div>
+    <!-- Agmarknet ગુજરાત સત્તાવાર -->
+    <a href="https://agmarknet.gov.in" target="_blank" 
+       style="display: flex; align-items: center; justify-content: space-between; background: #e8f5e9; border: 1px solid #c8e6c9; padding: 14px 18px; border-radius: 10px; text-decoration: none; color: #2e7d32; font-weight: bold; font-size: 15px;">
+      <span>🇮🇳 Agmarknet (ભારત સરકાર - ગુજરાત યાર્ડ્સ)</span>
+      <span style="font-size: 18px;">➔</span>
+    </a>
 
-        <!-- ભાવ દર્શાવતું સરળ ટેબલ -->
-        <div style="margin-top: 18px; overflow-x: auto;">
-          <h4 id="mandiTableTitle" style="color: #2e7d32; font-size: 15px; margin-bottom: 8px;">📍 APMC ડીસા ના બજાર ભાવ (૨૦ કિલો):</h4>
-          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
-            <thead>
-              <tr style="background: #e8f5e9; color: #1b5e20;">
-                <th id="colHeader1" style="padding: 10px; border: 1px solid #c8e6c9;">પાક / જણસ</th>
-                <th style="padding: 10px; border: 1px solid #c8e6c9;">નીચો ભાવ</th>
-                <th style="padding: 10px; border: 1px solid #c8e6c9;">ઊંચો ભાવ</th>
-                <th style="padding: 10px; border: 1px solid #c8e6c9;">બજાર વલણ</th>
-              </tr>
-            </thead>
-            <tbody id="khedutMandiBody">
-              <!-- જાવાસ્ક્રિપ્ટ દ્વારા અહીં સીધા ભાવ ભરાશે -->
-            </tbody>
-          </table>
-        </div>
+    <!-- ઊંઝા APMC -->
+    <a href="https://www.apmcunjha.com" target="_blank" 
+       style="display: flex; align-items: center; justify-content: space-between; background: #e8f5e9; border: 1px solid #c8e6c9; padding: 14px 18px; border-radius: 10px; text-decoration: none; color: #2e7d32; font-weight: bold; font-size: 15px;">
+      <span>🌱 ઊંઝા માર્કેટ યાર્ડ (જીરું-વરિયાળી સત્તાવાર ભાવ)</span>
+      <span style="font-size: 18px;">➔</span>
+    </a>
 
-        <!-- ખેડૂત હિત નોંધ -->
-        <p style="font-size: 12px; color: #666; margin-top: 12px; background: #fafafa; padding: 8px; border-radius: 6px; border-left: 3px solid #4caf50;">
-          ℹ️ આ ભાવો ગુજરાતના મુખ્ય માર્કેટ યાર્ડોમાં ૨૦ કિલો (૧ મણ) ના દૈનિક ધોરણે ચાલતા સરેરાશ બજાર ભાવો દર્શાવે છે.
-        </p>
+    <!-- ગુજરાત સ્ટેટ એગ્રી માર્કેટિંગ બોર્ડ -->
+    <a href="https://gsamb.gujarat.gov.in" target="_blank" 
+       style="display: flex; align-items: center; justify-content: space-between; background: #e8f5e9; border: 1px solid #c8e6c9; padding: 14px 18px; border-radius: 10px; text-decoration: none; color: #2e7d32; font-weight: bold; font-size: 15px;">
+      <span>🏢 ગુજરાત રાજ્ય કૃષિ બજાર બોર્ડ (તમામ APMC)</span>
+      <span style="font-size: 18px;">➔</span>
+    </a>
 
-      </div>
-    </div>
+  </div>
+
+  <div style="margin-top: 18px; text-align: center; font-size: 12px; color: #777;">
+    ✅ આ તમામ લિંક્સ સીધા સરકારી અને અધિકૃત APMC સર્વર સાથે જોડાયેલી છે.
+  </div>
+</div>
 
     <!-- ૮. સરકારી યોજનાઓ -->
     <div id="tab-schemes" class="tab-content">
