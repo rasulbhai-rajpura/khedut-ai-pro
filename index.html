@@ -248,69 +248,31 @@
       <div id="diseaseResult" class="result-box" style="display: none;"></div>
     </div>
 
-    <!-- ૭. APMC લાઈવ બજાર ભાવ -->
-    <div id="tab-mandi" class="tab-content">
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <div>
-            <h3 style="color: var(--primary); margin: 0; font-size: 16px;">📊 APMC લાઈવ બજાર ભાવ</h3>
-            <span id="mandi-time-badge" style="font-size: 11px; color: #555; background: #e8f5e9; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 3px;">
-              🟢 લાઈવ બજાર અપડેટ
-            </span>
-          </div>
-          <button type="button" onclick="fetchApmcPrices()" style="background: #2e7d32; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer;">
-            🔄 તાજા ભાવ
-          </button>
-        </div>
+   <!-- APMC સત્તાવાર લાઈવ બજાર ભાવ સેક્શન -->
+<div class="card" style="background: #ffffff; border-radius: 14px; padding: 22px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid #e0e0e0;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+    <h3 style="margin: 0; color: #2e7d32; font-size: 20px; display: flex; align-items: center; gap: 8px;">
+      📊 APMC સત્તાવાર લાઈવ બજાર ભાવ
+    </h3>
+    <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: bold;">
+      ● લાઈવ સરકારી પોર્ટલ
+    </span>
+  </div>
 
-        <div style="margin-bottom: 12px; background: #f1f8e9; padding: 10px; border-radius: 8px; border: 1px dashed #81c784;">
-          <label style="font-size: 13px; font-weight: bold; color: #1b5e20;">🔍 જણસ (પાક) પ્રમાણે ભાવ શોધો:</label>
-          <div style="display: flex; gap: 6px; margin-top: 5px;">
-            <input type="text" id="cropSearchInput" placeholder="દા.ત. જીરું, રાયડો, એરંડા..." style="margin-top: 0;">
-            <button type="button" onclick="searchCropPrices()" style="background: #1b5e20; color: #fff; border: none; padding: 0 14px; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap;">
-              શોધો
-            </button>
-          </div>
-          <div style="display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap;">
-            <button type="button" onclick="quickCropSearch('જીરું')" style="font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid #a5d6a7; background: #fff; cursor: pointer;">જીરું</button>
-            <button type="button" onclick="quickCropSearch('રાયડો')" style="font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid #a5d6a7; background: #fff; cursor: pointer;">રાયડો</button>
-            <button type="button" onclick="quickCropSearch('એરંડા')" style="font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid #a5d6a7; background: #fff; cursor: pointer;">એરંડા</button>
-            <button type="button" onclick="quickCropSearch('ઘઉં')" style="font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid #a5d6a7; background: #fff; cursor: pointer;">ઘઉં</button>
-          </div>
-        </div>
+  <p style="color: #444; font-size: 15px; line-height: 1.6; margin-bottom: 18px;">
+    ગુજરાતના તમામ માર્કેટ યાર્ડ (પાલનપુર,ડીસા, ઊંઝા, થરાદ, પાટણ, મહેસાણા  વગેરે) માં આજના રોજના પાકા અને સત્તાવાર હરાજીના ભાવ જોવા માટે નીચે આપેલા ભારત સરકારના Agmarknet પોર્ટલનો ઉપયોગ કરો:
+  </p>
 
-        <div style="margin-bottom: 12px;">
-          <label style="font-size: 13px; font-weight: bold; color: #1b5e20;">📍 અથવા માર્કેટ યાર્ડ પસંદ કરો:</label>
-          <select id="mandiYardSelect" onchange="fetchApmcPrices()" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1.5px solid #2e7d32; font-size: 14px; font-weight: bold;">
-            <option value="થરાદ">થરાદ (વાવ - થરાદ વિસ્તાર)</option>
-            <option value="ડીસા">ડીસા</option>
-            <option value="પાલનપુર">પાલનપુર</option>
-            <option value="ઊંઝા">ઊંઝા</option>
-          </select>
-        </div>
-
-        <div id="refresh-status" style="display: none; margin-bottom: 10px; padding: 8px; background: #e8f5e9; border-radius: 6px; font-size: 12px; color: #1b5e20; text-align: center; font-weight: bold;">
-          🔄 તાજા ભાવ આવી રહ્યા છે...
-        </div>
-
-        <div style="border: 1px solid #c8e6c9; border-radius: 8px; padding: 10px; background: #fafdfa;">
-          <h4 id="yardHeading" style="color: #1b5e20; margin-bottom: 8px;">📍 APMC થરાદ ના ભાવ (૨૦ કિલો દીઠ):</h4>
-          <table style="width: 100%; font-size: 13px; text-align: left; border-collapse: collapse;">
-            <thead>
-              <tr style="background: #e8f5e9; color: #1b5e20;">
-                <th id="th-col1" style="padding: 8px; border-bottom: 2px solid #c8e6c9;">જણસ</th>
-                <th style="padding: 8px; border-bottom: 2px solid #c8e6c9;">નીચો</th>
-                <th style="padding: 8px; border-bottom: 2px solid #c8e6c9;">ઊંચો</th>
-                <th style="padding: 8px; border-bottom: 2px solid #c8e6c9;">વલણ</th>
-              </tr>
-            </thead>
-            <tbody id="mandiTableBody">
-              <tr><td colspan="4" style="text-align: center; padding: 15px; color: #666;">ભાવ લોડ થઈ રહ્યા છે...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+  <div style="text-align: center; padding: 15px; background: #f9fbf9; border-radius: 10px; border: 1px dashed #81c784;">
+    <a href="https://agmarknet.gov.in/PriceTrends/SA_Pri_Month.aspx" target="_blank" 
+       style="display: inline-block; background-color: #2e7d32; color: white; padding: 14px 26px; font-size: 17px; font-weight: bold; border-radius: 8px; text-decoration: none; box-shadow: 0 4px 10px rgba(46,125,50,0.3); transition: 0.2s;">
+      🏛️ ગુજરાતના તમામ યાર્ડના લાઈવ ભાવ જુઓ
+    </a>
+    <p style="font-size: 13px; color: #666; margin-top: 10px; margin-bottom: 0;">
+      (ક્લિક કરતાં જ સીધું સરકારી Agmarknet પોર્ટલ નવી ટેબમાં ખુલશે)
+    </p>
+  </div>
+</div>
 
     <!-- ૮. સરકારી યોજનાઓ -->
     <div id="tab-schemes" class="tab-content">
