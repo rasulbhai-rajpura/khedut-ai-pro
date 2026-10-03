@@ -1,7 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
-
 export default async function handler(req, res) {
-  // માત્ર POST રિક્વેસ્ટ સ્વીકારો
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -16,65 +13,66 @@ export default async function handler(req, res) {
     landArea, 
     sowingDate, 
     bioOption, 
-    bioArea, 
-    imageBase64 
+    bioArea 
   } = req.body;
 
-  // ૧. લાઈવ APMC બજાર ભાવ (ગૂગલ લાઈવ સર્ચ ગ્રાઉન્ડિંગ સાથે)
+  // ૧. લાઈવ APMC બજાર ભાવ (Gemini Direct REST API + Google Search)
   if (type === "live_mandi" || type === "crop_mandi" || type === "mandi") {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ success: false, error: 'GEMINI_API_KEY સેટ નથી. Vercel Environment Variables માં ઉમેરો.' });
+      return res.status(500).json({ success: false, error: 'GEMINI_API_KEY ખૂટે છે.' });
     }
 
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      const targetQuery = queryCrop || mandiYard || "ગુજરાત મુખ્ય યાર્ડ";
-      const prompt = `Search Google for the latest real-time APMC market prices in Gujarat for "${targetQuery}".
-Provide the prices per 20 kg (મણ) in Gujarati.
-Return ONLY a valid JSON array of objects without markdown formatting or code blocks:
+    const targetQuery = queryCrop || mandiYard || "ગુજરાત APMC";
+    const prompt = `Search Google for the latest APMC market prices in Gujarat for "${targetQuery}".
+Provide prices per 20 kg (મણ) in Gujarati.
+Return ONLY a valid JSON array of objects without markdown code blocks:
 [
-  {"name": "જણસ અથવા યાર્ડનું નામ", "min": 1200, "max": 1550, "trend": "તેજી/સુધારો/સ્થિર/નરમ"}
+  {"name": "પાક અથવા યાર્ડ", "min": 1200, "max": 1500, "trend": "તેજી/સ્થિર/સુધારો"}
 ]`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-          tools: [{ googleSearch: {} }] // લાઈવ વેબ સર્ચ
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            tools: [{ google_search: {} }] // લાઈવ વેબ સર્ચ
+          })
         }
-      });
+      );
 
-      let text = response.text.trim();
-      text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const parsedData = JSON.parse(text);
-      return res.status(200).json({ success: true, data: parsedData });
+      const data = await response.json();
+      if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+        let rawText = data.candidates[0].content.parts[0].text.trim();
+        rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(rawText);
+        return res.status(200).json({ success: true, data: parsed });
+      } else {
+        return res.status(500).json({ success: false, error: 'ભાવ ઉપલબ્ધ નથી.' });
+      }
     } catch (err) {
-      return res.status(500).json({ success: false, error: 'લાઈવ ભાવ મેળવવામાં ભૂલ: ' + err.message });
+      return res.status(500).json({ success: false, error: err.message });
     }
   }
 
-  // ૨. ખેડૂત સલાહકાર, પાક રોગ, કેલેન્ડર, પ્લાનર (Groq / Gemini સપોર્ટ)
+  // ૨. અન્ય કૃષિ સલાહ અને કેલેન્ડર ફીચર્સ
   const groqApiKey = process.env.GROQ_API_KEY;
   if (!groqApiKey) {
-    return res.status(500).json({ success: false, error: 'GROQ_API_KEY સર્વર પર સેટ નથી.' });
+    return res.status(500).json({ success: false, error: 'GROQ_API_KEY ખૂટે છે.' });
   }
 
   let promptText = "";
-  if (type === "advisor") {
-    promptText = "You are an expert agriculture scientist in North Gujarat. Answer in simple Gujarati with medicine names: " + query;
-  } else if (type === "planner") {
-    promptText = `Soil: ${soilType}, Crop: ${cropName}, Area: ${landArea}. Give Gujarati fertilizer and seed schedule.`;
-  } else if (type === "calendar") {
-    promptText = `Crop: ${cropName}, Sowing Date: ${sowingDate}. Give Gujarati stage-wise spray calendar.`;
-  } else if (type === "bio") {
-    promptText = `Bio fertilizer: ${bioOption}, Area: ${bioArea}. Give Gujarati preparation steps and dosage.`;
-  } else if (type === "disease") {
-    promptText = `Provide plant disease cure in Gujarati JSON: {"crop_name":"","disease_name":"","severity":"","symptoms":"","chemical_treatment":"","organic_treatment":"","prevention":""}. Query: ${query || 'પાક રોગ'}`;
-  }
+  if (type === "advisor") promptText = "કૃષિ સલાહ આપો: " + query;
+  else if (type === "planner") promptText = `જમીન: ${soilType}, પાક: ${cropName}, માપ: ${landArea}`;
+  else if (type === "calendar") promptText = `પાક: ${cropName}, વાવણી: ${sowingDate}`;
+  else if (type === "bio") promptText = `પ્રાકૃતિક ખાતર: ${bioOption}, માપ: ${bioArea}`;
+  else if (type === "disease") promptText = `પાક રોગ નિદાન: ${query || 'પાક રોગ'}`;
 
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${groqApiKey}`,
@@ -83,21 +81,21 @@ Return ONLY a valid JSON array of objects without markdown formatting or code bl
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [
-          { role: "system", content: "તમે ખેડૂત મિત્ર AI છો. ઉત્તર શુદ્ધ અને સરળ ગુજરાતીમાં જ આપો." },
+          { role: "system", content: "તમે ખેડૂત મિત્ર AI છો. શુદ્ધ ગુજરાતીમાં જવાબ આપો." },
           { role: "user", content: promptText }
         ],
         temperature: 0.3
       })
     });
 
-    const data = await response.json();
-    if (data.choices && data.choices[0]?.message?.content) {
-      const text = data.choices[0].message.content.trim();
+    const d = await groqRes.json();
+    if (d.choices && d.choices[0]?.message?.content) {
+      const text = d.choices[0].message.content.trim();
       let finalResult = (type === "disease") ? JSON.parse(text.replace(/```json/gi, '').replace(/```/g, '').trim()) : { textAnswer: text };
       return res.status(200).json({ success: true, data: finalResult });
     }
-    return res.status(500).json({ success: false, error: "AI તરફથી યોગ્ય જવાબ મળ્યો નથી." });
+    return res.status(500).json({ success: false, error: "AI તરફથી જવાબ મળ્યો નથી." });
   } catch (err) {
-    return res.status(500).json({ success: false, error: "સર્વર ભૂલ: " + err.message });
+    return res.status(500).json({ success: false, error: err.message });
   }
 }
