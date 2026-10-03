@@ -409,14 +409,35 @@
       if (input) { input.value = text; askAdvisor(); }
     }
 
-    function speakText() {
-      if (!('speechSynthesis' in window)) return alert("વોઇસ સપોર્ટ નથી.");
-      window.speechSynthesis.cancel();
-      if (!latestReportText) return;
-      const utterance = new SpeechSynthesisUtterance(latestReportText.replace(/[#*⚠️💡💊🌿🛡️🔍🌱-]/g, ' '));
-      utterance.lang = 'gu-IN';
-      window.speechSynthesis.speak(utterance);
-    }
+    function speakText(text) {
+  if (!('speechSynthesis' in window)) {
+    alert("તમારા બ્રાઉઝરમાં ઓડિયો સપોર્ટ ઉપલબ્ધ નથી.");
+    return;
+  }
+
+  // જો પહેલેથી કંઈ બોલતું હોય તો બંધ કરો
+  window.speechSynthesis.cancel();
+
+  // JSON કે માર્કડાઉન સિમ્બોલ હટાવીને ચોખ્ખો ટેક્સ્ટ બનાવો
+  const cleanText = text.replace(/[*#_`]/g, '').trim();
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+
+  // ગુજરાતી ભાષા કોડ ફરજિયાત સેટ કરો
+  utterance.lang = 'gu-IN';
+  utterance.rate = 0.9; // ખેડૂતને સમજાય તેવી ધીમી અને સ્પષ્ટ ગતિ
+
+  // બ્રાઉઝરમાં ઉપલબ્ધ અવાજોમાંથી ગુજરાતી કે ભારતીય અવાજ પસંદ કરો
+  const voices = window.speechSynthesis.getVoices();
+  const guVoice = voices.find(v => v.lang.includes('gu') || v.lang.includes('GU')) ||
+                  voices.find(v => v.lang.includes('hi-IN')) || // જો ગુજરાતી ન મળે તો હિન્દી સૂર
+                  voices.find(v => v.lang.includes('IN'));
+
+  if (guVoice) {
+    utterance.voice = guVoice;
+  }
+
+  window.speechSynthesis.speak(utterance);
+}
 
     function shareToWhatsApp() {
       if (!latestReportText) return;
