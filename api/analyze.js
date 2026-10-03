@@ -24,16 +24,17 @@ export default async function handler(req, res) {
   let prompt = "";
   let isJsonExpected = false;
 
-  // ૧. બજાર ભાવ
+  // ૧. બજાર ભાવ (છેલ્લા કામકાજના દિવસ / Last Working Day ના ભાવ)
   if (type === "live_mandi" || type === "crop_mandi" || type === "mandi") {
     isJsonExpected = true;
     const target = queryCrop || mandiYard || "ગુજરાત માર્કેટ યાર્ડ";
     prompt = `તમે ગુજરાત APMC માર્કેટ યાર્ડના કૃષિ બજાર નિષ્ણાત છો.
-લક્ષ્ય: "${target}" માટે ગુજરાતના માર્કેટ યાર્ડના ૨૦ કિલો (૧ મણ) ના વાજબી અને હાલના ચાલુ સરેરાશ બજાર ભાવ આપો.
+લક્ષ્ય: "${target}" માટે ગુજરાતના માર્કેટ યાર્ડના છેલ્લા કામકાજના દિવસ (Last Working Day / સત્તાવાર તાજા) ના ૨૦ કિલો (૧ મણ) ના બજાર ભાવ આપો.
+નોંધ: જો આજે રવિવાર કે રજા હોય અથવા આજના ભાવ હજુ અપડેટ ન થયા હોય, તો છેલ્લા ચાલુ દિવસના સત્તાવાર ભાવ આપવા.
 જો પાક સર્ચ કર્યો હોય તો ગુજરાતના અલગ અલગ મુખ્ય યાર્ડના નામ સાથે ભાવ આપો.
 જો યાર્ડ સિલેક્ટ કર્યું હોય તો તે યાર્ડના મુખ્ય પાકોના નામ સાથે ભાવ આપો.
 
-ફક્ત અને ફક્ત નીચે મુજબનો સાચો JSON Array જ આપો:
+ફક્ત અને ફક્ત નીચે મુજબનો સાચો JSON Array જ આપો, કોઈ અન્ય લખાણ નહીં:
 [
   {"name": "યાર્ડ અથવા પાકનું નામ", "min": 1250, "max": 1580, "trend": "તેજી"},
   {"name": "યાર્ડ અથવા પાકનું નામ", "min": 1100, "max": 1350, "trend": "સ્થિર"}
@@ -83,9 +84,8 @@ export default async function handler(req, res) {
       requestBody.generationConfig.responseMimeType = "application/json";
     }
 
-    // નવી AQ. કી માટે Header માં x-goog-api-key મોકલવી સૌથી સુરક્ષિત રીત છે
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`,
       {
         method: 'POST',
         headers: { 
@@ -108,7 +108,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true, data: { textAnswer: rawText } });
       }
     } else {
-      const errMsg = data.error?.message || "Gemini તરફથી કોઈ વિગત મળી નથી.";
+      const errMsg = data.error?.message || "Gemini API તરફથી કોઈ જવાબ મળ્યો નથી.";
       return res.status(500).json({ success: false, error: errMsg });
     }
   } catch (err) {
