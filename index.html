@@ -409,47 +409,38 @@
       if (input) { input.value = text; askAdvisor(); }
     }
 
-   function speakText(text) {
-  if (!('speechSynthesis' in window)) {
-    alert("તમારા ડિવાઇસ/બ્રાઉઝરમાં ઓડિયો સપોર્ટ ઉપલબ્ધ નથી.");
-    return;
-  }
+  function speakText(text) {
+  if (!('speechSynthesis' in window)) return;
 
-  // જો અગાઉથી કોઈ ઓડિયો ચાલુ હોય તો બંધ કરો
   window.speechSynthesis.cancel();
-
-  if (!text || text.trim() === "") {
-    alert("સાંભળવા માટે કોઈ લખાણ મળ્યું નથી.");
-    return;
-  }
-
-  // સ્પેશિયલ કેરેક્ટર અને માર્કડાઉન હટાવો
   const cleanText = text.replace(/[*#_`]/g, '').trim();
   const utterance = new SpeechSynthesisUtterance(cleanText);
 
-  utterance.lang = 'gu-IN'; // ગુજરાતી ભાષા
-  utterance.rate = 0.9;     // સાંભળવામાં સરળ એવી ધીમી ગતિ
+  const voices = window.speechSynthesis.getVoices();
 
-  // વૉઇસ લોડ કરવાની સાચી પદ્ધતિ
-  const setVoiceAndSpeak = () => {
-    const voices = window.speechSynthesis.getVoices();
-    const guVoice = voices.find(v => v.lang.includes('gu') || v.lang.includes('GU')) ||
-                    voices.find(v => v.lang.includes('hi-IN')) ||
-                    voices.find(v => v.lang.includes('IN'));
+  // ૧. પહેલાં શુદ્ધ ગુજરાતી અવાજ શોધશે (મોબાઇલ માટે)
+  let selectedVoice = voices.find(v => v.lang === 'gu-IN' || v.lang.includes('gu'));
 
-    if (guVoice) {
-      utterance.voice = guVoice;
-    }
-    window.speechSynthesis.speak(utterance);
-  };
-
-  // જો વૉઇસ તૈયાર ન હોય તો ઇવેન્ટ સાંભળીને બોલશે
-  if (window.speechSynthesis.getVoices().length === 0) {
-    window.speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
-  } else {
-    setVoiceAndSpeak();
+  // ૨. જો લેપટોપ/પીસીમાં ગુજરાતી ન મળે, તો ભારતીય હિન્દી અવાજ લેશે (જે ગુજરાતી શબ્દો સરસ વાંચી શકે)
+  if (!selectedVoice) {
+    selectedVoice = voices.find(v => v.lang === 'hi-IN' || v.lang.includes('hi'));
   }
 
+  // ૩. જો એ પણ ન મળે, તો કોઈપણ ભારતીય અંગ્રેજી અવાજ લેશે
+  if (!selectedVoice) {
+    selectedVoice = voices.find(v => v.lang.includes('IN'));
+  }
+
+  if (selectedVoice) {
+    utterance.voice = selectedVoice;
+    utterance.lang = selectedVoice.lang;
+  } else {
+    utterance.lang = 'gu-IN';
+  }
+
+  utterance.rate = 0.85; // અવાજ સ્પષ્ટ સમજાય તે માટે થોડી ધીમી ગતિ
+  window.speechSynthesis.speak(utterance);
+}
   window.speechSynthesis.speak(utterance);
 }
 
