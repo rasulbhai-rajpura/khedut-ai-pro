@@ -401,36 +401,37 @@
       ]
     };
 
-    function showSelectedMandiPrices() {
+   // યાર્ડ બદલાય ત્યારે લાઈવ ભાવ ખેંચવા માટે
+    async function showSelectedMandiPrices() {
       const select = document.getElementById('khedutMandiSelect');
       if (!select) return;
-      const val = select.value;
-      const text = select.options[select.selectedIndex].text;
-      document.getElementById('colHeader1').innerText = "પાક / જણસ";
-      document.getElementById('mandiTableTitle').innerText = `📍 APMC ${text} ના ભાવ (૨૦ કિલો):`;
-
-      const list = gujaratMandiData[val] || gujaratMandiData.deesa;
-      renderKhedutRows(list, false);
-    }
-
-    function renderKhedutRows(items, isCropSearch) {
+      const yardName = select.options[select.selectedIndex].text;
       const tbody = document.getElementById('khedutMandiBody');
-      if (!tbody) return;
-      let html = "";
-      items.forEach(it => {
-        const trendColor = (it.trend === 'તેજી' || it.trend === 'સુધારો') ? '#2e7d32' : '#e65100';
-        html += `
-          <tr style="border-bottom: 1px solid #eef2ee;">
-            <td style="padding: 10px; font-weight: bold; color: #2c3e50;">${isCropSearch ? it.yard : it.name}</td>
-            <td style="padding: 10px; color: #555;">₹${it.min}</td>
-            <td style="padding: 10px; font-weight: bold; color: #1b5e20;">₹${it.max}</td>
-            <td style="padding: 10px; font-weight: bold; color: ${trendColor}; font-size: 12px;">● ${it.trend}</td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
+      const title = document.getElementById('mandiTableTitle');
+      const col1 = document.getElementById('colHeader1');
 
+      if (col1) col1.innerText = "પાક / જણસ";
+      if (title) title.innerText = `📍 APMC ${yardName} ના આજના લાઈવ ભાવ (૨૦ કિલો):`;
+
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:16px; color:#2e7d32; font-weight:bold;">🔄 ${yardName} ના આજના લાઈવ ભાવ આવી રહ્યા છે...</td></tr>`;
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'live_mandi', mandiYard: yardName })
+        });
+        const result = await res.json();
+
+        if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+          renderKhedutRows(result.data, false);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:14px; color:#c62828;">આજના લાઈવ ભાવ મળ્યા નથી.</td></tr>`;
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:14px; color:#c62828;">સર્વર સાથે સંપર્ક થઈ શક્યો નથી.</td></tr>`;
+      }
+    }
     function searchCropDirect() {
       const q = document.getElementById('khedutCropInput').value.trim();
       if (!q) return alert("કૃપા કરીને પાકનું નામ લખો.");
