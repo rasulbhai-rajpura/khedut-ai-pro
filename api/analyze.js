@@ -74,7 +74,7 @@ prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થર
 
   // Gemini API કોલ
   async function callGemini() {
-    const model = "gemini-3.5-flash-lite";
+    const model = "gemini-2.0-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
 
     const parts = [{ text: prompt }];
@@ -105,7 +105,7 @@ prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થર
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
 
     const isVision = (imageBase64 && type === 'disease');
-    const model = isVision ? "llama-3.2-11b-vision-preview" : "qwen/qwen-2.5-32b-instruct";
+    const model = isVision ? "llama-3.2-11b-vision-preview" : "qwen-2.5-32b";
     const contentArray = [];
     if (isVision) {
       contentArray.push({ type: "text", text: prompt });
