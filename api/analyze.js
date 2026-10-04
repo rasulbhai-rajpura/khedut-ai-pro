@@ -1,117 +1,168 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  // CORS હેડર્સ
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
-  const { 
-    type, 
-    queryCrop, 
-    mandiYard, 
-    query, 
-    soilType, 
-    cropName, 
-    landArea, 
-    sowingDate, 
-    bioOption, 
-    bioArea 
-  } = req.body;
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'માત્ર POST મેથડ માન્ય છે.' });
+  }
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ success: false, error: 'GEMINI_API_KEY સર્વર પર સેટ નથી.' });
+  const { type, query, soilType, cropName, landArea, sowingDate, bioOption, bioArea, imageBase64 } = req.body;
+
+  const geminiKey = process.env.GEMINI_API_KEY;
+  const groqKey = process.env.GROQ_API_KEY;
+
+  if (!geminiKey && !groqKey) {
+    return res.status(500).json({ success: false, error: 'સર્વર પર API કી સેટ કરેલ નથી.' });
   }
 
   let prompt = "";
   let isJsonExpected = false;
 
-  // ૧. બજાર ભાવ (છેલ્લા કામકાજના દિવસ / Last Working Day ના ભાવ)
-  if (type === "live_mandi" || type === "crop_mandi" || type === "mandi") {
+  // ૧. ખેતી સલાહ
+  if (type === 'advisor') {
+    prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના અનુભવી ગુજરાતી કૃષિ વૈજ્ઞાનિક છો.
+ખેડૂતનો પ્રશ્ન: "${query}"
+ખેડૂતને સમજાય તેવી સરળ ગુજરાતી ભાષામાં મુદ્દાસર માર્ગદર્શન આપો (રોગ/જીવાતનું કારણ, રાસાયણિક દવા અને દેશી ઉપાય સાથે).`;
+  } 
+  // ૨. જમીન-પાક આયોજન
+  else if (type === 'planner') {
+    prompt = `જમીનનો પ્રકાર: ${soilType}
+વાવેતર કરવાનો પાક: ${cropName}
+જમીનનું માપ: ${landArea}
+ઉત્તર ગુજરાતના હવામાન મુજબ આ પાક માટે જરૂરી બિયારણનો જથ્થો, પાયાનું ખાતર અને પિયત વ્યવસ્થાપન ગુજરાતીમાં મુદ્દાસર જણાવો.`;
+  } 
+  // ૩. પાક કેલેન્ડર
+  else if (type === 'calendar') {
+    prompt = `પાક: ${cropName}
+વાવણી તારીખ: ${sowingDate}
+આ પાક માટે વાવણીથી લઈને લણણી સુધીનું સ્ટેજ મુજબનું સમયપત્રક (ખાતર અને રોગ નિયંત્રણ સ્પ્રે ક્યારે કરવા) ગુજરાતીમાં સરળ મુદ્દાઓમાં આપો.`;
+  } 
+  // ૪. પ્રાકૃતિક ખેતી કેલ્ક્યુલેટર
+  else if (type === 'bio') {
+    prompt = `પ્રાકૃતિક ખેતી ઉપાય: ${bioOption}
+વિસ્તાર: ${bioArea}
+આ ઉપાય બનાવવા માટે જરૂરી સામગ્રીનું ચોક્કસ પ્રમાણ, બનાવવાની સરળ રીત અને ખેતરમાં આપવાની પદ્ધતિ સંપૂર્ણ ગુજરાતીમાં જણાવો.`;
+  } 
+  // ૫. પાક રોગ નિદાન (Vision)
+  else if (type === 'disease') {
     isJsonExpected = true;
-    const target = queryCrop || mandiYard || "ગુજરાત માર્કેટ યાર્ડ";
-    prompt = `તમે ગુજરાત APMC માર્કેટ યાર્ડના કૃષિ બજાર નિષ્ણાત છો.
-લક્ષ્ય: "${target}" માટે ગુજરાતના માર્કેટ યાર્ડના છેલ્લા કામકાજના દિવસ (Last Working Day / સત્તાવાર તાજા) ના ૨૦ કિલો (૧ મણ) ના બજાર ભાવ આપો.
-નોંધ: જો આજે રવિવાર કે રજા હોય અથવા આજના ભાવ હજુ અપડેટ ન થયા હોય, તો છેલ્લા ચાલુ દિવસના સત્તાવાર ભાવ આપવા.
-જો પાક સર્ચ કર્યો હોય તો ગુજરાતના અલગ અલગ મુખ્ય યાર્ડના નામ સાથે ભાવ આપો.
-જો યાર્ડ સિલેક્ટ કર્યું હોય તો તે યાર્ડના મુખ્ય પાકોના નામ સાથે ભાવ આપો.
-
-ફક્ત અને ફક્ત નીચે મુજબનો સાચો JSON Array જ આપો, કોઈ અન્ય લખાણ નહીં:
-[
-  {"name": "યાર્ડ અથવા પાકનું નામ", "min": 1250, "max": 1580, "trend": "તેજી"},
-  {"name": "યાર્ડ અથવા પાકનું નામ", "min": 1100, "max": 1350, "trend": "સ્થિર"}
-]`;
-  } 
-  // ૨. ખેતી સલાહ
-  else if (type === "advisor") {
-    prompt = `તમે ઉત્તર ગુજરાતના કૃષિ વૈજ્ઞાનિક છો. ખેડૂત મિત્રને સરળ અને શુદ્ધ ગુજરાતીમાં દવા અને ખાતરના ચોક્કસ નામ સાથે માર્ગદર્શન આપો: ${query}`;
-  } 
-  // ૩. જમીન-પાક આયોજન
-  else if (type === "planner") {
-    prompt = `જમીનનો પ્રકાર: ${soilType}, પાક: ${cropName}, વિસ્તાર: ${landArea}. બનાસકાંઠા/ઉત્તર ગુજરાતના વાતાવરણ મુજબ બિયારણનો દર અને ખાતર વ્યવસ્થાપન ગુજરાતીમાં વિગતવાર જણાવો.`;
-  } 
-  // ૪. પાક કેલેન્ડર
-  else if (type === "calendar") {
-    prompt = `પાક: ${cropName}, વાવણી તારીખ: ${sowingDate}. વાવણીથી લઈને કાપણી સુધીનું તબક્કાવાર છંટકાવ અને પિયત કેલેન્ડર ગુજરાતીમાં આપો.`;
-  } 
-  // ૫. પ્રાકૃતિક ખેતી
-  else if (type === "bio") {
-    prompt = `પ્રાકૃતિક ઉપાય: ${bioOption}, જમીનનું માપ: ${bioArea}. આ બનાવવાની રીત, ઘટકોનું પ્રમાણ અને આપવાની પદ્ધતિ ગુજરાતીમાં જણાવો.`;
-  } 
-  // ૬. પાક રોગ નિદાન
-  else if (type === "disease") {
-    isJsonExpected = true;
-    prompt = `પાક રોગ માટે નીચે મુજબનું શુદ્ધ JSON ફોર્મેટ આપો:
+    prompt = `તમે પાક રોગ નિષ્ણાત છો. આ છોડના પાનનું નિરીક્ષણ કરો.
+વધારાની નોંધ: ${query || "કોઈ નથી"}
+તમારે માત્ર નીચે આપેલ JSON ફોર્મેટમાં જ જવાબ આપવાનો છે (કોઈ અન્ય લખાણ નહીં):
 {
-  "crop_name": "પાકનું નામ",
-  "disease_name": "રોગનું નામ",
-  "severity": "સામાન્ય/ગંભીર",
-  "symptoms": "લક્ષણો",
-  "chemical_treatment": "રાસાયણિક દવા અને માપ",
-  "organic_treatment": "દેશી ઉપાય",
-  "prevention": "સાવચેતી"
-}
-વિગત: ${query || 'પાક રોગ'}`;
+  "crop_name": "પાકનું નામ (દા.ત. જીરું / કપાસ)",
+  "disease_name": "રોગ અથવા જીવાતનું નામ",
+  "severity": "હળવો / મધ્યમ / ગંભીર",
+  "symptoms": "મુખ્ય લક્ષણો (ગુજરાતીમાં)",
+  "chemical_treatment": "અસરકારક રાસાયણિક દવાનું નામ અને માપ (પંપ દીઠ)",
+  "organic_treatment": "દેશી/પ્રાકૃતિક ઉપાય",
+  "prevention": "ભવિષ્ય માટે સાવચેતી"
+}`;
+  } else {
+    return res.status(400).json({ success: false, error: 'અમાન્ય વિનંતી પ્રકાર.' });
   }
 
-  try {
-    const requestBody = {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.2
-      }
-    };
+  // Gemini API કોલ
+  async function callGemini() {
+    const model = "gemini-2.5-flash-lite"; // અથવા gemini-3.5-flash-lite
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
 
-    if (isJsonExpected) {
-      requestBody.generationConfig.responseMimeType = "application/json";
+    const parts = [{ text: prompt }];
+    if (imageBase64 && type === 'disease') {
+      parts.push({
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: imageBase64
+        }
+      });
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent`,
-      {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey.trim()
-        },
-        body: JSON.stringify(requestBody)
-      }
-    );
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts }] })
+    });
 
     const data = await response.json();
-
-    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-      let rawText = data.candidates[0].content.parts[0].text.trim();
-
-      if (isJsonExpected) {
-        const parsed = JSON.parse(rawText);
-        return res.status(200).json({ success: true, data: parsed });
-      } else {
-        return res.status(200).json({ success: true, data: { textAnswer: rawText } });
-      }
-    } else {
-      const errMsg = data.error?.message || "Gemini API તરફથી કોઈ જવાબ મળ્યો નથી.";
-      return res.status(500).json({ success: false, error: errMsg });
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Gemini API Error');
     }
-  } catch (err) {
-    return res.status(500).json({ success: false, error: 'સર્વર ભૂલ: ' + err.message });
+    return data.candidates[0].content.parts[0].text;
+  }
+
+  // Groq API બેકઅપ કોલ (Failover)
+  async function callGroq() {
+    if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
+
+    const isVision = (imageBase64 && type === 'disease');
+    const model = isVision ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
+
+    const contentArray = [];
+    if (isVision) {
+      contentArray.push({ type: "text", text: prompt });
+      contentArray.push({
+        type: "image_url",
+        image_url: { url: `data:image/jpeg;base64,${imageBase64}` }
+      });
+    }
+
+    const messages = [
+      {
+        role: "user",
+        content: isVision ? contentArray : prompt
+      }
+    ];
+
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${groqKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: messages,
+        temperature: 0.7
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Groq API Error');
+    }
+    return data.choices[0].message.content;
+  }
+
+  // પ્રાઈમરી અને બેકઅપ એક્ઝિક્યુશન
+  try {
+    let rawText = "";
+    try {
+      // ૧. પહેલા ગૂગલ જેમિની પ્રયાસ કરશે
+      rawText = await callGemini();
+    } catch (geminiError) {
+      console.warn("Gemini ફેલ થયું, Groq બેકઅપ શરૂ કરી રહ્યું છે:", geminiError.message);
+      // ૨. જો જેમિની ફેલ થાય તો Groq બેકઅપ સંભાળશે
+      rawText = await callGroq();
+    }
+
+    if (isJsonExpected) {
+      const cleanJson = rawText.replace(/```json|```/g, '').trim();
+      const parsedData = JSON.parse(cleanJson);
+      return res.status(200).json({ success: true, data: parsedData });
+    } else {
+      return res.status(200).json({ success: true, data: { textAnswer: rawText } });
+    }
+  } catch (finalError) {
+    return res.status(500).json({
+      success: false,
+      error: `બંને સેવાઓ પર ક્ષતિ આવી: ${finalError.message}`
+    });
   }
 }
