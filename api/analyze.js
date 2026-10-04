@@ -24,8 +24,9 @@ export default async function handler(req, res) {
   let prompt = "";
   let isJsonExpected = false;
 
-  // નવો પ્રોમ્પ્ટ:
-prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના કૃષિ નિષ્ણાત છો.
+  // ૧. ખેતી સલાહ
+  if (type === 'adviser') {
+    prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના કૃષિ નિષ્ણાત છો.
 ખેડૂતનો પ્રશ્ન: "${query}"
 
 સૂચનાઓ:
