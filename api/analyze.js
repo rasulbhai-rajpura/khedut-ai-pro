@@ -101,7 +101,7 @@ export default async function handler(req, res) {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
 
     const isVision = (imageBase64 && type === 'disease');
-    const model = isVision ? "llama-3.1-11b-vision-preview" : "llama2-9b-it";
+    const model = isVision ? "llama-3.1-11b-vision-preview" : "qwen-2.5-32b"";
 
     const contentArray = [];
     if (isVision) {
