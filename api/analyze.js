@@ -70,7 +70,7 @@ export default async function handler(req, res) {
 
   // Gemini API કોલ
   async function callGemini() {
-    const model = "gemini-2.5-flash-lite"; // અથવા gemini-3.5-flash-lite
+    const model = "gemini-2.0-flash"; // અથવા gemini-3.5-flash-lite
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
 
     const parts = [{ text: prompt }];
@@ -101,7 +101,7 @@ export default async function handler(req, res) {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
 
     const isVision = (imageBase64 && type === 'disease');
-    const model = isVision ? "llama-3.1-11b-vision-preview" : "llama-3.1-8b-instant";
+    const model = isVision ? "llama-3.1-11b-vision-preview" : "llama-3-8b-8192";
 
     const contentArray = [];
     if (isVision) {
