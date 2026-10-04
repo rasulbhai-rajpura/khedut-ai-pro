@@ -25,7 +25,7 @@ export default async function handler(req, res) {
   let isJsonExpected = false;
 
   // ૧. ખેતી સલાહ
-  if (type === 'adviser') {
+  if (type === 'adviser' || type === 'advisor' || type === 'chat' || (!type && query)) {
     prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના કૃષિ નિષ્ણાત છો.
 ખેડૂતનો પ્રશ્ન: "${query}"
 
