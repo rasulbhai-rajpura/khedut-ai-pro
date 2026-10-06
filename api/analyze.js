@@ -93,21 +93,11 @@ export default async function handler(req, res) {
     const parts = [{ text: prompt }];
 
     if (imageBase64 && type === 'disease') {
-      let mimeType = "image/jpeg";
-      let cleanBase64 = imageBase64;
-
-      const matches = imageBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
-      if (matches) {
-        mimeType = matches[1];
-        cleanBase64 = matches[2];
-      } else {
-        cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-      }
-
+      const base64Data = imageBase64.split(',')[1] || imageBase64;
       parts.push({
         inlineData: {
-          mimeType: mimeType,
-          data: cleanBase64
+          mimeType: "image/jpeg",
+          data: base64Data
         }
       });
     }
@@ -124,6 +114,7 @@ export default async function handler(req, res) {
     }
     return data.candidates[0].content.parts[0].text;
   }
+
 
   // Groq API કોલ (બેકઅપ)
   async function callGroq() {
