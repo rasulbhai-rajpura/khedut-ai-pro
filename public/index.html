@@ -540,18 +540,26 @@
     }
 
     async function analyzeCrop() {
-      if (!base64Image) return alert("પાકનો ફોટો સિલેક્ટ કરો.");
-      const btn = document.getElementById('analyzeBtn');
-      const resBox = document.getElementById('diseaseResult');
-      btn.disabled = true; btn.innerText = "નિદાન થઈ રહ્યું છે..."; resBox.style.display = 'none';
+  const previewImg = document.getElementById('preview-img');
+  const imgData = (previewImg && previewImg.src && previewImg.src.startsWith('data:image')) ? previewImg.src : base64Image;
 
-      try {
-        const res = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ type: 'disease', imageBase64: base64Image, query: document.getElementById('diseaseQuery').value })
-        });
-        const d = await res.json();
+  if (!imgData) return alert("પાકનો ફોટો સિલેક્ટ કરો.");
+
+  const btn = document.getElementById('analyzeBtn');
+  const resBox = document.getElementById('diseaseResult');
+  btn.disabled = true; btn.innerText = "નિદાન થઈ રહ્યું છે..."; resBox.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        type: 'disease', 
+        imageBase64: imgData, 
+        query: document.getElementById('diseaseQuery').value 
+      })
+      });
+const d = await res.json();
         if (d.success) {
           const info = d.data;
           latestReportText = `પાક: ${info.crop_name}\nરોગ: ${info.disease_name}\nદવા: ${info.chemical_treatment}\nદેશી ઉપાય: ${info.organic_treatment}`;
