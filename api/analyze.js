@@ -126,7 +126,7 @@ export default async function handler(req, res) {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
 
     // ⚠️ ઇમેજ સમજવા માટે ફક્ત વિઝન (Vision) વાળું મોડેલ વાપરવું પડે
-    const model = "const model = "qwen/qwen3.8-27b"; 
+    const model ="qwen/qwen3.8-27b"; 
     const userPrompt = (type === 'disease' && query) 
       ? `${prompt}\n(ખેડૂતની નોંધ: ${query})` 
       : prompt;
