@@ -539,44 +539,74 @@
       finally { btn.disabled = false; }
     }
 
-    async function analyzeCrop() {
-  const previewImg = document.getElementById('preview-img');
-  const imgData = (previewImg && previewImg.src && previewImg.src.startsWith('data:image')) ? previewImg.src : base64Image;
+    let currentBase64Image = "";
 
-  if (!imgData) return alert("પાકનો ફોટો સિલેક્ટ કરો.");
+function handleImageUpload(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      currentBase64Image = e.target.result;
+      const preview = document.getElementById('preview-img');
+      if (preview) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      }
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+document.getElementById('cameraInput')?.addEventListener('change', function() { handleImageUpload(this); });
+document.getElementById('galleryInput')?.addEventListener('change', function() { handleImageUpload(this); });
+
+async function analyzeCrop() {
+  const previewImg = document.getElementById('preview-img');
+  const imgToSend = currentBase64Image || (previewImg ? previewImg.src : "");
+
+  if (!imgToSend || !imgToSend.startsWith('data:image')) {
+    return alert("પાકનો ફોટો સિલેક્ટ કરો.");
+  }
 
   const btn = document.getElementById('analyzeBtn');
   const resBox = document.getElementById('diseaseResult');
-  btn.disabled = true; btn.innerText = "નિદાન થઈ રહ્યું છે..."; resBox.style.display = 'none';
+  btn.disabled = true; 
+  btn.innerText = "નિદાન થઈ રહ્યું છે..."; 
+  resBox.style.display = 'none';
 
   try {
     const res = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        type: 'disease', 
-        imageBase64: imgData, 
-        query: document.getElementById('diseaseQuery').value 
+      body: JSON.stringify({
+        type: 'disease',
+        imageBase64: imgToSend,
+        query: document.getElementById('diseaseQuery').value
       })
-      });
-const d = await res.json();
-        if (d.success) {
-          const info = d.data;
-          latestReportText = `પાક: ${info.crop_name}\nરોગ: ${info.disease_name}\nદવા: ${info.chemical_treatment}\nદેશી ઉપાય: ${info.organic_treatment}`;
-          resBox.innerHTML = `
-            <h3 style="color:#2e7d32;">🌾 પાક: ${info.crop_name}</h3>
-            <p style="margin-top:6px;"><b>⚠️ રોગ:</b> ${info.disease_name} (${info.severity})</p>
-            <p style="margin-top:6px;"><b>🔍 લક્ષણો:</b> ${info.symptoms}</p>
-            <p style="margin-top:6px; color:#c62828;"><b>💊 રાસાયણિક દવા:</b> ${info.chemical_treatment}</p>
-            <p style="margin-top:6px; color:#2e7d32;"><b>🌿 દેશી ઉપાય:</b> ${info.organic_treatment}</p>
-            <p style="margin-top:6px; color:#e65100;"><b>🛡️ સાવચેતી:</b> ${info.prevention}</p>
-            ${createActionBar()}
-          `;
-          resBox.style.display = 'block';
-        } else { alert("સર્વર ભૂલ: " + d.error); }
-      } catch (err) { alert("ક્ષતિ: " + err.message); }
-      finally { btn.disabled = false; btn.innerText = "રોગનું નિદાન કરો 🔬"; }
+    });
+
+    const d = await res.json();
+    if (d.success) {
+      const info = d.data;
+      resBox.innerHTML = `
+        <h3 style="color:#2e7d32;">🌾 પાક: ${info.crop_name}</h3>
+        <p style="margin-top:6px;"><b>⚠️ રોગ:</b> ${info.disease_name} (${info.severity})</p>
+        <p style="margin-top:6px;"><b>🔍 લક્ષણો:</b> ${info.symptoms}</p>
+        <p style="margin-top:6px; color:#c62828;"><b>💊 રાસાયણિક દવા:</b> ${info.chemical_treatment}</p>
+        <p style="margin-top:6px; color:#2e7d32;"><b>🌿 દેશી ઉપાય:</b> ${info.organic_treatment}</p>
+        <p style="margin-top:6px; color:#e65100;"><b>🛡️ સાવચેતી:</b> ${info.prevention}</p>
+      `;
+      resBox.style.display = 'block';
+    } else {
+      alert("સર્વર ભૂલ: " + d.error);
     }
+  } catch (err) {
+    alert("ક્ષતિ: " + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "રોગનું નિદાન કરો 🔬";
+  }
+}
+
 
     // હવામાન
     window.addEventListener('load', () => {
