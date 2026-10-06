@@ -583,53 +583,91 @@ function handleImageUpload(input) {
 document.getElementById('cameraInput')?.addEventListener('change', function() { handleImageUpload(this); });
 document.getElementById('galleryInput')?.addEventListener('change', function() { handleImageUpload(this); });
 
-async function analyzeCrop() {
-  const previewImg = document.getElementById('preview-img');
-  const imgToSend = currentBase64Image || (previewImg ? previewImg.src : "");
+    // ૬. ફોટો હેન્ડલર (કૅમેરો અને ગૅલેરી બંને માટે ઓટો-કૉમ્પ્રેસ)
+    function handleImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-  if (!imgToSend || !imgToSend.startsWith('data:image')) {
-    return alert("પાકનો ફોટો સિલેક્ટ કરો.");
-  }
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const max_size = 800;
 
-  const btn = document.getElementById('analyzeBtn');
-  const resBox = document.getElementById('diseaseResult');
-  btn.disabled = true; 
-  btn.innerText = "નિદાન થઈ રહ્યું છે..."; 
-  resBox.style.display = 'none';
+          if (width > height && width > max_size) {
+            height = Math.round((height * max_size) / width);
+            width = max_size;
+          } else if (height > max_size) {
+            width = Math.round((width * max_size) / height);
+            height = max_size;
+          }
 
-  try {
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'disease',
-        imageBase64: imgToSend,
-        query: document.getElementById('diseaseQuery').value
-      })
-    });
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
 
-    const d = await res.json();
-    if (d.success) {
-      const info = d.data;
-      resBox.innerHTML = `
-        <h3 style="color:#2e7d32;">🌾 પાક: ${info.crop_name}</h3>
-        <p style="margin-top:6px;"><b>⚠️ રોગ:</b> ${info.disease_name} (${info.severity})</p>
-        <p style="margin-top:6px;"><b>🔍 લક્ષણો:</b> ${info.symptoms}</p>
-        <p style="margin-top:6px; color:#c62828;"><b>💊 રાસાયણિક દવા:</b> ${info.chemical_treatment}</p>
-        <p style="margin-top:6px; color:#2e7d32;"><b>🌿 દેશી ઉપાય:</b> ${info.organic_treatment}</p>
-        <p style="margin-top:6px; color:#e65100;"><b>🛡️ સાવચેતી:</b> ${info.prevention}</p>
-      `;
-      resBox.style.display = 'block';
-    } else {
-      alert("સર્વર ભૂલ: " + d.error);
+          // સાઈઝ નાની કરીને Base64 બનાવવું
+          base64Image = canvas.toDataURL('image/jpeg', 0.75);
+
+          const preview = document.getElementById('preview-img');
+          preview.src = base64Image;
+          preview.style.display = 'block';
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
     }
-  } catch (err) {
-    alert("ક્ષતિ: " + err.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "રોગનું નિદાન કરો 🔬";
-  }
-}
+
+    // પાક રોગ નિદાન વિશ્લેષણ
+    async function analyzeCrop() {
+      if (!base64Image) {
+        return alert("કૃપા કરીને પહેલા કૅમેરા કે ગૅલેરીમાંથી પાંદડાનો ફોટો અપલોડ કરો.");
+      }
+
+      const btn = document.getElementById('analyzeBtn');
+      const resBox = document.getElementById('diseaseResult');
+      btn.disabled = true; 
+      btn.innerText = "નિદાન થઈ રહ્યું છે..."; 
+      resBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'disease',
+            imageBase64: base64Image,
+            query: document.getElementById('diseaseQuery').value
+          })
+        });
+
+        const d = await res.json();
+        if (d.success) {
+          const info = d.data;
+          resBox.innerHTML = `
+            <h3 style="color:#2e7d32;">🌾 પાક: ${info.crop_name}</h3>
+            <p style="margin-top:6px;"><b>⚠️ રોગ:</b> ${info.disease_name} (${info.severity})</p>
+            <p style="margin-top:6px;"><b>🔍 લક્ષણો:</b> ${info.symptoms}</p>
+            <p style="margin-top:6px; color:#c62828;"><b>💊 રાસાયણિક દવા:</b> ${info.chemical_treatment}</p>
+            <p style="margin-top:6px; color:#2e7d32;"><b>🌿 દેશી ઉપાય:</b> ${info.organic_treatment}</p>
+            <p style="margin-top:6px; color:#e65100;"><b>🛡️ સાવચેતી:</b> ${info.prevention}</p>
+          `;
+          resBox.style.display = 'block';
+        } else {
+          alert("સર્વર ભૂલ: " + d.error);
+        }
+      } catch (err) {
+        alert("ક્ષતિ: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "રોગનું નિદાન કરો 🔬";
+      }
+    }
+
 
 
     // હવામાન
