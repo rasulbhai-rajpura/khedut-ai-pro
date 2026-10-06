@@ -25,7 +25,7 @@ export default async function handler(req, res) {
   let prompt = "";
   let isJsonExpected = false;
 
-  // ૧. ખેતી સલાહ
+  // ૧. ખેતી સલાહ (અગાઉ મુજબ યથાવત)
   if (type === 'adviser' || type === 'advisor' || type === 'chat' || (!type && query)) {
     prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના કૃષિ નિષ્ણાત છો.
 ખેડૂતનો પ્રશ્ન: "${query}"
@@ -36,45 +36,48 @@ export default async function handler(req, res) {
 ૩. જો પ્રશ્ન પાક સંરક્ષણ, રોગ કે જીવાત વિશે હોય, તો જ રોગના કારણ, રાસાયણિક દવા અને દેશી ઉપાય જણાવવા.
 ૪. જવાબ સરળ અને શુદ્ધ ગુજરાતીમાં આપવો.`;
   } 
-  // ૨. જમીન-પાક આયોજન
+  // ૨. જમીન-પાક આયોજન (યથાવત)
   else if (type === 'planner') {
     prompt = `જમીનનો પ્રકાર: ${soilType}
 વાવેતર કરવાનો પાક: ${cropName}
 જમીનનું માપ: ${landArea}
 ઉત્તર ગુજરાતના હવામાન મુજબ આ પાક માટે જરૂરી બિયારણનો જથ્થો, પાયાનું ખાતર અને પિયત વ્યવસ્થાપન ગુજરાતીમાં મુદ્દાસર જણાવો.`;
   } 
-  // ૩. પાક કેલેન્ડર
+  // ૩. પાક કેલેન્ડર (યથાવત)
   else if (type === 'calendar') {
     prompt = `પાક: ${cropName}
 વાવણી તારીખ: ${sowingDate}
 આ પાક માટે વાવણીથી લઈને લણણી સુધીનું સ્ટેજ મુજબનું સમયપત્રક (ખાતર અને રોગ નિયંત્રણ સ્પ્રે ક્યારે કરવા) ગુજરાતીમાં સરળ મુદ્દાઓમાં આપો.`;
   } 
-  // ૪. પ્રાકૃતિક ખેતી કેલ્ક્યુલેટર
+  // ૪. પ્રાકૃતિક ખેતી કેલ્ક્યુલેટર (યથાવત)
   else if (type === 'bio') {
     prompt = `પ્રાકૃતિક ખેતી ઉપાય: ${bioOption}
 વિસ્તાર: ${bioArea}
 આ ઉપાય બનાવવા માટે જરૂરી સામગ્રીનું ચોક્કસ પ્રમાણ, બનાવવાની સરળ રીત અને ખેતરમાં આપવાની પદ્ધતિ સંપૂર્ણ ગુજરાતીમાં જણાવો.`;
   } 
-  // ૫. પાક રોગ નિદાન (Vision)
+  // ૫. પાક રોગ નિદાન (Vision - સુધારેલ પ્રોમ્પ્ટ)
   else if (type === 'disease') {
     isJsonExpected = true;
-    prompt = `તમે પાક રોગ નિષ્ણાત છો. આ છોડના પાન/રોગનું નિરીક્ષણ કરો.
-વધારાની નોંધ: ${query || "સામાન્ય નિરીક્ષણ"}
-તમારે માત્ર નીચે આપેલ JSON ફોર્મેટમાં જ જવાબ આપવાનો છે (કોઈ અન્ય લખાણ નહીં):
+    prompt = `તમે અનુભવી વનસ્પતિ રોગ નિષ્ણાત (Plant Pathologist) છો.
+સૌ પ્રથમ અપલોડ કરેલા ફોટાનું ઊંડાણપૂર્વક નિરીક્ષણ કરો:
+૧. પાનનો આકાર, કિનારી અને નસોની રચના જોઈને સાચો પાક ઓળખો. ખેડૂતની વધારાની નોંધ માત્ર સંદર્ભ માટે છે, મુખ્ય આધાર ફોટો જ રહેશે.
+૨. પાન પર દેખાતા ટપકાં, ફૂગ, પીળાશ કે જીવાતના આધારે સાચા રોગનું ચોક્કસ નિદાન કરો.
+
+તમારે માત્ર નીચે આપેલ JSON ફોર્મેટમાં જ જવાબ આપવાનો છે (કોઈ અન્ય વધારાનું લખાણ નહીં):
 {
-  "crop_name": "પાકનું નામ (દા.ત. જીરું / રાયડો / કપાસ)",
-  "disease_name": "રોગ અથવા જીવાતનું નામ",
+  "crop_name": "છબીમાં દેખાતા સાચા પાકનું નામ",
+  "disease_name": "ચોક્કસ રોગ અથવા જીવાતનું નામ",
   "severity": "હળવો / મધ્યમ / ગંભીર",
-  "symptoms": "મુખ્ય લક્ષણો (ગુજરાતીમાં)",
-  "chemical_treatment": "અસરકારક રાસાયણિક દવાનું નામ અને માપ (પંપ દીઠ)",
-  "organic_treatment": "દેશી/પ્રાકૃતિક ઉપાય",
-  "prevention": "ભવિષ્ય માટે સાવચેતી"
+  "symptoms": "છબીમાં સ્પષ્ટ દેખાતા નુકસાનના લક્ષણો",
+  "chemical_treatment": "અસરકારક રાસાયણિક દવાનું નામ અને પંપ દીઠ માપ",
+  "organic_treatment": "દેશી કે પ્રાકૃતિક સારવાર",
+  "prevention": "રોગ નિયંત્રણ માટે સાવચેતીનાં પગલાં"
 }`;
   } else {
     return res.status(400).json({ success: false, error: 'અમાન્ય વિનંતી પ્રકાર.' });
   }
 
-  // Gemini API કોલ (પ્રાઈમરી - વિઝન સાથે)
+  // Gemini API કોલ (સાચો વિઝન હેન્ડલર)
   async function callGemini() {
     if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
     const model = "gemini-2.0-flash";
@@ -82,12 +85,18 @@ export default async function handler(req, res) {
 
     const parts = [{ text: prompt }];
 
-    // જો ફોટો હોય તો તેનું Base64 સાફ કરીને જોડવું
+    // જો ફોટો હોય તો શુદ્ધ Base64 અને સાચો MimeType અલગ કરીને જોડવો
     if (imageBase64 && type === 'disease') {
-      const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
       let mimeType = "image/jpeg";
-      if (imageBase64.includes("data:image/png")) mimeType = "image/png";
-      if (imageBase64.includes("data:image/webp")) mimeType = "image/webp";
+      let cleanBase64 = imageBase64;
+
+      const matches = imageBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+      if (matches) {
+        mimeType = matches[1];
+        cleanBase64 = matches[2];
+      } else {
+        cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+      }
 
       parts.push({
         inlineData: {
@@ -110,7 +119,7 @@ export default async function handler(req, res) {
     return data.candidates[0].content.parts[0].text;
   }
 
-  // Groq API કોલ (સુપર ફાસ્ટ ટેક્સ્ટ બેકઅપ)
+  // Groq API કોલ (બેકઅપ)
   async function callGroq() {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
 
@@ -128,7 +137,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: model,
         messages: [{ role: "user", content: userPrompt }],
-        temperature: 0.5
+        temperature: 0.3
       })
     });
 
