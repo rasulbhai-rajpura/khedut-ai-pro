@@ -51,7 +51,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const model = "gemini-3.5-flash";
+    const model = "Gemini 3.5 Flash-Lite";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
     const parts = [{ text: prompt }];
 
