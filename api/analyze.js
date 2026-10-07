@@ -126,7 +126,7 @@ export default async function handler(req, res) {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
 
     // ⚠️ ઇમેજ સમજવા માટે ફક્ત વિઝન (Vision) વાળું મોડેલ વાપરવું પડે
-    const model = "llama-3.2-11b-vision-instruct"; 
+    const model =const model = "meta-llama/llama-4-scout-17b-16e-instruct"; 
     const userPrompt = (type === 'disease' && query) 
       ? `${prompt}\n(ખેડૂતની નોંધ: ${query})` 
       : prompt;
