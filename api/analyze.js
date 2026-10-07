@@ -60,11 +60,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: 'અમાન્ય વિનંતી.' });
   }
 
-  // Gemini API કોલ (વિઝન અને ટેક્સ્ટ બંને માટે)
+  // Gemini API કોલ (v1 સ્ટેબલ વર્ઝન)
   async function callGemini() {
-    if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
-    const model = "gemini-1.5-flash";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+    if (!geminiKey) throw new Error("Gemini API કી નથી.");
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiKey}`;
     const parts = [{ text: prompt }];
 
     if (imageBase64 && type === 'disease') {
@@ -88,7 +87,7 @@ export default async function handler(req, res) {
     return data.candidates[0].content.parts[0].text;
   }
 
-  // Groq API કોલ (હાલ ૧૦૦% ચાલુ મોડેલ: llama-3.3-70b-versatile)
+  // Groq API કોલ (સુપર ફાસ્ટ ટેક્સ્ટ)
   async function callGroq() {
     if (!groqKey) throw new Error("Groq API કી નથી.");
     const userPrompt = (type === 'disease' && query) ? `${prompt}\n(નોંધ: ${query})` : prompt;
@@ -113,18 +112,19 @@ export default async function handler(req, res) {
 
   try {
     let rawText = "";
-    // જો ફોટો હોય તો સીધું Gemini કોલ થશે, બાકી પહેલા Groq થી સુપરફાસ્ટ જવાબ મળશે
-    if (type === 'disease' && imageBase64) {
+    // ટેક્સ્ટ પ્રશ્નો માટે Groq સૌથી ઝડપી જવાબ આપશે
+    if (type !== 'disease') {
       try {
-        rawText = await callGemini();
-      } catch (e) {
         rawText = await callGroq();
+      } catch (err) {
+        rawText = await callGemini();
       }
     } else {
+      // ફોટો હોય ત્યારે Gemini
       try {
-        rawText = await callGroq();
-      } catch (e) {
         rawText = await callGemini();
+      } catch (err) {
+        rawText = await callGroq();
       }
     }
 
@@ -138,3 +138,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ success: false, error: err.message });
   }
 }
+
