@@ -10,6 +10,7 @@ export default async function handler(req, res) {
 
   const { type, query, soilType, cropName, landArea, sowingDate, bioOption, bioArea, imageBase64 } = req.body;
 
+  // 🔑 Gemini (મુખ્ય) અને Groq (બેકઅપ) કીઓ
   const geminiKey = process.env.GEMINI_API_KEY;
   const groqKey = "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";
 
@@ -18,7 +19,7 @@ export default async function handler(req, res) {
 
   // પ્રોમ્પ્ટ તૈયાર કરો
   if (type === 'adviser' || type === 'advisor' || type === 'chat' || (!type && query)) {
-    prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના અનુભવી કૃષિ નિષ્ણાત છો.\nખેડૂતનો પ્રશ્ન: "${query}"\nસૂચનાઓ: પ્રશ્નનો વિગતવાર જવાબ સરળ ગુજરાતીમાં આપો. પગલાવાર સમજાવો.`;
+    prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના અનુભવી કૃષિ નિષ્ણાત છો.\nખેડૂતનો પ્રશ્ન: "${query}"\nસૂચનાઓ: પ્રશ્નનો વિગતવાર જવાબ સરળ ગુજરાતીમાં આપો. પગલાવાર સમજાવો. દવા/ખાતરનું નામ અને પ્રમાણ જણાવો.`;
   } else if (type === 'planner') {
     prompt = `જમીનનો પ્રકાર: ${soilType}\nપાક: ${cropName}\nમાપ: ${landArea}\nઆ પાક માટે બિયારણ, ખાતર અને પિયત વ્યવસ્થાપન વિગતવાર સમજાવો.`;
   } else if (type === 'calendar') {
@@ -33,11 +34,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: 'અમાન્ય વિનંતી પ્રકાર.' });
   }
 
-  // 🟢 Gemini API કોલ (નવી AQ. કી માટે હેડર સાથે)
+  // ==========================================
+  // 🟢 Gemini API કોલ (મુખ્ય એન્જિન)
+  // ==========================================
   async function callGemini() {
     if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
     
-    // અહીં આપણે સૌથી નવું અને સ્થિર મોડેલ વાપરીએ છીએ
+    // ✅ નવી AQ. કી માટે યોગ્ય મોડેલ અને endpoint
     const model = "gemini-1.5-flash-latest"; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
@@ -50,7 +53,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'x-goog-api-key': geminiKey // ✅ AQ. કી માટે આ હેડર જરૂરી છે
+        'x-goog-api-key': geminiKey // ✅ આ હેડર AQ. કી માટે જરૂરી છે
       },
       body: JSON.stringify({ contents: [{ parts }] })
     });
@@ -60,10 +63,14 @@ export default async function handler(req, res) {
     return data.candidates[0].content.parts[0].text;
   }
 
-  // 🟡 Groq API કોલ (બેકઅપ)
+  // ==========================================
+  // 🟡 Groq API કોલ (બેકઅપ - સુધારેલા મોડેલ સાથે)
+  // ==========================================
   async function callGroq() {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
-    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "llama-3.1-8b-instant";
+    
+    // ✅ ટેક્સ્ટ માટે સ્થિર મોડેલ, ફોટો માટે વિઝન મોડેલ
+    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "llama3-8b-8192";
     
     let messages = [];
     if (imageBase64 && type === 'disease') {
@@ -76,7 +83,12 @@ export default async function handler(req, res) {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Authorization": `Bearer ${groqKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: model, messages: messages, temperature: 0.3, max_tokens: (type === 'disease') ? 300 : 800 })
+      body: JSON.stringify({ 
+        model: model, 
+        messages: messages, 
+        temperature: 0.3,
+        max_tokens: (type === 'disease') ? 300 : 800
+      })
     });
 
     const data = await response.json();
@@ -84,13 +96,19 @@ export default async function handler(req, res) {
     return data.choices[0].message.content;
   }
 
+  // ==========================================
   // 🔵 એક્ઝિક્યુશન (પહેલા Gemini, પછી Groq)
+  // ==========================================
   try {
     let rawText = "";
     try {
+      // Gemini ને મુખ્ય એન્જિન તરીકે ટ્રાય કરો
       rawText = await callGemini(); 
+      console.log("✅ Gemini એ સફળતાપૂર્વક જવાબ આપ્યો.");
     } catch (geminiErr) {
-      console.warn("Gemini ફેલ થયું, Groq બેકઅપ શરૂ:", geminiErr.message);
+      // ❌ જો Gemini ફેલ થાય, તો લોગ્સમાં લખો કે કેમ ફેલ થયું
+      console.warn("❌ Gemini ફેલ થયું, કારણ:", geminiErr.message);
+      console.warn("⚠️ હવે Groq બેકઅપ વપરાશે...");
       rawText = await callGroq(); 
     }
 
