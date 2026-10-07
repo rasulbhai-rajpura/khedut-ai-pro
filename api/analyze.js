@@ -145,53 +145,41 @@ export default async function handler(req, res) {
   // ==========================================
   // Groq API કોલ (બેકઅપ)
   // ==========================================
-  async function callGroq() {
-    if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
+  async function callGemini() {
+  if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
+  
+  // ✅ હાલમાં ચાલતું અને સ્થિર મોડેલ વાપરો
+  const model = "gemini-2.5-flash"; 
+  
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
-    // ટેક્સ્ટ માટે ઝડપી મોડેલ, ફોટો માટે વિઝન મોડેલ
-    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "llama-3.1-8b-instant";
-    
-    const userPrompt = (type === 'disease' && query) 
-      ? `${prompt}\n(ખેડૂતની નોંધ: ${query})` 
-      : prompt;
+  const parts = [{ text: prompt }];
 
-    let messages = [];
-
-    if (imageBase64 && type === 'disease') {
-      const base64Url = imageBase64.startsWith('data:') 
-        ? imageBase64 
-        : `data:image/jpeg;base64,${imageBase64}`;
-        
-      messages = [{
-        role: "user",
-        content: [
-          { type: "text", text: userPrompt },
-          { type: "image_url", image_url: { url: base64Url } }
-        ]
-      }];
-    } else {
-      messages = [{ role: "user", content: userPrompt }];
-    }
-
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${groqKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: messages,
-        temperature: 0.5
-      })
+  if (imageBase64 && type === 'disease') {
+    const base64Data = imageBase64.split(',')[1] || imageBase64;
+    parts.push({
+      inlineData: {
+        mimeType: "image/jpeg",
+        data: base64Data
+      }
     });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Groq API Error');
-    }
-    return data.choices[0].message.content;
   }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      'x-goog-api-key': geminiKey // ✅ AQ. કી માટે આ હેડર જરૂરી છે
+    },
+    body: JSON.stringify({ contents: [{ parts }] })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error?.message || 'Gemini API Error');
+  }
+  return data.candidates[0].content.parts[0].text;
+}
 
   // ==========================================
   // એક્ઝિક્યુશન (Execution Logic)
