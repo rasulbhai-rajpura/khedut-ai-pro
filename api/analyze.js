@@ -8,8 +8,9 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'માત્ર POST માન્ય છે.' });
 
   const { type, query, soilType, cropName, landArea, sowingDate, bioOption, bioArea, imageBase64 } = req.body;
-  const groqKey = process.env.GROQ_API_KEY || "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";
-  const geminiKey = process.env.GEMINI_API_KEY;
+  
+  // અહીં તમારી નવી Gemini API Key પેસ્ટ કરો:
+  const geminiKey = process.env.GEMINI_API_KEY || "તમારી_નવી_GEMINI_KEY_અહીં_મૂકો";
 
   let prompt = "";
 
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
   if (type === 'adviser' || type === 'advisor' || type === 'chat' || (!type && query)) {
     prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના કૃષિ નિષ્ણાત છો.
 ખેડૂતનો પ્રશ્ન: "${query}"
-સૂચનાઓ: પ્રશ્નનો સ્પષ્ટ, મુદ્દાસર અને વ્યવહારુ જવાબ સરળ ગુજરાતીમાં આપો.`;
+સૂચના: ખેડૂતના પ્રશ્નનો સ્પષ્ટ, મુદ્દાસર અને વ્યવહારુ જવાબ સરળ ગુજરાતીમાં આપો.`;
   } 
   // ૨. જમીન-પાક આયોજન
   else if (type === 'planner') {
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
     prompt = `તમે વનસ્પતિ રોગ વિજ્ઞાનના કૃષિ વૈજ્ઞાનિક છો. આપેલ પાંદડાની છબીનું વિશ્લેષણ કરીને સાચો પાક અને રોગ ઓળખો.
 ફક્ત નીચે મુજબના JSON ફોર્મેટમાં જ જવાબ આપો:
 {
-  "crop_name": "ઓળખાયેલ પાક",
+  "crop_name": "ઓળખાયેલ પાકનું નામ",
   "disease_name": "રોગ અથવા જીવાતનું નામ",
   "severity": "હળવો / મધ્યમ / ગંભીર",
   "symptoms": "નુકસાનના લક્ષણો ગુજરાતીમાં",
@@ -51,33 +52,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: 'અમાન્ય વિનંતી.' });
   }
 
-  // Groq API કોલ (ચાલુ મોડેલ: qwen/qwen3.8-27b)
-  async function callGroq() {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${groqKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "qwen/qwen3.8-27b",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.3
-      })
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || 'Groq ભૂલ');
-    return data.choices[0].message.content;
-  }
-
-  // Gemini API કોલ (વિઝન માટે)
-  async function callGemini() {
-    if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
     const parts = [{ text: prompt }];
 
-    if (imageBase64) {
+    // પાક રોગ માટે ફોટો મોકલવો
+    if (imageBase64 && type === 'disease') {
       const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "").trim();
       parts.push({
         inlineData: {
@@ -94,29 +74,18 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || 'Gemini ભૂલ');
-    return data.candidates[0].content.parts[0].text;
-  }
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'API એરર આવી છે.');
+    }
 
-  try {
-    let rawText = "";
+    const rawText = data.candidates[0].content.parts[0].text;
 
-    // ૧ થી ૪ માટે સીધું Groq
-    if (type !== 'disease') {
-      rawText = await callGroq();
+    if (type === 'disease') {
+      const cleanJson = rawText.replace(/```json|```/g, '').trim();
+      return res.status(200).json({ success: true, data: JSON.parse(cleanJson) });
+    } else {
       return res.status(200).json({ success: true, data: { textAnswer: rawText } });
     }
-
-    // ૬ (પાક રોગ) માટે:
-    try {
-      rawText = await callGemini();
-    } catch (gErr) {
-      rawText = await callGroq();
-    }
-
-    const cleanJson = rawText.replace(/```json|```/g, '').trim();
-    return res.status(200).json({ success: true, data: JSON.parse(cleanJson) });
-
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
