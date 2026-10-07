@@ -50,49 +50,46 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: 'અમાન્ય વિનંતી.' });
   }
 
-  // મોડેલ લિસ્ટ (એક વ્યસ્ત હોય તો તરત બીજા પર જશે)
-  const candidateModels = ["gemini-2.5-flash", "gemini-3.8-flash", "gemini-2.0-flash"];
-  let rawText = "";
-  let lastError = null;
+  try {
+    const model = "gemini-3.8-flash";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+    const parts = [{ text: prompt }];
 
-  for (const model of candidateModels) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
-      const parts = [{ text: prompt }];
+    if (imageBase64 && type === 'disease') {
+      const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "").trim();
+      parts.push({
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: cleanBase64
+        }
+      });
+    }
 
-      if (imageBase64 && type === 'disease') {
-        const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "").trim();
-        parts.push({
-          inlineData: {
-            mimeType: "image/jpeg",
-            data: cleanBase64
-          }
-        });
-      }
+    let response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts }] })
+    });
 
-      const response = await fetch(url, {
+    let data = await response.json();
+
+    // હાઈ ડિમાન્ડ વખતે આપોઆપ ૧.૫ સેકન્ડ પછી પુનઃપ્રયાસ
+    if (!response.ok && data.error?.message?.includes('high demand')) {
+      await new Promise(r => setTimeout(r, 1500));
+      response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ parts }] })
       });
-
-      const data = await response.json();
-      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        rawText = data.candidates[0].content.parts[0].text;
-        break; // સાચો જવાબ મળતાં જ લૂપ પૂરી થશે
-      } else {
-        lastError = data.error?.message || "મોડેલ પ્રતિક્રિયા આપી રહ્યું નથી.";
-      }
-    } catch (e) {
-      lastError = e.message;
+      data = await response.json();
     }
-  }
 
-  if (!rawText) {
-    return res.status(500).json({ success: false, error: lastError || "સર્વર હાલ વ્યસ્ત છે, કૃપા કરીને ફરી પ્રયાસ કરો." });
-  }
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Gemini API ભૂલ');
+    }
 
-  try {
+    const rawText = data.candidates[0].content.parts[0].text;
+
     if (type === 'disease') {
       const cleanJson = rawText.replace(/```json|```/g, '').trim();
       return res.status(200).json({ success: true, data: JSON.parse(cleanJson) });
@@ -100,7 +97,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, data: { textAnswer: rawText } });
     }
   } catch (err) {
-    return res.status(500).json({ success: false, error: "ડેટા પ્રોસેસિંગમાં ભૂલ આવી છે." });
+    return res.status(500).json({ success: false, error: err.message });
   }
 }
+
 
