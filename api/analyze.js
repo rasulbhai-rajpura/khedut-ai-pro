@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
   // ⚠️ સિક્યોરિટી માટે API કી કોડમાં ન લખો, Vercel Environment Variables માં સેટ કરો
   const geminiKey = process.env.GEMINI_API_KEY;
-  const groqKey = process.env.GROQ_API_KEY;
+  const groqKey = "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";
 
   if (!geminiKey && !groqKey) {
     return res.status(500).json({ success: false, error: 'સર્વર પર API કી સેટ કરેલ નથી.' });
