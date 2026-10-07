@@ -10,31 +10,26 @@ export default async function handler(req, res) {
   const { type, query, soilType, cropName, landArea, sowingDate, bioOption, bioArea, imageBase64 } = req.body;
   const geminiKey = process.env.GEMINI_API_KEY;
 
+  if (!geminiKey) {
+    return res.status(500).json({ success: false, error: 'Gemini API Key સેટ કરેલ નથી.' });
+  }
+
   let prompt = "";
 
-  // ૧. ખેતી સલાહ
   if (type === 'adviser' || type === 'advisor' || type === 'chat' || (!type && query)) {
     prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના કૃષિ નિષ્ણાત છો.
 ખેડૂતનો પ્રશ્ન: "${query}"
 સૂચના: પ્રશ્નનો સ્પષ્ટ, મુદ્દાસર અને વ્યવહારુ જવાબ સરળ ગુજરાતીમાં આપો.`;
-  } 
-  // ૨. જમીન-પાક આયોજન
-  else if (type === 'planner') {
+  } else if (type === 'planner') {
     prompt = `જમીન: ${soilType}, પાક: ${cropName}, વિસ્તાર: ${landArea}.
 ઉત્તર ગુજરાતના વાતાવરણ મુજબ બિયારણ, ખાતર અને પિયત વ્યવસ્થાપન ગુજરાતીમાં મુદ્દાસર જણાવો.`;
-  } 
-  // ૩. પાક કેલેન્ડર
-  else if (type === 'calendar') {
+  } else if (type === 'calendar') {
     prompt = `પાક: ${cropName}, વાવણી તારીખ: ${sowingDate}.
 વાવણીથી લણણી સુધીનું તબક્કાવાર ખાતર અને સ્પ્રે સમયપત્રક ગુજરાતીમાં આપો.`;
-  } 
-  // ૪. પ્રાકૃતિક ખેતી કેલ્ક્યુલેટર
-  else if (type === 'bio') {
+  } else if (type === 'bio') {
     prompt = `ઉપાય: ${bioOption}, વિસ્તાર: ${bioArea}.
 આ બનાવવા માટે જરૂરી સામગ્રી અને બનાવવાની પદ્ધતિ ગુજરાતીમાં જણાવો.`;
-  } 
-  // ૬. પાક રોગ નિદાન
-  else if (type === 'disease') {
+  } else if (type === 'disease') {
     prompt = `તમે વનસ્પતિ રોગ વિજ્ઞાનના કૃષિ વૈજ્ઞાનિક છો. આપેલ પાંદડાની છબીનું વિશ્લેષણ કરીને સાચો પાક અને રોગ ઓળખો.
 ફક્ત નીચે મુજબના JSON ફોર્મેટમાં જ જવાબ આપો:
 {
@@ -51,8 +46,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const model = "Gemini 3.5 Flash-Lite";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
     const parts = [{ text: prompt }];
 
     if (imageBase64 && type === 'disease') {
@@ -65,25 +59,13 @@ export default async function handler(req, res) {
       });
     }
 
-    let response = await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts }] })
     });
 
-    let data = await response.json();
-
-    // હાઈ ડિમાન્ડ વખતે આપોઆપ ૧.૫ સેકન્ડ પછી પુનઃપ્રયાસ
-    if (!response.ok && data.error?.message?.includes('high demand')) {
-      await new Promise(r => setTimeout(r, 1500));
-      response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts }] })
-      });
-      data = await response.json();
-    }
-
+    const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error?.message || 'Gemini API ભૂલ');
     }
@@ -100,5 +82,6 @@ export default async function handler(req, res) {
     return res.status(500).json({ success: false, error: err.message });
   }
 }
+
 
 
