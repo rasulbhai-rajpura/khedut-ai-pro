@@ -35,8 +35,7 @@ export default async function handler(req, res) {
 ૧. પ્રશ્નનો સંપૂર્ણ, વિગતવાર અને સચોટ જવાબ સરળ ગુજરાતી ભાષામાં આપો.
 ૨. જવાબમાં ખેડૂતને શું કરવું, ક્યારે કરવું અને કેવી રીતે કરવું તે પગલાવાર (Step-by-step) સમજાવો.
 ૩. જો દવા કે ખાતરની સલાહ હોય, તો તેનું ચોક્કસ નામ અને પ્રમાણ (૧૫ લિટર પંપ દીઠ) જણાવો.
-૪. જવાબ લંબાણથી, સમજાય તેવી રીતે અને જરૂરી મુદ્દાઓ સાથે આપો. ટૂંકમાં ન આપો.
-૫. અંતે એક નાની ટીપ પણ આપો જેથી ખેડૂતને વધુ ફાયદો થાય.`;
+૪. જવાબ લંબાણથી, સમજાય તેવી રીતે અને જરૂરી મુદ્દાઓ સાથે આપો. ટૂંકમાં ન આપો.`;
   } 
   // ૨. જમીન-પાક આયોજન
   else if (type === 'planner') {
@@ -49,8 +48,7 @@ export default async function handler(req, res) {
 ૧. આ પાક માટે કઈ જાત (Variety) સારી છે તે જણાવો.
 ૨. જરૂરી બિયારણનો જથ્થો, બીજની સારવાર અને વાવેતરની યોગ્ય રીત સમજાવો.
 ૩. પાયાનું ખાતર, ઉપરનું ખાતર અને સૂક્ષ્મ પોષક તત્વોની વિગત આપો.
-૪. પિયત વ્યવસ્થાપન અને આખા પાક દરમિયાન કરવાની મુખ્ય કામગીરી પગલાવાર જણાવો.
-૫. જવાબ વિગતવાર અને ખેડૂતને સમજાય તેવી સરળ ભાષામાં આપો.`;
+૪. પિયત વ્યવસ્થાપન અને આખા પાક દરમિયાન કરવાની મુખ્ય કામગીરી પગલાવાર જણાવો.`;
   } 
   // ૩. પાક કેલેન્ડર
   else if (type === 'calendar') {
@@ -61,8 +59,7 @@ export default async function handler(req, res) {
 સૂચનાઓ:
 ૧. વાવણીથી લઈને લણણી સુધીના દરેક સપ્તાહ (અઠવાડિયું) નું વિગતવાર સમયપત્રક તૈયાર કરો.
 ૨. કયા દિવસે કયું ખાતર, કઈ દવા કે કઈ કામગીરી કરવી તે કોષ્ટક (Table) સ્વરૂપે સમજાવો.
-૩. દરેક તબક્કે ખેડૂતે શું ધ્યાન રાખવું તે પણ જણાવો.
-૪. જવાબ સંપૂર્ણ વિગતવાર અને સરળ ગુજરાતીમાં આપો.`;
+૩. જવાબ સંપૂર્ણ વિગતવાર અને સરળ ગુજરાતીમાં આપો.`;
   } 
   // ૪. પ્રાકૃતિક ખેતી કેલ્ક્યુલેટર
   else if (type === 'bio') {
@@ -73,10 +70,8 @@ export default async function handler(req, res) {
 સૂચનાઓ:
 ૧. આ ઉપાય બનાવવા માટે જરૂરી સામગ્રીની સંપૂર્ણ યાદી અને ચોક્કસ પ્રમાણ આપો.
 ૨. બનાવવાની રીત પગલાવાર (Step-by-step) વિગતવાર સમજાવો.
-૩. કેટલા દિવસમાં તૈયાર થાય, કેવી રીતે સંગ્રહ કરવો અને કેટલા સમય સુધી વાપરી શકાય તે જણાવો.
-૪. ખેતરમાં આપવાની ચોક્કસ પદ્ધતિ અને સમય જણાવો.
-૫. આ ઉપાયથી થતા ફાયદા અને સાવચેતીની બાબતો પણ સમજાવો.
-૬. જવાબ સંપૂર્ણ વિગતવાર અને સરળ ગુજરાતીમાં આપો.`;
+૩. ખેતરમાં આપવાની ચોક્કસ પદ્ધતિ અને સમય જણાવો.
+૪. જવાબ સંપૂર્ણ વિગતવાર અને સરળ ગુજરાતીમાં આપો.`;
   } 
   // ૫. પાક રોગ નિદાન
   else if (type === 'disease') {
@@ -105,13 +100,14 @@ export default async function handler(req, res) {
   }
 
   // ==========================================
-  // Gemini API કોલ (મુખ્ય) 🛠️ FIXED for AQ. Key
+  // Gemini API કોલ (મુખ્ય)
   // ==========================================
   async function callGemini() {
     if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
-    const model = "gemini-2.0-flash";
     
-    // 🛠️ URL માંથી ?key= કાઢી નાખ્યું છે
+    // ✅ હાલમાં ચાલતું મોડેલ
+    const model = "gemini-2.5-flash"; 
+    
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     const parts = [{ text: prompt }];
@@ -130,7 +126,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'x-goog-api-key': geminiKey // ✅ નવી AQ. કી માટે આ હેડર જરૂરી છે
+        'x-goog-api-key': geminiKey // ✅ AQ. કી માટે આ હેડર
       },
       body: JSON.stringify({ contents: [{ parts }] })
     });
@@ -145,41 +141,53 @@ export default async function handler(req, res) {
   // ==========================================
   // Groq API કોલ (બેકઅપ)
   // ==========================================
-  async function callGemini() {
-  if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
-  
-  // ✅ હાલમાં ચાલતું અને સ્થિર મોડેલ વાપરો
-  const model = "gemini-2.5-flash"; 
-  
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  async function callGroq() {
+    if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
 
-  const parts = [{ text: prompt }];
+    // ✅ સાચા મોડેલ નામ
+    const model = (type === 'disease') ? "llama-3.2-11b-vision-preview" : "llama-3.2-3b-preview";
+    
+    const userPrompt = (type === 'disease' && query) 
+      ? `${prompt}\n(ખેડૂતની નોંધ: ${query})` 
+      : prompt;
 
-  if (imageBase64 && type === 'disease') {
-    const base64Data = imageBase64.split(',')[1] || imageBase64;
-    parts.push({
-      inlineData: {
-        mimeType: "image/jpeg",
-        data: base64Data
-      }
+    let messages = [];
+
+    if (imageBase64 && type === 'disease') {
+      const base64Url = imageBase64.startsWith('data:') 
+        ? imageBase64 
+        : `data:image/jpeg;base64,${imageBase64}`;
+        
+      messages = [{
+        role: "user",
+        content: [
+          { type: "text", text: userPrompt },
+          { type: "image_url", image_url: { url: base64Url } }
+        ]
+      }];
+    } else {
+      messages = [{ role: "user", content: userPrompt }];
+    }
+
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${groqKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: messages,
+        temperature: 0.5
+      })
     });
-  }
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'x-goog-api-key': geminiKey // ✅ AQ. કી માટે આ હેડર જરૂરી છે
-    },
-    body: JSON.stringify({ contents: [{ parts }] })
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error?.message || 'Gemini API Error');
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Groq API Error');
+    }
+    return data.choices[0].message.content;
   }
-  return data.candidates[0].content.parts[0].text;
-}
 
   // ==========================================
   // એક્ઝિક્યુશન (Execution Logic)
