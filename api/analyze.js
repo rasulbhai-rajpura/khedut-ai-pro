@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'માત્ર POST માન્ય છે.' });
+  if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'માત્ર POST પદ્ધતિ માન્ય છે.' });
 
   const { type, query, soilType, cropName, landArea, sowingDate, bioOption, bioArea, imageBase64 } = req.body;
   const geminiKey = process.env.GEMINI_API_KEY;
@@ -16,20 +16,29 @@ export default async function handler(req, res) {
 
   let prompt = "";
 
+  // ૧. ખેતી સલાહ
   if (type === 'adviser' || type === 'advisor' || type === 'chat' || (!type && query)) {
     prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના કૃષિ નિષ્ણાત છો.
 ખેડૂતનો પ્રશ્ન: "${query}"
 સૂચના: પ્રશ્નનો સ્પષ્ટ, મુદ્દાસર અને વ્યવહારુ જવાબ સરળ ગુજરાતીમાં આપો.`;
-  } else if (type === 'planner') {
+  } 
+  // ૨. જમીન-પાક આયોજન
+  else if (type === 'planner') {
     prompt = `જમીન: ${soilType}, પાક: ${cropName}, વિસ્તાર: ${landArea}.
 ઉત્તર ગુજરાતના વાતાવરણ મુજબ બિયારણ, ખાતર અને પિયત વ્યવસ્થાપન ગુજરાતીમાં મુદ્દાસર જણાવો.`;
-  } else if (type === 'calendar') {
+  } 
+  // ૩. પાક કેલેન્ડર
+  else if (type === 'calendar') {
     prompt = `પાક: ${cropName}, વાવણી તારીખ: ${sowingDate}.
 વાવણીથી લણણી સુધીનું તબક્કાવાર ખાતર અને સ્પ્રે સમયપત્રક ગુજરાતીમાં આપો.`;
-  } else if (type === 'bio') {
+  } 
+  // ૪. પ્રાકૃતિક ખેતી કેલ્ક્યુલેટર
+  else if (type === 'bio') {
     prompt = `ઉપાય: ${bioOption}, વિસ્તાર: ${bioArea}.
 આ બનાવવા માટે જરૂરી સામગ્રી અને બનાવવાની પદ્ધતિ ગુજરાતીમાં જણાવો.`;
-  } else if (type === 'disease') {
+  } 
+  // ૬. પાક રોગ નિદાન
+  else if (type === 'disease') {
     prompt = `તમે વનસ્પતિ રોગ વિજ્ઞાનના કૃષિ વૈજ્ઞાનિક છો. આપેલ પાંદડાની છબીનું વિશ્લેષણ કરીને સાચો પાક અને રોગ ઓળખો.
 ફક્ત નીચે મુજબના JSON ફોર્મેટમાં જ જવાબ આપો:
 {
@@ -46,9 +55,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/Gemini 3.5 Flash-Lite:generateContent?key=${geminiKey}`;
+    // Gemini 3.5 Flash મોડેલ એન્ડપોઇન્ટ
+    const model = "gemini-3.5-flash";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
     const parts = [{ text: prompt }];
 
+    // પાક રોગ નિદાન માટે છબી
     if (imageBase64 && type === 'disease') {
       const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "").trim();
       parts.push({
@@ -67,7 +79,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error?.message || 'Gemini API ભૂલ');
+      throw new Error(data.error?.message || 'Gemini API તરફથી ભૂલ આવી છે.');
     }
 
     const rawText = data.candidates[0].content.parts[0].text;
