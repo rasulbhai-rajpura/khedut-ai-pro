@@ -34,34 +34,39 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: 'અમાન્ય વિનંતી પ્રકાર.' });
   }
 
-  // ==========================================
-  // 🟢 Gemini API કોલ (મુખ્ય એન્જિન)
-  // ==========================================
+  // Gemini API કોલ (સ્થિર વિઝન વર્ઝન)
   async function callGemini() {
     if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
     
-    // ✅ નવી AQ. કી માટે યોગ્ય મોડેલ અને endpoint
-    const model = "gemini-1.5-flash-latest"; 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+    // સ્થિર મોડેલ gemini-1.5-flash વાપરો
+    const model = "gemini-1.5-flash";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
 
     const parts = [{ text: prompt }];
+
     if (imageBase64 && type === 'disease') {
-      parts.push({ inlineData: { mimeType: "image/jpeg", data: imageBase64.split(',')[1] || imageBase64 } });
+      const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "").trim();
+      parts.push({
+        inline_data: {
+          mime_type: "image/jpeg",
+          data: cleanBase64
+        }
+      });
     }
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'x-goog-api-key': geminiKey // ✅ આ હેડર AQ. કી માટે જરૂરી છે
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts }] })
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || 'Gemini API Error');
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Gemini API Error: ' + JSON.stringify(data));
+    }
     return data.candidates[0].content.parts[0].text;
   }
+
 
   // ==========================================
   // 🟡 Groq API કોલ (બેકઅપ - સુધારેલા મોડેલ સાથે)
