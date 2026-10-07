@@ -35,10 +35,9 @@ export default async function handler(req, res) {
   }
 
   // Gemini API કોલ (સ્થિર વિઝન વર્ઝન)
+    // Gemini API કોલ (સાચું વિઝન ફોર્મેટ)
   async function callGemini() {
     if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
-    
-    // સ્થિર મોડેલ gemini-1.5-flash વાપરો
     const model = "gemini-1.5-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
 
@@ -47,8 +46,8 @@ export default async function handler(req, res) {
     if (imageBase64 && type === 'disease') {
       const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "").trim();
       parts.push({
-        inline_data: {
-          mime_type: "image/jpeg",
+        inlineData: {
+          mimeType: "image/jpeg",
           data: cleanBase64
         }
       });
@@ -62,44 +61,41 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error?.message || 'Gemini API Error: ' + JSON.stringify(data));
+      throw new Error(data.error?.message || 'Gemini API Error');
     }
     return data.candidates[0].content.parts[0].text;
   }
 
-
-  // ==========================================
-  // 🟡 Groq API કોલ (બેકઅપ - સુધારેલા મોડેલ સાથે)
-  // ==========================================
+  // Groq API કોલ (નવું કાર્યરત મોડેલ)
   async function callGroq() {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
-    
-    // ✅ ટેક્સ્ટ માટે સ્થિર મોડેલ, ફોટો માટે વિઝન મોડેલ
-    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "llama-3.1-8b-instant";
-    
-    let messages = [];
-    if (imageBase64 && type === 'disease') {
-      const base64Url = imageBase64.startsWith('data:') ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`;
-      messages = [{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: base64Url } }] }];
-    } else {
-      messages = [{ role: "user", content: prompt }];
-    }
+
+    // llama-3.1-8b-instant ની જગ્યાએ હાલ ચાલુ llama-3.3-70b-versatile વાપરો
+    const model = "llama-3.3-70b-versatile";
+    const userPrompt = (type === 'disease' && query) 
+      ? `${prompt}\n(ખેડૂતની નોંધ: ${query})` 
+      : prompt;
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: { "Authorization": `Bearer ${groqKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        model: model, 
-        messages: messages, 
-        temperature: 0.3,
-        max_tokens: (type === 'disease') ? 300 : 800
+      headers: {
+        "Authorization": `Bearer ${groqKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: "user", content: userPrompt }],
+        temperature: 0.3
       })
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || 'Groq API Error');
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Groq API Error');
+    }
     return data.choices[0].message.content;
   }
+
 
   // ==========================================
   // 🔵 એક્ઝિક્યુશન (પહેલા Gemini, પછી Groq)
