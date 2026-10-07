@@ -126,7 +126,7 @@ export default async function handler(req, res) {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
 
     // ⚠️ ઇમેજ સમજવા માટે ફક્ત વિઝન (Vision) વાળું મોડેલ વાપરવું પડે
-    const model ="qwen/qwen3.8-27b"; 
+    const model = "llama-3.2-11b-vision-instruct"; 
     const userPrompt = (type === 'disease' && query) 
       ? `${prompt}\n(ખેડૂતની નોંધ: ${query})` 
       : prompt;
@@ -157,10 +157,11 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: model,
-        messages: messages,
-        temperature: 0.3
-      })
+  model: model,
+  messages: messages,
+  temperature: 0.3,
+  max_tokens: 800 // 🛠️ આ લાઈન ઉમેરો (લિમિટ પાર ન થાય તે માટે)
+})
     });
 
     const data = await response.json();
