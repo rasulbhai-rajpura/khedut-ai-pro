@@ -126,16 +126,139 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'x-goog-api-key': geminiKey // ✅ AQ. કી માટે આ હેડર
-      },
-      body: JSON.stringify({ contents: [{ parts }] })
-    });
+export default async function handler(req, res) {
+  // CORS હેડર્સ
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Gemini API Error');
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'માત્ર POST મેથડ માન્ય છે.' });
+  }
+
+  const { type, query, soilType, cropName, landArea, sowingDate, bioOption, bioArea, imageBase64 } = req.body;
+
+  const geminiKey = process.env.GEMINI_API_KEY;
+  const groqKey = "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";
+
+  if (!geminiKey && !groqKey) {
+    return res.status(500).json({ success: false, error: 'સર્વર પર API કી સેટ કરેલ નથી.' });
+  }
+
+  let prompt = "";
+  let isJsonExpected = false;
+
+  // ૧. ખેતી સલાહ
+  if (type === 'adviser' || type === 'advisor' || type === 'chat' || (!type && query)) {
+    prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના અનુભવી કૃષિ નિષ્ણાત છો.
+ખેડૂતનો પ્રશ્ન: "${query}"
+સૂચનાઓ: પ્રશ્નનો વિગતવાર જવાબ સરળ ગુજરાતીમાં આપો. પગલાવાર સમજાવો. દવા/ખાતરનું નામ અને ૧૫ લિટર પંપ દીઠ માપ જણાવો.`;
+  } 
+  // ૨. જમીન-પાક આયોજન
+  else if (type === 'planner') {
+    prompt = `તમે અનુભવી કૃષિ નિષ્ણાત છો.
+જમીનનો પ્રકાર: ${soilType}
+પાક: ${cropName}
+માપ: ${landArea}
+સૂચનાઓ: આ પાક માટે બિયારણનો જથ્થો, બીજની સારવાર, પાયાનું ખાતર, ઉપરનું ખાતર અને પિયત વ્યવસ્થાપન વિગતવાર સમજાવો.`;
+  } 
+  // ૩. પાક કેલેન્ડર
+  else if (type === 'calendar') {
+    prompt = `તમે અનુભવી કૃષિ નિષ્ણાત છો.
+પાક: ${cropName}
+વાવણી તારીખ: ${sowingDate}
+સૂચનાઓ: વાવણીથી લણણી સુધીનું દરેક સપ્તાહનું વિગતવાર સમયપત્રક તૈયાર કરો. કયા દિવસે કયું ખાતર, દવા કે કામગીરી કરવી તે કોષ્ટકમાં સમજાવો.`;
+  } 
+  // ૪. પ્રાકૃતિક ખેતી
+  else if (type === 'bio') {
+    prompt = `તમે પ્રાકૃતિક ખેતીના નિષ્ણાત છો.
+ઉપાય: ${bioOption}
+વિસ્તાર: ${bioArea}
+સૂચનાઓ: આ ઉપાયની સામગ્રી, પ્રમાણ, બનાવવાની રીત, ખેતરમાં આપવાની પદ્ધતિ અને સાવચેતી વિગતવાર જણાવો.`;
+  } 
+  // ૫. પાક રોગ નિદાન
+  else if (type === 'disease') {
+    if (!imageBase64) {
+      return res.status(400).json({ success: false, error: 'કૃપા કરીને પહેલા છોડ કે પાંદડાનો ફોટો અપલોડ કરો.' });
     }
-    return data.candidates[0].content.parts[0].text;
+    isJsonExpected = true;
+    prompt = `તમે વનસ્પતિ રોગ નિષ્ણાત છો. સામે છબી છે.
+ફક્ત આ JSON ફોર્મેટમાં ટૂંકમાં જવાબ આપો:
+{
+  "crop_name": "સાચો પાક",
+  "disease_name": "રોગનું નામ",
+  "severity": "હળવો / મધ્યમ / ગંભીર",
+  "symptoms": "લક્ષણો (ટૂંકમાં)",
+  "chemical_treatment": "દવા અને ૧૫ લિટર પંપ દીઠ માપ",
+  "organic_treatment": "દેશી ઉપાય (ટૂંકમાં)",
+  "prevention": "સાવચેતી (ટૂંકમાં)"
+}`;
+  } else {
+    return res.status(400).json({ success: false, error: 'અમાન્ય વિનંતી પ્રકાર.' });
+  }
+
+  // ==========================================
+  // Gemini API કોલ (અનેક મોડેલ ટ્રાય કરે છે) ✅
+  // ==========================================
+  async function callGemini() {
+    if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
+    
+    // ✅ અનેક મોડેલ - જે ચાલે તે વપરાશે
+    const models = [
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-latest",
+      "gemini-2.0-flash-exp",
+      "gemini-1.5-flash-latest",
+      "gemini-1.5-flash",
+      "gemini-1.5-pro"
+    ];
+    
+    let lastError = null;
+    
+    for (const model of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+        
+        const parts = [{ text: prompt }];
+        if (imageBase64 && type === 'disease') {
+          const base64Data = imageBase64.split(',')[1] || imageBase64;
+          parts.push({
+            inlineData: { mimeType: "image/jpeg", data: base64Data }
+          });
+        }
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-goog-api-key': geminiKey
+          },
+          body: JSON.stringify({ contents: [{ parts }] })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          lastError = new Error(data.error?.message || `Model ${model} failed`);
+          continue; // આગળનું મોડેલ ટ્રાય કરો
+        }
+        
+        // સફળ!
+        console.log(`✅ Gemini model ${model} worked!`);
+        return data.candidates[0].content.parts[0].text;
+        
+      } catch (err) {
+        lastError = err;
+        continue;
+      }
+    }
+    
+    throw lastError || new Error("બધા Gemini મોડેલ ફેલ થયા");
   }
 
   // ==========================================
@@ -143,54 +266,35 @@ export default async function handler(req, res) {
   // ==========================================
   async function callGroq() {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
-
-    // ✅ સાચા મોડેલ નામ
-    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "openai/gpt-oss-20b";
-    
-    const userPrompt = (type === 'disease' && query) 
-      ? `${prompt}\n(ખેડૂતની નોંધ: ${query})` 
-      : prompt;
+    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "llama-3.1-8b-instant";
+    const userPrompt = (type === 'disease' && query) ? `${prompt}\n(નોંધ: ${query})` : prompt;
 
     let messages = [];
-
     if (imageBase64 && type === 'disease') {
-      const base64Url = imageBase64.startsWith('data:') 
-        ? imageBase64 
-        : `data:image/jpeg;base64,${imageBase64}`;
-        
-      messages = [{
-        role: "user",
-        content: [
-          { type: "text", text: userPrompt },
-          { type: "image_url", image_url: { url: base64Url } }
-        ]
-      }];
+      const base64Url = imageBase64.startsWith('data:') ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`;
+      messages = [{ role: "user", content: [{ type: "text", text: userPrompt }, { type: "image_url", image_url: { url: base64Url } }] }];
     } else {
       messages = [{ role: "user", content: userPrompt }];
     }
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${groqKey}`,
-        "Content-Type": "application/json"
-      },
+      headers: { "Authorization": `Bearer ${groqKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: model,
         messages: messages,
-        temperature: 0.5
+        temperature: 0.3,
+        max_tokens: (type === 'disease') ? 300 : 800
       })
     });
 
     const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Groq API Error');
-    }
+    if (!response.ok) throw new Error(data.error?.message || 'Groq API Error');
     return data.choices[0].message.content;
   }
 
   // ==========================================
-  // એક્ઝિક્યુશન (Execution Logic)
+  // એક્ઝિક્યુશન (પહેલા Gemini, પછી Groq)
   // ==========================================
   try {
     let rawText = "";
@@ -209,9 +313,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, data: { textAnswer: rawText } });
     }
   } catch (finalError) {
-    return res.status(500).json({
-      success: false,
-      error: `સર્વર ક્ષતિ: ${finalError.message}`
-    });
+    return res.status(500).json({ success: false, error: `સર્વર ક્ષતિ: ${finalError.message}` });
   }
 }
