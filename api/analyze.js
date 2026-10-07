@@ -70,7 +70,7 @@ export default async function handler(req, res) {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
     
     // ✅ ટેક્સ્ટ માટે સ્થિર મોડેલ, ફોટો માટે વિઝન મોડેલ
-    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "llama3-8b-8192";
+    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "llama-3.1-8b-instant";
     
     let messages = [];
     if (imageBase64 && type === 'disease') {
