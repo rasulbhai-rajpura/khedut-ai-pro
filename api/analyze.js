@@ -145,7 +145,7 @@ export default async function handler(req, res) {
     if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
 
     // ✅ સાચા મોડેલ નામ
-    const model = (type === 'disease') ? "llama-3.2-11b-vision-preview" : "llama-3.2-3b-preview";
+    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "openai/gpt-oss-20b";
     
     const userPrompt = (type === 'disease' && query) 
       ? `${prompt}\n(ખેડૂતની નોંધ: ${query})` 
