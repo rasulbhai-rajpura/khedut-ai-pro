@@ -8,9 +8,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'માત્ર POST માન્ય છે.' });
 
   const { type, query, soilType, cropName, landArea, sowingDate, bioOption, bioArea, imageBase64 } = req.body;
-  
-  // અહીં તમારી નવી Gemini API Key પેસ્ટ કરો:
-  const geminiKey = process.env.GEMINI_API_KEY || "તમારી_નવી_GEMINI_KEY_અહીં_મૂકો";
+  const geminiKey = process.env.GEMINI_API_KEY;
 
   let prompt = "";
 
@@ -18,7 +16,7 @@ export default async function handler(req, res) {
   if (type === 'adviser' || type === 'advisor' || type === 'chat' || (!type && query)) {
     prompt = `તમે બનાસકાંઠા (ડીસા, વાવ, થરાદ, પાલનપુર) વિસ્તારના કૃષિ નિષ્ણાત છો.
 ખેડૂતનો પ્રશ્ન: "${query}"
-સૂચના: ખેડૂતના પ્રશ્નનો સ્પષ્ટ, મુદ્દાસર અને વ્યવહારુ જવાબ સરળ ગુજરાતીમાં આપો.`;
+સૂચના: પ્રશ્નનો સ્પષ્ટ, મુદ્દાસર અને વ્યવહારુ જવાબ સરળ ગુજરાતીમાં આપો.`;
   } 
   // ૨. જમીન-પાક આયોજન
   else if (type === 'planner') {
@@ -52,37 +50,49 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, error: 'અમાન્ય વિનંતી.' });
   }
 
-  try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${geminiKey}`;
+  // મોડેલ લિસ્ટ (એક વ્યસ્ત હોય તો તરત બીજા પર જશે)
+  const candidateModels = ["gemini-2.5-flash", "gemini-3.8-flash", "gemini-2.0-flash"];
+  let rawText = "";
+  let lastError = null;
 
+  for (const model of candidateModels) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+      const parts = [{ text: prompt }];
 
+      if (imageBase64 && type === 'disease') {
+        const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "").trim();
+        parts.push({
+          inlineData: {
+            mimeType: "image/jpeg",
+            data: cleanBase64
+          }
+        });
+      }
 
-    const parts = [{ text: prompt }];
-
-    // પાક રોગ માટે ફોટો મોકલવો
-    if (imageBase64 && type === 'disease') {
-      const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "").trim();
-      parts.push({
-        inlineData: {
-          mimeType: "image/jpeg",
-          data: cleanBase64
-        }
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts }] })
       });
+
+      const data = await response.json();
+      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        rawText = data.candidates[0].content.parts[0].text;
+        break; // સાચો જવાબ મળતાં જ લૂપ પૂરી થશે
+      } else {
+        lastError = data.error?.message || "મોડેલ પ્રતિક્રિયા આપી રહ્યું નથી.";
+      }
+    } catch (e) {
+      lastError = e.message;
     }
+  }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts }] })
-    });
+  if (!rawText) {
+    return res.status(500).json({ success: false, error: lastError || "સર્વર હાલ વ્યસ્ત છે, કૃપા કરીને ફરી પ્રયાસ કરો." });
+  }
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'API એરર આવી છે.');
-    }
-
-    const rawText = data.candidates[0].content.parts[0].text;
-
+  try {
     if (type === 'disease') {
       const cleanJson = rawText.replace(/```json|```/g, '').trim();
       return res.status(200).json({ success: true, data: JSON.parse(cleanJson) });
@@ -90,6 +100,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, data: { textAnswer: rawText } });
     }
   } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
+    return res.status(500).json({ success: false, error: "ડેટા પ્રોસેસિંગમાં ભૂલ આવી છે." });
   }
 }
+
