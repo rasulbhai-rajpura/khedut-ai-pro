@@ -15,11 +15,12 @@ export default async function handler(req, res) {
 
   const { type, query, soilType, cropName, landArea, sowingDate, bioOption, bioArea, imageBase64 } = req.body;
 
-  // 🔑 તમારી Groq API કી
+  // 🔑 Gemini અને Groq ની API કીઓ
+  const geminiKey = process.env.GEMINI_API_KEY;
   const groqKey = "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";
 
-  if (!groqKey) {
-    return res.status(500).json({ success: false, error: 'સર્વર પર Groq API કી સેટ કરેલ નથી.' });
+  if (!geminiKey && !groqKey) {
+    return res.status(500).json({ success: false, error: 'સર્વર પર API કી સેટ કરેલ નથી.' });
   }
 
   let prompt = "";
@@ -104,12 +105,51 @@ export default async function handler(req, res) {
   }
 
   // ==========================================
-  // Groq API કોલ
+  // Gemini API કોલ (મુખ્ય) 🛠️ FIXED for AQ. Key
+  // ==========================================
+  async function callGemini() {
+    if (!geminiKey) throw new Error("Gemini API કી ઉપલબ્ધ નથી.");
+    const model = "gemini-2.0-flash";
+    
+    // 🛠️ URL માંથી ?key= કાઢી નાખ્યું છે
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+    const parts = [{ text: prompt }];
+
+    if (imageBase64 && type === 'disease') {
+      const base64Data = imageBase64.split(',')[1] || imageBase64;
+      parts.push({
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: base64Data
+        }
+      });
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-goog-api-key': geminiKey // ✅ નવી AQ. કી માટે આ હેડર જરૂરી છે
+      },
+      body: JSON.stringify({ contents: [{ parts }] })
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Gemini API Error');
+    }
+    return data.candidates[0].content.parts[0].text;
+  }
+
+  // ==========================================
+  // Groq API કોલ (બેકઅપ)
   // ==========================================
   async function callGroq() {
-    // 🛠️ ટેક્સ્ટ માટે 70B મોડેલ (12,000 ટોકન/મિનિટ લિમિટ)
-    // 🛠️ ફોટો માટે qwen વિઝન મોડેલ
-    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "llama-3.3-70b-versatile";
+    if (!groqKey) throw new Error("Groq API Key ઉપલબ્ધ નથી.");
+
+    // ટેક્સ્ટ માટે ઝડપી મોડેલ, ફોટો માટે વિઝન મોડેલ
+    const model = (type === 'disease') ? "qwen/qwen3.8-27b" : "llama-3.1-8b-instant";
     
     const userPrompt = (type === 'disease' && query) 
       ? `${prompt}\n(ખેડૂતની નોંધ: ${query})` 
@@ -143,7 +183,6 @@ export default async function handler(req, res) {
         model: model,
         messages: messages,
         temperature: 0.5
-        // 🛠️ max_tokens કાઢી નાખ્યું છે, જેથી AI પૂરો વિગતવાર જવાબ આપી શકે
       })
     });
 
@@ -158,7 +197,13 @@ export default async function handler(req, res) {
   // એક્ઝિક્યુશન (Execution Logic)
   // ==========================================
   try {
-    let rawText = await callGroq();
+    let rawText = "";
+    try {
+      rawText = await callGemini(); // પહેલા Gemini ટ્રાય કરો
+    } catch (geminiErr) {
+      console.warn("Gemini ફેલ થયું, Groq બેકઅપ શરૂ:", geminiErr.message);
+      rawText = await callGroq(); // Gemini ફેલ થાય તો Groq વાપરો
+    }
 
     if (isJsonExpected) {
       const cleanJson = rawText.replace(/```json|```/g, '').trim();
